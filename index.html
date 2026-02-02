@@ -3,319 +3,365 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tactile Ultra Chat</title>
+    <title>Tactile Pro Ultra | Encrypted P2P</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --glass: rgba(15, 23, 42, 0.6);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --accent: #818cf8;
-            --accent-glow: rgba(129, 140, 248, 0.4);
+            --bg: #0b0e14;
+            --panel: #161b22;
+            --accent: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.3);
         }
+        [data-theme="rose"] { --accent: #fb7185; --accent-glow: rgba(251, 113, 133, 0.3); }
+        [data-theme="emerald"] { --accent: #10b981; --accent-glow: rgba(16, 185, 129, 0.3); }
+        
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: radial-gradient(circle at top left, #1e1b4b, #0f172a);
-            height: 100vh;
+            background-color: var(--bg);
+            color: #e6edf3;
+            height: 100dvh;
             overflow: hidden;
-            color: #f8fafc;
+            transition: background 0.3s ease;
         }
-        .bento-container {
-            display: grid;
-            grid-template-columns: 320px 1fr 340px;
-            gap: 1rem;
-            padding: 1rem;
-            height: 100vh;
+
+        .animate__faster { animation-duration: 300ms !important; }
+
+        .glass-blur {
+            backdrop-filter: blur(12px);
+            background: rgba(13, 17, 23, 0.8);
         }
-        .glass-panel {
-            background: var(--glass);
-            backdrop-filter: blur(24px) saturate(180%);
-            border: 1px solid var(--glass-border);
-            border-radius: 28px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+
+        .msg-bubble {
+            max-width: 85%;
+            transition: transform 0.1s ease;
+            position: relative;
         }
-        .message-bubble {
-            max-width: 75%;
-            padding: 12px 16px;
-            border-radius: 20px;
-            font-size: 0.95rem;
-            line-height: 1.4;
-            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+
+        .msg-me { background: var(--accent); color: white; border-radius: 1rem 1rem 0.1rem 1rem; }
+        .msg-peer { background: #1c2128; border: 1px solid #30363d; border-radius: 1rem 1rem 1rem 0.1rem; }
+
+        .code-block {
+            background: #0d1117 !important;
+            border-radius: 0.5rem;
+            font-size: 0.75rem !important;
         }
-        @keyframes popIn {
-            from { opacity: 0; transform: scale(0.9) translateY(5px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
+
+        .chat-scroll::-webkit-scrollbar { width: 3px; }
+        .chat-scroll::-webkit-scrollbar-thumb { background: #30363d; border-radius: 10px; }
+        
+        .reaction-chip {
+            font-size: 10px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 99px;
+            padding: 1px 6px;
+            margin-top: -8px;
+            z-index: 10;
         }
-        .picker-tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
-        .chat-scroll::-webkit-scrollbar { width: 4px; }
-        .chat-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-        .media-item {
-            aspect-ratio: 1;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.03);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 1.8rem;
+
+        #gateway-screen {
+            background: radial-gradient(circle at center, #1e293b 0%, #0b0e14 100%);
         }
-        .media-item:hover { transform: scale(1.05); background: rgba(255,255,255,0.1); }
-        @media (max-width: 1024px) {
-            .bento-container { grid-template-columns: 1fr; }
-            .sidebar-left, .sidebar-right { display: none; }
+
+        .input-container { max-width: 1000px; margin: 0 auto; width: 100%; }
+
+        /* Self-destruct timer bar */
+        .burn-bar {
+            height: 2px;
+            background: #fb7185;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            transition: width linear;
         }
     </style>
 </head>
-<body>
+<body data-theme="default">
 
-    <div class="bento-container">
-        <!-- SIDEBAR: IDENTITY -->
-        <aside class="sidebar-left glass-panel p-6 space-y-6">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                    <i data-lucide="zap" class="text-white w-5 h-5"></i>
+    <!-- Gateway Screen (Auth/Connection First) -->
+    <div id="gateway-screen" class="fixed inset-0 z-[500] flex flex-col items-center justify-center p-6 transition-all duration-500">
+        <div class="w-full max-w-sm space-y-8 animate__animated animate__fadeIn">
+            <div class="text-center space-y-2">
+                <div class="inline-flex p-3 rounded-2xl bg-indigo-600/20 mb-4">
+                    <i data-lucide="zap" class="w-8 h-8 text-indigo-500"></i>
                 </div>
-                <div>
-                    <h1 class="font-extrabold text-lg tracking-tight">TACTILE</h1>
-                    <span class="text-[9px] uppercase tracking-widest text-indigo-400 font-bold">Ultra Chat</span>
-                </div>
+                <h1 class="text-3xl font-black tracking-tighter">TACTILE PRO</h1>
+                <p class="text-gray-500 text-sm font-medium">Decentralized P2P Tunnel</p>
             </div>
 
-            <div class="space-y-4">
-                <div class="bg-white/5 rounded-2xl p-4 border border-white/5">
-                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Your Short ID</label>
-                    <p id="my-id" class="font-mono text-xl text-indigo-300 font-bold tracking-widest mb-3 uppercase">------</p>
-                    <div class="flex gap-2">
-                        <button onclick="copyId()" class="flex-1 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-[10px] font-bold transition flex items-center justify-center gap-1.5 border border-white/5">
-                            <i data-lucide="copy" class="w-3 h-3"></i> Copy
-                        </button>
-                        <button onclick="shareLink()" class="flex-1 py-2 bg-indigo-600/20 hover:bg-indigo-600/30 rounded-xl text-[10px] font-bold transition flex items-center justify-center gap-1.5 border border-indigo-500/20 text-indigo-300">
-                            <i data-lucide="share-2" class="w-3 h-3"></i> Share
-                        </button>
+            <div class="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 shadow-2xl space-y-6">
+                <div class="space-y-2 text-center">
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Your Private Node ID</label>
+                    <div class="flex items-center justify-center gap-3">
+                        <span id="gateway-id" class="font-mono text-2xl font-black tracking-widest text-white">------</span>
+                        <button onclick="copyId()" class="p-2 hover:bg-white/5 rounded-lg text-gray-400 hover:text-white"><i data-lucide="copy" class="w-4 h-4"></i></button>
                     </div>
                 </div>
 
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-gray-500 uppercase ml-1">Connect to Peer</label>
-                    <input type="text" id="target-id" placeholder="Paste 6-char ID..." class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 uppercase tracking-widest font-mono transition-all">
-                    <button id="connect-btn" onclick="connect()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2">
-                        <i data-lucide="link" class="w-4 h-4"></i> Start Chat
+                <div class="space-y-4">
+                    <div class="relative">
+                        <input type="text" id="peer-id-gateway" placeholder="Enter Peer Node ID" class="w-full bg-black/40 border border-[#30363d] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 uppercase font-mono tracking-widest text-center transition-all">
+                    </div>
+                    <button onclick="connectAndEnter()" id="connect-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-xl font-bold text-sm shadow-lg shadow-indigo-600/20 active:scale-95 transition-all">
+                        INITIALIZE LINK
                     </button>
                 </div>
             </div>
+            
+            <p class="text-center text-[10px] text-gray-600 uppercase tracking-widest font-bold">Encrypted via WebRTC • No Servers</p>
+        </div>
+    </div>
 
-            <div class="mt-auto flex items-center gap-3 p-4 bg-white/5 rounded-xl border border-white/5">
-                <div id="status-dot" class="w-2 h-2 rounded-full bg-red-500"></div>
-                <span id="status-text" class="text-[10px] font-bold text-gray-400 uppercase">Offline</span>
+    <!-- Main Workspace (Hidden until connection) -->
+    <div id="main-app" class="hidden h-full flex flex-col md:flex-row overflow-hidden">
+        
+        <!-- Collapsible Mini Sidebar (Discord Style) -->
+        <aside class="hidden md:flex w-16 border-r border-[#30363d] flex-col items-center py-4 gap-4 bg-[#0d1117] shrink-0">
+            <div class="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center cursor-pointer shadow-lg shadow-indigo-600/20">
+                <i data-lucide="message-square" class="w-5 h-5 text-white"></i>
             </div>
+            <div class="w-8 h-[1px] bg-[#30363d]"></div>
+            <button onclick="setTheme('rose')" class="w-10 h-10 rounded-full bg-rose-500/20 border border-rose-500/40 hover:scale-110 transition"></button>
+            <button onclick="setTheme('emerald')" class="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500/40 hover:scale-110 transition"></button>
+            <button onclick="setTheme('default')" class="w-10 h-10 rounded-full bg-indigo-500/20 border border-indigo-500/40 hover:scale-110 transition"></button>
         </aside>
 
-        <!-- MAIN: CHAT -->
-        <main class="glass-panel relative">
-            <header class="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+        <main class="flex-1 flex flex-col relative bg-[#0b0e14]">
+            <!-- Responsive Header -->
+            <header class="h-14 border-b border-[#30363d] px-4 md:px-8 flex items-center justify-between glass-blur z-20">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-[10px] font-bold">P</div>
+                    <div id="active-indicator" class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
                     <div>
-                        <h2 id="peer-status" class="font-bold text-sm text-gray-100">Waiting for connection...</h2>
+                        <h2 id="active-peer-name" class="font-bold text-xs">NODE: ------</h2>
+                        <p class="text-[9px] text-indigo-400 font-bold uppercase tracking-widest">Live Tunnel</p>
                     </div>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button onclick="initiateCall()" class="p-2 hover:bg-white/5 rounded-lg text-gray-400 hover:text-white transition"><i data-lucide="phone" class="w-4 h-4"></i></button>
+                    <button onclick="toggleBurnMode()" id="burn-toggle" class="p-2 hover:bg-rose-500/10 rounded-lg text-gray-400 hover:text-rose-400 transition" title="Self Destruct Mode"><i data-lucide="flame" class="w-4 h-4"></i></button>
+                    <button onclick="window.location.reload()" class="p-2 hover:bg-white/5 rounded-lg text-gray-400 transition"><i data-lucide="log-out" class="w-4 h-4"></i></button>
                 </div>
             </header>
 
-            <div id="chat-box" class="flex-1 overflow-y-auto p-6 chat-scroll flex flex-col gap-4">
-                <div class="text-center opacity-20 my-auto">
-                    <i data-lucide="message-square" class="w-12 h-12 mx-auto mb-2"></i>
-                    <p class="text-xs">Your messages are private and direct.</p>
-                </div>
+            <div id="message-container" class="flex-1 overflow-y-auto p-4 md:p-10 space-y-6 chat-scroll"></div>
+
+            <div id="typing-indicator" class="px-10 py-1 h-4 invisible flex items-center gap-1">
+                <span class="w-1 h-1 bg-indigo-500 rounded-full animate-bounce"></span>
+                <span class="w-1 h-1 bg-indigo-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></span>
+                <span class="w-1 h-1 bg-indigo-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
             </div>
 
-            <footer class="p-4 bg-white/[0.02] border-t border-white/5">
-                <div class="flex items-center gap-2">
-                    <button onclick="toggleMediaPicker()" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition">
-                        <i data-lucide="smile" class="w-5 h-5 text-gray-400"></i>
-                    </button>
-                    <input type="text" id="msg-input" placeholder="Type a message..." class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all">
-                    <button onclick="send()" class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center transition active:scale-95">
-                        <i data-lucide="send-horizontal" class="w-5 h-5"></i>
-                    </button>
+            <footer class="p-4 md:p-6 bg-[#0b0e14]">
+                <div class="input-container">
+                    <div class="flex items-end gap-3 bg-[#161b22] border border-[#30363d] rounded-2xl p-1.5 focus-within:border-indigo-500 transition-all">
+                        <button onclick="toggleGiphy()" class="w-10 h-10 rounded-xl hover:bg-white/5 flex items-center justify-center text-[10px] font-black shrink-0">GIF</button>
+                        <textarea id="chat-input" rows="1" placeholder="Message..." class="flex-1 bg-transparent border-none py-2.5 px-2 text-sm outline-none resize-none max-h-32"></textarea>
+                        <div class="flex items-center gap-1 pr-1">
+                            <button onclick="sendCodePrompt()" class="w-10 h-10 rounded-xl hover:bg-white/5 flex items-center justify-center text-gray-400 shrink-0"><i data-lucide="code" class="w-4 h-4"></i></button>
+                            <button onclick="sendMessage()" class="w-10 h-10 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl flex items-center justify-center shadow-lg active:scale-95 transition-all shrink-0"><i data-lucide="send" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
                 </div>
             </footer>
-
-            <!-- MEDIA PICKER -->
-            <div id="media-picker" class="absolute bottom-20 left-4 right-4 h-64 glass-panel border border-white/10 shadow-2xl z-50 translate-y-full opacity-0 pointer-events-none transition-all duration-300 flex flex-col">
-                <div class="flex border-b border-white/5 text-[10px] font-bold">
-                    <div onclick="switchTab('emoji')" class="picker-tab flex-1 py-3 text-center cursor-pointer active">EMOJI</div>
-                    <div onclick="switchTab('sticker')" class="picker-tab flex-1 py-3 text-center cursor-pointer">STICKERS</div>
-                </div>
-                <div id="picker-content" class="flex-1 overflow-y-auto p-4 grid grid-cols-4 gap-2 chat-scroll"></div>
-            </div>
         </main>
+    </div>
 
-        <!-- SIDEBAR: GALLERY -->
-        <aside class="sidebar-right glass-panel p-6">
-            <h3 class="text-[10px] font-bold text-gray-500 uppercase mb-4 tracking-widest">Shared History</h3>
-            <div id="shared-files" class="space-y-2 overflow-y-auto flex-1 chat-scroll">
-                <p class="text-[10px] text-gray-600 italic">No media shared yet.</p>
-            </div>
-        </aside>
+    <!-- Modals & Overlays -->
+    <div id="giphy-panel" class="hidden absolute bottom-24 right-4 md:right-8 w-72 h-80 bg-[#161b22] border border-[#30363d] rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden animate__animated animate__fadeInUp animate__faster">
+        <div class="p-2 bg-black/20"><input type="text" id="giphy-search" placeholder="Search..." class="w-full bg-white/5 rounded-lg px-3 py-1.5 text-xs outline-none"></div>
+        <div id="giphy-results" class="flex-1 overflow-y-auto grid grid-cols-2 gap-1 p-2 chat-scroll"></div>
     </div>
 
     <script>
-        const PEER_STUFF = {
-            emojis: ['😂','🔥','🚀','✨','💀','🙌','🧿','🌈','💎','🍕','🎮','⚡','❤️','😭','💯','👀'],
-            stickers: [
-                'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpwaGswZzh4Y2F4amF3MTR4YmZzYm1idzh4Y2F4amF3MTR4YmZzYm1idzh4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/0L7S5P3V6i4q4/giphy.gif',
-                'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpwaGswZzh4Y2F4amF3MTR4YmZzYm1idzh4Y2F4amF3MTR4YmZzYm1idzh4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/3o7TKVUn7iM8FMEU24/giphy.gif',
-                'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpwaGswZzh4Y2F4amF3MTR4YmZzYm1idzh4Y2F4amF3MTR4YmZzYm1idzh4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/l41lTfuxmSjK9062s/giphy.gif',
-                'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpwaGswZzh4Y2F4amF3MTR4YmZzYm1idzh4Y2F4amF3MTR4YmZzYm1idzh4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/3o7TKMGV9mP0qXFm80/giphy.gif'
-            ]
-        };
-
-        let peer, conn;
-        const chatBox = document.getElementById('chat-box');
-        const input = document.getElementById('msg-input');
-
-        // Shorter ID Generator (6 chars)
-        function generateShortId() {
-            return Math.random().toString(36).substring(2, 8).toUpperCase();
-        }
-
+        const GIPHY_KEY = 'dc6zaTOxFJmzC';
+        let peer, conn, burnMode = false;
+        
         function init() {
-            const shortId = generateShortId();
-            peer = new Peer(shortId); // Initialize Peer with specific short ID
-            
+            const shortId = Math.random().toString(36).substring(2, 8).toUpperCase();
+            peer = new Peer(shortId, { config: { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] } });
+
             peer.on('open', id => {
-                document.getElementById('my-id').innerText = id;
-                document.getElementById('status-dot').className = "w-2 h-2 rounded-full bg-green-500 shadow-sm shadow-green-500/50";
-                document.getElementById('status-text').innerText = "Ready";
-                checkUrlParams(id);
+                document.getElementById('gateway-id').innerText = id;
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('connect')) document.getElementById('peer-id-gateway').value = params.get('connect');
             });
 
-            peer.on('connection', c => setupConn(c));
-            peer.on('error', err => {
-                if(err.type === 'unavailable-id') {
-                    // Re-init if collision occurs
-                    window.location.reload();
-                } else {
-                    showToast("Error: " + err.type);
-                }
+            peer.on('connection', c => {
+                conn = c;
+                setupConnection();
+                enterApp();
             });
-            switchTab('emoji');
+
             lucide.createIcons();
         }
 
-        function checkUrlParams(myId) {
-            const params = new URLSearchParams(window.location.search);
-            const connectId = params.get('connect');
-            if (connectId && connectId !== myId) {
-                document.getElementById('target-id').value = connectId.toUpperCase();
-                showToast("Auto-filled ID");
-                setTimeout(connect, 500);
-            }
+        function connectAndEnter() {
+            const id = document.getElementById('peer-id-gateway').value.trim().toUpperCase();
+            if (!id || id === peer.id) return alert("Invalid Node ID");
+            conn = peer.connect(id);
+            setupConnection();
+            enterApp();
         }
 
-        function connect() {
-            const tid = document.getElementById('target-id').value.trim().toUpperCase();
-            if (tid) setupConn(peer.connect(tid));
+        function enterApp() {
+            document.getElementById('gateway-screen').classList.add('opacity-0', 'pointer-events-none', 'scale-110');
+            setTimeout(() => {
+                document.getElementById('gateway-screen').remove();
+                document.getElementById('main-app').classList.remove('hidden');
+                document.getElementById('active-peer-name').innerText = `NODE: ${conn.peer}`;
+            }, 500);
         }
 
-        function setupConn(c) {
-            conn = c;
+        function setupConnection() {
             conn.on('open', () => {
-                document.getElementById('peer-status').innerText = "Connected to " + conn.peer;
-                chatBox.innerHTML = "";
-                showToast("Connected!");
+                confetti({ particleCount: 40, spread: 60, colors: ['#6366f1', '#fb7185'] });
             });
-            conn.on('data', data => renderMessage('peer', data));
+            conn.on('data', data => {
+                if (data.type === 'typing') toggleTyping(data.state);
+                else if (data.type === 'reaction') applyReaction(data);
+                else renderMessage('peer', data);
+            });
         }
 
-        function send(type = 'text', content = null) {
-            if (!conn) return showToast("Not connected");
-            const val = content || input.value;
-            if (!val && type === 'text') return;
+        function sendMessage(custom = null) {
+            const input = document.getElementById('chat-input');
+            const content = custom ? custom.content : input.value.trim();
+            if (!content) return;
 
-            const data = {
-                type,
-                content: val,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            const payload = {
+                id: Math.random().toString(36).substr(2, 9),
+                type: custom ? custom.type : 'text',
+                content: DOMPurify.sanitize(content),
+                burn: burnMode,
+                timestamp: Date.now()
             };
-            
-            conn.send(data);
-            renderMessage('me', data);
-            input.value = "";
-            if (content) toggleMediaPicker();
+
+            conn.send(payload);
+            renderMessage('me', payload);
+            input.value = '';
+            input.style.height = 'auto';
         }
 
         function renderMessage(sender, data) {
-            const wrap = document.createElement('div');
-            wrap.className = `flex flex-col ${sender === 'me' ? 'items-end' : 'items-start'}`;
-            
-            let html = '';
-            if (data.type === 'text') {
-                html = `<div class="message-bubble ${sender === 'me' ? 'bg-indigo-600' : 'bg-white/10'}">${data.content}</div>`;
-            } else {
-                html = `<img src="${data.content}" class="w-32 rounded-xl shadow-lg">`;
-            }
+            const container = document.getElementById('message-container');
+            const div = document.createElement('div');
+            div.id = `msg-${data.id}`;
+            div.className = `flex flex-col ${sender === 'me' ? 'items-end' : 'items-start'} animate__animated animate__fadeInUp animate__faster relative`;
 
-            wrap.innerHTML = `${html}<span class="text-[8px] text-gray-500 mt-1 uppercase px-1">${data.time}</span>`;
-            chatBox.appendChild(wrap);
-            chatBox.scrollTop = chatBox.scrollHeight;
+            let body = '';
+            if (data.type === 'gif') body = `<img src="${data.content}" class="rounded-lg max-w-[180px]">`;
+            else if (data.type === 'code') body = `<pre class="code-block"><code class="language-js">${data.content}</code></pre>`;
+            else body = `<p class="text-[13px]">${data.content}</p>`;
+
+            div.innerHTML = `
+                <div class="msg-bubble ${sender === 'me' ? 'msg-me' : 'msg-peer'} p-3 px-4 shadow-sm group" onclick="showReactions('${data.id}')">
+                    ${body}
+                    ${data.burn ? `<div class="burn-bar" id="burn-${data.id}"></div>` : ''}
+                </div>
+                <div id="reactions-${data.id}" class="flex gap-1"></div>
+            `;
+
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            if (data.type === 'code') Prism.highlightAll();
+
+            if (data.burn) {
+                const bar = document.getElementById(`burn-${data.id}`);
+                bar.style.width = '100%';
+                setTimeout(() => {
+                    bar.style.width = '0%';
+                    setTimeout(() => div.classList.add('animate__fadeOut'), 4500);
+                    setTimeout(() => div.remove(), 5000);
+                }, 100);
+            }
         }
 
-        function toggleMediaPicker() {
-            const p = document.getElementById('media-picker');
-            p.classList.toggle('translate-y-full');
-            p.classList.toggle('opacity-0');
-            p.classList.toggle('pointer-events-none');
+        function showReactions(msgId) {
+            const emojis = ['👍', '❤️', '🔥', '😂'];
+            const existing = document.getElementById(`reactions-${msgId}`);
+            if (existing.innerHTML !== '') return; 
+            
+            emojis.forEach(e => {
+                const btn = document.createElement('button');
+                btn.className = "text-xs hover:scale-125 transition active:scale-90";
+                btn.innerText = e;
+                btn.onclick = () => {
+                    const reaction = { type: 'reaction', msgId, emoji: e };
+                    conn.send(reaction);
+                    applyReaction(reaction);
+                };
+                existing.appendChild(btn);
+            });
+            setTimeout(() => { if(existing) existing.innerHTML = ''; }, 3000);
         }
 
-        function switchTab(tab) {
-            document.querySelectorAll('.picker-tab').forEach(t => t.classList.remove('active'));
-            const content = document.getElementById('picker-content');
-            content.innerHTML = '';
-            
-            if (tab === 'emoji') {
-                PEER_STUFF.emojis.forEach(e => {
-                    const el = document.createElement('div');
-                    el.className = 'media-item';
-                    el.innerText = e;
-                    el.onclick = () => send('text', e);
-                    content.appendChild(el);
-                });
-            } else {
-                PEER_STUFF.stickers.forEach(src => {
-                    const el = document.createElement('div');
-                    el.className = 'media-item';
-                    el.innerHTML = `<img src="${src}" class="w-10 h-10 object-contain">`;
-                    el.onclick = () => send('sticker', src);
-                    content.appendChild(el);
-                });
-            }
-            event?.target?.classList?.add('active');
+        function applyReaction(data) {
+            const msg = document.getElementById(`msg-${data.msgId}`);
+            if (!msg) return;
+            const chip = document.createElement('div');
+            chip.className = "reaction-chip animate__animated animate__bounceIn";
+            chip.innerText = data.emoji;
+            msg.appendChild(chip);
+        }
+
+        function toggleBurnMode() {
+            burnMode = !burnMode;
+            document.getElementById('burn-toggle').classList.toggle('text-rose-400', burnMode);
+            if(burnMode) confetti({ colors: ['#fb7185'], particleCount: 20 });
+        }
+
+        function setTheme(t) {
+            document.body.setAttribute('data-theme', t);
+            localStorage.setItem('tactile-theme', t);
         }
 
         function copyId() {
-            navigator.clipboard.writeText(document.getElementById('my-id').innerText).then(() => showToast("Copied!"));
+            navigator.clipboard.writeText(document.getElementById('gateway-id').innerText);
         }
 
-        function shareLink() {
-            const url = `${window.location.origin}${window.location.pathname}?connect=${document.getElementById('my-id').innerText}`;
-            navigator.clipboard.writeText(url).then(() => showToast("Link Shared!"));
+        function toggleGiphy() { document.getElementById('giphy-panel').classList.toggle('hidden'); }
+        async function searchGiphy() {
+            const q = document.getElementById('giphy-search').value;
+            if (q.length < 2) return;
+            const res = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_KEY}&q=${q}&limit=8`);
+            const { data } = await res.json();
+            const results = document.getElementById('giphy-results');
+            results.innerHTML = '';
+            data.forEach(gif => {
+                const img = document.createElement('img');
+                img.src = gif.images.fixed_height_small.url;
+                img.className = "w-full rounded-lg cursor-pointer hover:opacity-80 transition";
+                img.onclick = () => { sendMessage({ type: 'gif', content: gif.images.fixed_height.url }); toggleGiphy(); };
+                results.appendChild(img);
+            });
         }
 
-        function showToast(msg) {
-            const t = document.createElement('div');
-            t.className = "fixed top-4 left-1/2 -translate-x-1/2 bg-indigo-500 text-[10px] font-bold px-4 py-1.5 rounded-full z-[100] shadow-xl";
-            t.innerText = msg;
-            document.body.appendChild(t);
-            setTimeout(() => t.remove(), 2000);
+        function sendCodePrompt() {
+            const code = prompt("Paste code snippet:");
+            if (code) sendMessage({ type: 'code', content: code });
         }
 
-        input.onkeypress = e => { if (e.key === 'Enter') send(); };
+        function toggleTyping(state) { document.getElementById('typing-indicator').style.visibility = state ? 'visible' : 'hidden'; }
+
+        // Input Auto-resize
+        document.getElementById('chat-input').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+            if(conn) conn.send({ type: 'typing', state: true });
+        });
+
+        document.getElementById('chat-input').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
+        document.getElementById('giphy-search').oninput = searchGiphy;
+
         window.onload = init;
     </script>
 </body>
