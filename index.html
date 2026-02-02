@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Tactile.io - Maximalist P2P Chat</title>
+    <title>Tactile.io - Pro P2P Chat</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -19,6 +19,7 @@
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
     <!-- Linkify -->
     <script src="https://cdn.jsdelivr.net/npm/linkifyjs@4.1.3/dist/linkify.min.js"></script>
@@ -36,47 +37,50 @@
 
     <style>
         :root {
-            --glass-border: rgba(0, 0, 0, 0.1);
-            --glass-bg: rgba(255, 255, 255, 0.9);
+            --glass-bg: rgba(255, 255, 255, 0.95);
             --tactile-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
             --tactile-shadow-hover: 2px 2px 0px 0px rgba(0,0,0,1);
-            --accent-1: #FF9F1C;
-            --accent-2: #2EC4B6;
-            --accent-3: #E71D36;
+            --accent-1: #FFB703; /* Warmer Yellow */
+            --accent-2: #219EBC; /* Professional Blue */
+            --accent-3: #FB8500; /* Orange */
+            --bg-pattern: #f3f4f6;
         }
 
         body {
-            font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-            background: #f0f2f5;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-pattern);
             background-image: 
-                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
-                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
-            background-size: cover;
-            background-attachment: fixed;
-            height: 100dvh; /* Dynamic Viewport Height for mobile */
+                radial-gradient(#d1d5db 1px, transparent 1px);
+            background-size: 24px 24px;
+            height: 100dvh;
             overflow: hidden;
             -webkit-tap-highlight-color: transparent;
+            color: #111827;
         }
 
-        /* Tactile Elements */
+        h1, h2, h3, .font-display {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Tactile Box */
         .tactile-box {
             background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 2px solid #000;
             box-shadow: var(--tactile-shadow);
-            border-radius: 24px;
-            transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border-radius: 20px;
         }
         
+        /* Buttons */
         .tactile-btn {
             background: #ffffff;
             border: 2px solid #000;
             box-shadow: var(--tactile-shadow);
             transform: translate(0, 0);
-            transition: all 0.1s ease;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
+            font-weight: 600;
         }
         
         .tactile-btn:active {
@@ -84,52 +88,66 @@
             transform: translate(4px, 4px);
         }
 
+        .tactile-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 2px 2px 0px 0px rgba(0,0,0,0.5);
+        }
+
+        /* Inputs */
         .tactile-input {
             border: 2px solid #000;
-            box-shadow: inset 2px 2px 0px rgba(0,0,0,0.1);
+            box-shadow: inset 3px 3px 0px rgba(0,0,0,0.05);
             transition: all 0.2s;
+            font-family: 'Space Grotesk', monospace;
         }
         .tactile-input:focus {
             background: #fff;
-            box-shadow: inset 3px 3px 0px rgba(0,0,0,0.15);
+            box-shadow: inset 3px 3px 0px rgba(0,0,0,0.1);
             outline: none;
+            border-color: var(--accent-2);
+        }
+
+        /* Chat Layout */
+        #messages-container {
+            mask-image: linear-gradient(to top, black 95%, transparent 100%);
         }
 
         /* Message Bubbles */
         .msg-bubble {
             max-width: 85%;
-            padding: 12px 16px;
-            border-radius: 18px;
+            padding: 10px 16px;
+            border-radius: 16px;
             position: relative;
             border: 2px solid #000;
             word-wrap: break-word;
-            user-select: text;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            line-height: 1.5;
         }
 
         .msg-me {
-            background: var(--accent-2);
-            color: #000;
+            background: #dbeafe; /* Light Blue */
             border-bottom-right-radius: 4px;
-            box-shadow: 4px 4px 0px rgba(0,0,0,1);
+            box-shadow: 3px 3px 0px rgba(0,0,0,1);
             margin-left: auto;
         }
 
         .msg-other {
             background: #fff;
-            color: #000;
             border-bottom-left-radius: 4px;
-            box-shadow: -4px 4px 0px rgba(0,0,0,1);
+            box-shadow: -3px 3px 0px rgba(0,0,0,1);
             margin-right: auto;
         }
-        
-        /* Reactions */
+
+        /* Utility Components */
         .reactions-container {
             position: absolute;
-            bottom: -18px;
+            bottom: -16px;
             display: flex;
             gap: 4px;
-            z-index: 10;
+            z-index: 5;
         }
         .msg-me .reactions-container { right: 0; }
         .msg-other .reactions-container { left: 0; }
@@ -138,122 +156,47 @@
             background: #fff;
             border: 1px solid #000;
             border-radius: 12px;
-            padding: 2px 6px;
+            padding: 1px 6px;
             font-size: 11px;
             box-shadow: 1px 1px 0px #000;
-            display: flex;
-            align-items: center;
             animation: popIn 0.2s;
         }
 
-        /* Audio Message */
-        .audio-player {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            min-width: 200px;
-        }
-
-        /* Context Menu */
-        #context-menu {
-            position: fixed;
-            z-index: 1000;
-            width: 200px;
-            background: white;
-            border: 2px solid black;
-            box-shadow: 4px 4px 0px black;
-            border-radius: 12px;
-            overflow: hidden;
-            animation: fadeIn 0.1s ease-out;
-        }
-        .ctx-item {
-            padding: 12px 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: background 0.1s;
-        }
-        .ctx-item:hover { background: #f0f0f0; }
-        .ctx-item.delete:hover { background: #fee2e2; color: red; }
-        
-        .reaction-bar {
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 8px;
-            background: #f9fafb;
-            border-bottom: 2px solid #000;
-        }
-        .reaction-opt {
-            font-size: 1.4rem;
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
-        .reaction-opt:hover { transform: scale(1.2); }
-
-        /* Ticks */
-        .status-tick { font-size: 14px; margin-left: 6px; }
-        .tick-sent { color: #666; }
-        .tick-read { color: #000; font-weight: bold; }
-
-        /* Images in chat */
-        .chat-image {
-            max-width: 100%;
-            border-radius: 12px;
-            margin-top: 8px;
-            border: 2px solid #000;
-        }
-        
         .sticker-img {
-            max-width: 140px;
+            max-width: 120px;
             border-radius: 12px;
             transition: transform 0.2s;
+            background: white;
         }
-        .sticker-img:hover { transform: scale(1.05); }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.4); }
-
+        
         /* Animations */
         @keyframes popIn {
             0% { opacity: 0; transform: scale(0.9) translateY(10px); }
             100% { opacity: 1; transform: scale(1) translateY(0); }
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
         @keyframes pulse-record {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 29, 54, 0.7); }
-            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(231, 29, 54, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 29, 54, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        }
+        
+        .recording-active {
+            animation: pulse-record 1.5s infinite;
+            background-color: #fee2e2 !important;
+            color: #dc2626 !important;
+            border-color: #dc2626 !important;
         }
 
-        /* Utility */
-        .hidden-visually { display: none; }
-        
+        /* Emoji Picker Override */
         emoji-picker {
             width: 100%;
-            height: 300px;
+            height: 320px;
             --background: #fff;
             --border-color: #000;
             --indicator-color: var(--accent-2);
-            --button-hover-background: #f3f4f6;
         }
 
-        .recording-active {
-            animation: pulse-record 1.5s infinite;
-            background-color: #E71D36 !important;
-            color: white !important;
-            border-color: #E71D36 !important;
-        }
-        
-        /* Toastify Custom Override */
+        /* Toastify Override */
         .toastify {
             background: white;
             color: black;
@@ -265,171 +208,166 @@
             padding: 12px 20px;
         }
 
-        /* Chat Layout Fixes */
-        #chat-interface {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-        
-        /* Ensure footer doesn't squash messages */
-        footer {
-            flex-shrink: 0;
-            background: #fff;
-            border-top: 2px solid #000;
-            z-index: 30;
-        }
-
-        /* Ensure messages take remaining space */
-        #messages-container {
-            flex-grow: 1;
-            overflow-y: auto;
-            min-height: 0; /* Crucial for nested flex scrolling */
-            padding-bottom: 20px;
+        /* Media Queries */
+        @media (min-width: 640px) {
+            .msg-bubble { max-width: 65%; }
         }
     </style>
 </head>
 <body class="text-gray-900 selection:bg-black selection:text-white">
 
-    <!-- APP CONTAINER -->
-    <div id="app" class="relative w-full h-full max-w-7xl mx-auto flex flex-col overflow-hidden sm:p-4">
+    <div id="app" class="relative w-full h-full max-w-6xl mx-auto flex flex-col sm:p-6 lg:p-8">
         
         <!-- 1. LANDING PAGE -->
-        <div id="landing-page" class="flex-1 w-full h-full flex flex-col items-center justify-center p-4 z-10 transition-all duration-300">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
+        <div id="landing-page" class="flex-1 w-full h-full flex flex-col items-center justify-center p-4 z-20">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
                 
-                <!-- Hero Box -->
-                <div class="tactile-box p-8 md:col-span-2 flex flex-col items-center text-center bg-yellow-300">
-                    <h1 class="text-6xl font-bold mb-2 tracking-tighter">TACTILE.IO</h1>
-                    <p class="text-lg font-medium opacity-80">Maximalist P2P Chat. Screen Share. Reactions.</p>
+                <!-- Brand Box -->
+                <div class="tactile-box p-10 md:col-span-2 flex flex-col items-center text-center bg-[#FFB703] relative overflow-hidden">
+                    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(black 1px, transparent 1px); background-size: 16px 16px;"></div>
+                    <h1 class="text-7xl font-bold mb-2 tracking-tighter relative z-10">TACTILE.IO</h1>
+                    <p class="text-xl font-medium opacity-90 relative z-10">Professional P2P Communication Suite</p>
                 </div>
 
                 <!-- Input Box -->
-                <div class="tactile-box p-8 bg-white flex flex-col justify-center gap-4">
-                    <label class="font-bold text-sm uppercase tracking-wide">Identity</label>
-                    <input type="text" id="username-input" placeholder="Your Display Name" class="tactile-input w-full p-4 rounded-xl text-lg bg-gray-50" maxlength="15">
+                <div class="tactile-box p-8 bg-white flex flex-col justify-center gap-5">
+                    <div>
+                        <label class="font-bold text-xs uppercase tracking-wider text-gray-500 mb-1 block">Identity</label>
+                        <input type="text" id="username-input" placeholder="Display Name" class="tactile-input w-full p-4 rounded-xl text-lg bg-gray-50" maxlength="20">
+                    </div>
                     
-                    <label class="font-bold text-sm uppercase tracking-wide mt-2">Frequency Code</label>
-                    <div class="relative">
-                        <i class="ph ph-hash absolute left-4 top-1/2 -translate-y-1/2 text-xl opacity-50"></i>
-                        <input type="text" id="room-input" placeholder="secret-room" class="tactile-input w-full p-4 pl-12 rounded-xl text-lg bg-gray-50 font-mono tracking-tight">
+                    <div>
+                        <label class="font-bold text-xs uppercase tracking-wider text-gray-500 mb-1 block">Secure Frequency</label>
+                        <div class="relative">
+                            <i class="ph-bold ph-hash absolute left-4 top-1/2 -translate-y-1/2 text-xl opacity-40"></i>
+                            <input type="text" id="room-input" placeholder="room-code" class="tactile-input w-full p-4 pl-12 rounded-xl text-lg bg-gray-50 font-mono tracking-tight uppercase">
+                        </div>
                     </div>
                 </div>
 
                 <!-- Action Box -->
-                <div class="tactile-box p-8 bg-[#FF9F1C] flex flex-col justify-center gap-4">
-                    <p class="text-sm font-bold text-center mb-2">Start Transmission</p>
+                <div class="tactile-box p-8 bg-white flex flex-col justify-center gap-4">
                     <div class="grid grid-cols-2 gap-4 h-full">
-                        <button onclick="startSession('create')" class="tactile-btn bg-white rounded-xl flex flex-col items-center justify-center p-4 hover:bg-green-50 active:scale-95 transition-transform">
-                            <i class="ph-fill ph-broadcast text-3xl mb-2 text-green-600"></i>
-                            <span class="font-bold">Host</span>
+                        <button onclick="startSession('create')" class="tactile-btn rounded-xl flex flex-col items-center justify-center p-4 hover:bg-green-50 group">
+                            <i class="ph-fill ph-broadcast text-3xl mb-2 text-green-600 group-hover:scale-110 transition-transform"></i>
+                            <span class="font-bold">Host Room</span>
                         </button>
-                        <button onclick="startSession('join')" class="tactile-btn bg-white rounded-xl flex flex-col items-center justify-center p-4 hover:bg-blue-50 active:scale-95 transition-transform">
-                            <i class="ph-fill ph-plugs-connected text-3xl mb-2 text-blue-600"></i>
-                            <span class="font-bold">Join</span>
+                        <button onclick="startSession('join')" class="tactile-btn rounded-xl flex flex-col items-center justify-center p-4 hover:bg-blue-50 group">
+                            <i class="ph-fill ph-plugs-connected text-3xl mb-2 text-blue-600 group-hover:scale-110 transition-transform"></i>
+                            <span class="font-bold">Join Room</span>
                         </button>
                     </div>
                 </div>
             </div>
+            <p class="mt-8 text-sm font-medium opacity-50">v2.1 • No Server Storage • End-to-End Encrypted</p>
         </div>
 
         <!-- 2. CHAT INTERFACE -->
-        <div id="chat-interface" class="hidden absolute inset-0 sm:static sm:h-full sm:rounded-[32px] tactile-box overflow-hidden flex-col bg-white/95 backdrop-blur-xl">
+        <div id="chat-interface" class="hidden absolute inset-0 sm:static sm:h-full sm:rounded-[24px] tactile-box overflow-hidden flex-col bg-white">
             
             <!-- Header -->
-            <header class="h-16 border-b-2 border-black bg-white flex items-center justify-between px-4 z-20 shrink-0 shadow-sm">
+            <header class="h-18 border-b-2 border-black bg-gray-50/80 backdrop-blur flex items-center justify-between px-4 py-3 z-30 shrink-0">
                 <div class="flex items-center gap-3">
                     <div class="relative cursor-pointer hover:opacity-80 transition active:scale-95" onclick="toggleSettings()">
-                        <div class="w-10 h-10 rounded-full border-2 border-black bg-gradient-to-br from-pink-400 to-purple-400 overflow-hidden">
-                             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" id="remote-avatar" class="w-full h-full object-cover">
+                        <div class="w-10 h-10 rounded-full border-2 border-black bg-white overflow-hidden shadow-sm">
+                             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Init" id="remote-avatar" class="w-full h-full object-cover">
                         </div>
-                        <div id="status-dot" class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-black bg-gray-400 transition-colors duration-300"></div>
+                        <div id="status-dot" class="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-black bg-gray-300"></div>
                     </div>
                     <div>
-                        <h2 id="chat-title" class="font-bold text-lg leading-tight truncate max-w-[120px] sm:max-w-xs">Waiting...</h2>
-                        <p id="chat-status" class="text-xs font-mono opacity-60">Disconnected</p>
+                        <h2 id="chat-title" class="font-bold text-lg leading-tight truncate max-w-[140px] sm:max-w-xs font-display">Waiting...</h2>
+                        <div class="flex items-center gap-1.5">
+                            <span id="chat-status" class="text-xs font-mono font-medium opacity-60">Disconnected</span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="flex gap-2">
-                    <button onclick="startCall(false)" class="tactile-btn w-10 h-10 rounded-full flex items-center justify-center bg-blue-100 hover:bg-blue-200" title="Voice Call">
-                        <i class="ph-bold ph-phone"></i>
+                    <button onclick="startCall(false)" class="tactile-btn w-10 h-10 rounded-lg flex items-center justify-center hover:bg-blue-50" title="Voice Call">
+                        <i class="ph-bold ph-phone text-lg"></i>
                     </button>
-                    <button onclick="startCall(true)" class="tactile-btn w-10 h-10 rounded-full flex items-center justify-center bg-green-100 hover:bg-green-200" title="Video Call">
-                        <i class="ph-bold ph-video"></i>
+                    <button onclick="startCall(true)" class="tactile-btn w-10 h-10 rounded-lg flex items-center justify-center hover:bg-green-50" title="Video Call">
+                        <i class="ph-bold ph-video text-lg"></i>
                     </button>
-                    <button onclick="toggleSettings()" class="tactile-btn w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200" title="Settings">
-                        <i class="ph-bold ph-gear"></i>
+                    <div class="w-px h-8 bg-gray-300 mx-1 self-center"></div>
+                    <button onclick="toggleSettings()" class="tactile-btn w-10 h-10 rounded-lg flex items-center justify-center hover:bg-gray-50" title="Settings">
+                        <i class="ph-bold ph-gear text-lg"></i>
                     </button>
-                    <button onclick="disconnect()" class="tactile-btn w-10 h-10 rounded-full flex items-center justify-center bg-red-100 text-red-600 hover:bg-red-200" title="Disconnect">
-                        <i class="ph-bold ph-power"></i>
+                    <button onclick="disconnect()" class="tactile-btn w-10 h-10 rounded-lg flex items-center justify-center text-red-600 hover:bg-red-50" title="Disconnect">
+                        <i class="ph-bold ph-power text-lg"></i>
                     </button>
                 </div>
             </header>
 
             <!-- Messages Area -->
-            <div id="messages-container" class="flex-1 overflow-y-auto p-4 bg-white/50 relative scroll-smooth">
-                <div class="flex flex-col items-center justify-center mt-10 opacity-50 select-none text-center">
-                    <i class="ph-duotone ph-lock-key text-4xl mb-2"></i>
-                    <p class="text-sm font-bold">End-to-End Encrypted</p>
-                    <p class="text-xs mt-1">Right-click messages for options</p>
+            <div id="messages-container" class="flex-1 overflow-y-auto p-4 sm:p-6 bg-white relative scroll-smooth">
+                <div class="flex flex-col items-center justify-center mt-12 opacity-40 select-none text-center">
+                    <div class="w-16 h-16 rounded-2xl border-2 border-black flex items-center justify-center mb-4 rotate-3">
+                        <i class="ph-duotone ph-lock-key text-3xl"></i>
+                    </div>
+                    <p class="text-sm font-bold font-display">End-to-End Encrypted</p>
+                    <p class="text-xs mt-1">P2P connection established directly between devices.</p>
                 </div>
             </div>
 
-            <!-- Typing/Recording Indicator -->
-            <div id="activity-indicator" class="hidden absolute bottom-24 left-6 bg-black text-white px-4 py-2 rounded-full text-xs font-bold animate-pulse z-10 shadow-lg flex items-center gap-2">
-                <div class="w-2 h-2 bg-white rounded-full animate-bounce"></div>
+            <!-- Context Bars -->
+            <div id="activity-indicator" class="hidden absolute bottom-24 left-6 bg-black/90 text-white px-4 py-2 rounded-full text-xs font-bold animate-fadeIn z-20 shadow-lg flex items-center gap-2 backdrop-blur-sm">
+                <div class="flex gap-1">
+                    <div class="w-1.5 h-1.5 bg-white rounded-full animate-bounce"></div>
+                    <div class="w-1.5 h-1.5 bg-white rounded-full animate-bounce delay-75"></div>
+                    <div class="w-1.5 h-1.5 bg-white rounded-full animate-bounce delay-150"></div>
+                </div>
                 <span id="activity-text">Typing...</span>
             </div>
 
-            <!-- Reply Context -->
-            <div id="reply-preview" class="hidden bg-gray-50 border-t-2 border-black p-3 flex justify-between items-center text-sm animate-[fadeIn_0.1s] shadow-inner">
-                <div class="border-l-4 border-accent-2 pl-3">
-                    <span class="font-bold text-xs text-accent-2 uppercase tracking-wide">Replying to</span>
-                    <p class="truncate max-w-[200px] font-medium text-gray-700" id="reply-text">...</p>
+            <div id="reply-preview" class="hidden bg-gray-50 border-t-2 border-black p-3 flex justify-between items-center text-sm shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] z-20">
+                <div class="border-l-4 border-blue-500 pl-3">
+                    <span class="font-bold text-[10px] text-blue-600 uppercase tracking-wider">Replying to</span>
+                    <p class="truncate max-w-[200px] font-medium text-gray-700 text-xs mt-0.5" id="reply-text">...</p>
                 </div>
-                <button onclick="cancelReply()" class="p-2 hover:bg-gray-200 rounded-full transition-colors"><i class="ph-bold ph-x text-lg"></i></button>
+                <button onclick="cancelReply()" class="p-2 hover:bg-gray-200 rounded-lg transition-colors"><i class="ph-bold ph-x"></i></button>
             </div>
 
             <!-- Input Area -->
-            <footer class="p-3 bg-white border-t-2 border-black shrink-0 relative shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <footer class="p-3 sm:p-4 bg-white border-t-2 border-black shrink-0 relative z-30">
                 
-                <!-- Expanded Tools (Media Drawer) -->
-                <div id="media-drawer" class="hidden absolute bottom-full left-0 right-0 bg-white border-t-2 border-black h-72 flex flex-col shadow-xl z-20">
-                    <div class="p-2 border-b-2 border-black bg-gray-50 flex gap-2">
-                         <input type="text" id="sticker-search" placeholder="Search GIFs & Stickers..." class="flex-1 p-2 border-2 border-black rounded-lg text-sm focus:outline-none focus:bg-white" oninput="filterStickers()">
-                         <button onclick="document.getElementById('file-picker').click()" class="tactile-btn px-4 py-2 rounded-lg bg-blue-100 hover:bg-blue-200 text-sm font-bold flex items-center gap-2">
+                <!-- Expanded Tools -->
+                <div id="media-drawer" class="hidden absolute bottom-full left-0 right-0 bg-white border-t-2 border-black h-72 flex flex-col shadow-2xl rounded-t-2xl overflow-hidden">
+                    <div class="p-3 border-b-2 border-black bg-gray-50 flex gap-2">
+                         <div class="relative flex-1">
+                            <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 opacity-50"></i>
+                            <input type="text" id="sticker-search" placeholder="Search stickers..." class="w-full p-2 pl-9 border-2 border-black rounded-lg text-sm focus:outline-none focus:bg-white transition-colors" oninput="filterStickers()">
+                         </div>
+                         <button onclick="document.getElementById('file-picker').click()" class="tactile-btn px-4 py-2 rounded-lg bg-blue-100 hover:bg-blue-200 text-sm flex items-center gap-2">
                             <i class="ph-bold ph-file-arrow-up"></i> File
                          </button>
                     </div>
-                    <div id="sticker-grid" class="flex-1 overflow-y-auto p-2 grid grid-cols-4 sm:grid-cols-5 gap-2 bg-gray-50">
+                    <div id="sticker-grid" class="flex-1 overflow-y-auto p-3 grid grid-cols-4 sm:grid-cols-5 gap-3 bg-gray-100/50">
                         <!-- Populated via JS -->
                     </div>
                 </div>
 
                 <div class="flex gap-2 items-end">
-                    <button onclick="toggleMediaDrawer()" class="tactile-btn w-11 h-11 mb-1 rounded-xl flex items-center justify-center bg-yellow-100 hover:bg-yellow-200 shrink-0 transition-colors" title="Media Library">
+                    <button onclick="toggleMediaDrawer()" class="tactile-btn w-12 h-12 rounded-xl flex items-center justify-center bg-gray-100 hover:bg-gray-200 shrink-0" title="Media Library">
                         <i class="ph-bold ph-plus text-lg"></i>
                     </button>
 
                     <div class="flex-1 relative">
-                        <textarea id="msg-input" rows="1" class="w-full tactile-input p-3 pr-10 rounded-xl resize-none max-h-32 min-h-[50px] text-base" placeholder="Type a message..."></textarea>
-                        <button onclick="toggleEmojiPicker()" class="absolute right-3 bottom-3 text-gray-500 hover:text-black transition-colors transform hover:scale-110">
+                        <textarea id="msg-input" rows="1" class="w-full tactile-input p-3 pr-10 rounded-xl resize-none max-h-32 min-h-[48px] text-base leading-relaxed" placeholder="Type a message..."></textarea>
+                        <button onclick="toggleEmojiPicker()" class="absolute right-3 bottom-3 text-gray-400 hover:text-black transition-colors transform active:scale-95">
                             <i class="ph-fill ph-smiley text-2xl"></i>
                         </button>
                         
-                        <!-- Emoji Picker Popover -->
                         <div id="emoji-popover" class="hidden absolute bottom-16 right-0 w-80 shadow-[4px_4px_0px_#000] border-2 border-black rounded-xl z-50 overflow-hidden animate-[popIn_0.1s]">
                             <emoji-picker></emoji-picker>
                         </div>
                     </div>
 
-                    <!-- Voice Record Button -->
-                    <button id="btn-record" class="tactile-btn w-12 h-11 mb-1 rounded-xl flex items-center justify-center bg-gray-100 hover:bg-gray-200 shrink-0 transition-all" title="Hold to Record">
+                    <button id="btn-record" class="tactile-btn w-12 h-12 rounded-xl flex items-center justify-center bg-gray-100 hover:bg-red-50 shrink-0 transition-colors" title="Hold to Record">
                         <i class="ph-bold ph-microphone text-xl"></i>
                     </button>
 
-                    <button onclick="sendMessage()" class="tactile-btn w-14 h-11 mb-1 rounded-xl flex items-center justify-center bg-black text-white shrink-0 hover:bg-gray-800 active:scale-95 transition-transform shadow-[2px_2px_0px_rgba(0,0,0,0.5)]">
+                    <button onclick="sendMessage()" class="tactile-btn w-14 h-12 rounded-xl flex items-center justify-center bg-black text-white shrink-0 hover:bg-gray-800 active:scale-95 transition-transform shadow-md">
                         <i class="ph-bold ph-paper-plane-right text-xl"></i>
                     </button>
                 </div>
@@ -437,69 +375,87 @@
         </div>
 
         <!-- SETTINGS MODAL -->
-        <div id="settings-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+        <div id="settings-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
             <div class="tactile-box bg-white p-6 max-w-sm w-full animate-[popIn_0.2s]">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold">Settings</h3>
-                    <button onclick="toggleSettings()"><i class="ph-bold ph-x text-xl"></i></button>
+                <div class="flex justify-between items-center mb-6 border-b-2 border-black/10 pb-4">
+                    <h3 class="text-xl font-bold font-display">Preferences</h3>
+                    <button onclick="toggleSettings()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"><i class="ph-bold ph-x text-lg"></i></button>
                 </div>
                 
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center p-3 border-2 border-gray-100 rounded-xl hover:border-black transition-colors">
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center p-4 border-2 border-gray-100 rounded-xl hover:border-black transition-colors cursor-pointer" onclick="toggleNotifs()">
                         <div class="flex items-center gap-3">
-                            <i class="ph-duotone ph-bell text-2xl"></i>
-                            <span class="font-bold">Notifications</span>
+                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center border border-black"><i class="ph-duotone ph-bell text-xl"></i></div>
+                            <div class="flex flex-col">
+                                <span class="font-bold text-sm">Notifications</span>
+                                <span class="text-xs text-gray-500">Desktop alerts</span>
+                            </div>
                         </div>
-                        <button onclick="toggleNotifs()" id="btn-notif" class="w-12 h-6 bg-gray-300 rounded-full relative transition-colors duration-200">
-                            <div class="w-4 h-4 bg-white rounded-full absolute top-1 left-1 transition-transform duration-200"></div>
-                        </button>
+                        <div id="btn-notif" class="w-12 h-6 bg-gray-300 rounded-full relative transition-colors duration-200 pointer-events-none">
+                            <div class="w-4 h-4 bg-white rounded-full absolute top-1 left-1 transition-transform duration-200 border border-gray-300"></div>
+                        </div>
                     </div>
 
-                    <div class="flex justify-between items-center p-3 border-2 border-gray-100 rounded-xl hover:border-black transition-colors">
+                    <div class="flex justify-between items-center p-4 border-2 border-gray-100 rounded-xl hover:border-black transition-colors cursor-pointer" onclick="toggleSound()">
                         <div class="flex items-center gap-3">
-                            <i class="ph-duotone ph-speaker-high text-2xl"></i>
-                            <span class="font-bold">Sounds</span>
+                            <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center border border-black"><i class="ph-duotone ph-speaker-high text-xl"></i></div>
+                            <div class="flex flex-col">
+                                <span class="font-bold text-sm">Sound Effects</span>
+                                <span class="text-xs text-gray-500">In-app sounds</span>
+                            </div>
                         </div>
-                        <button onclick="toggleSound()" id="btn-sound" class="w-12 h-6 bg-black rounded-full relative transition-colors duration-200">
-                            <div class="w-4 h-4 bg-white rounded-full absolute top-1 left-1 translate-x-6 transition-transform duration-200"></div>
-                        </button>
+                        <div id="btn-sound" class="w-12 h-6 bg-black rounded-full relative transition-colors duration-200 pointer-events-none">
+                            <div class="w-4 h-4 bg-white rounded-full absolute top-1 left-1 translate-x-6 transition-transform duration-200 border border-black"></div>
+                        </div>
                     </div>
+                </div>
+                <div class="mt-6 text-center text-xs text-gray-400 font-mono">
+                    Session ID: <span id="session-id-display">...</span>
                 </div>
             </div>
         </div>
 
         <!-- CALL OVERLAY -->
         <div id="call-overlay" class="hidden fixed inset-0 z-50 bg-black flex flex-col">
-            <div class="flex-1 relative group">
-                <video id="remote-video" autoplay playsinline class="w-full h-full object-cover"></video>
-                <div class="absolute top-4 right-4 w-32 h-48 bg-gray-900 rounded-xl border-2 border-white overflow-hidden shadow-xl draggable transition-all hover:scale-105 cursor-grab active:cursor-grabbing">
+            <div class="flex-1 relative group bg-gray-900">
+                <video id="remote-video" autoplay playsinline class="w-full h-full object-contain"></video>
+                <div class="absolute top-4 right-4 w-32 h-48 bg-black rounded-xl border-2 border-white/50 overflow-hidden shadow-2xl draggable transition-all hover:scale-105 cursor-grab active:cursor-grabbing">
                     <video id="local-video" autoplay playsinline muted class="w-full h-full object-cover transform scale-x-[-1]"></video>
                 </div>
-                <div class="absolute top-8 left-0 right-0 text-center pointer-events-none">
-                    <div class="inline-block bg-black/60 backdrop-blur px-6 py-2 rounded-full text-white font-bold border border-white/20 shadow-lg">
-                        <span id="call-status-text">Connected</span> <span class="mx-2 opacity-50">|</span> <span id="call-timer" class="font-mono">00:00</span>
+                <div class="absolute top-8 left-1/2 -translate-x-1/2 text-center pointer-events-none w-full max-w-md px-4">
+                    <div class="inline-flex items-center gap-3 bg-black/60 backdrop-blur-md px-6 py-3 rounded-full text-white border border-white/10 shadow-lg">
+                        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                        <span id="call-status-text" class="font-bold text-sm">Connected</span>
+                        <div class="h-4 w-px bg-white/20"></div>
+                        <span id="call-timer" class="font-mono text-sm tracking-widest">00:00</span>
                     </div>
                 </div>
             </div>
-            <div class="h-28 bg-gray-900 flex items-center justify-center gap-6 pb-6 pt-2">
-                <button onclick="toggleMute()" id="btn-mute" class="w-14 h-14 rounded-full bg-gray-700 text-white flex items-center justify-center hover:bg-gray-600 transition hover:scale-110 active:scale-95" title="Toggle Mic"><i class="ph-fill ph-microphone text-xl"></i></button>
-                <button onclick="endCall()" class="w-16 h-16 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg hover:bg-red-700 transform hover:scale-110 active:scale-95 transition" title="End Call"><i class="ph-fill ph-phone-slash text-3xl"></i></button>
-                <button onclick="toggleCamera()" id="btn-cam" class="w-14 h-14 rounded-full bg-gray-700 text-white flex items-center justify-center hover:bg-gray-600 transition hover:scale-110 active:scale-95" title="Toggle Cam"><i class="ph-fill ph-video-camera text-xl"></i></button>
-                <button onclick="toggleScreenShare()" id="btn-screen" class="w-14 h-14 rounded-full bg-gray-700 text-white flex items-center justify-center hover:bg-gray-600 transition hover:scale-110 active:scale-95" title="Share Screen"><i class="ph-fill ph-monitor-play text-xl"></i></button>
+            <div class="h-auto bg-gray-900 flex items-center justify-center gap-6 pb-8 pt-4 safe-area-pb">
+                <button onclick="toggleMute()" id="btn-mute" class="w-14 h-14 rounded-full bg-gray-800 text-white flex items-center justify-center hover:bg-gray-700 transition border border-white/10" title="Toggle Mic"><i class="ph-fill ph-microphone text-xl"></i></button>
+                <button onclick="endCall()" class="w-16 h-16 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg hover:bg-red-700 transform hover:scale-105 transition border-4 border-gray-900" title="End Call"><i class="ph-fill ph-phone-slash text-2xl"></i></button>
+                <button onclick="toggleCamera()" id="btn-cam" class="w-14 h-14 rounded-full bg-gray-800 text-white flex items-center justify-center hover:bg-gray-700 transition border border-white/10" title="Toggle Cam"><i class="ph-fill ph-video-camera text-xl"></i></button>
+                <button onclick="toggleScreenShare()" id="btn-screen" class="w-14 h-14 rounded-full bg-gray-800 text-white flex items-center justify-center hover:bg-gray-700 transition border border-white/10 hidden sm:flex" title="Share Screen"><i class="ph-fill ph-monitor-play text-xl"></i></button>
             </div>
         </div>
 
         <!-- INCOMING CALL MODAL -->
-        <div id="incoming-call-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div id="incoming-call-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
             <div class="tactile-box bg-white p-8 max-w-sm w-full text-center animate-[popIn_0.3s]">
-                <div class="w-24 h-24 rounded-full overflow-hidden mx-auto border-2 border-black mb-4 bg-purple-100 shadow-md">
+                <div class="w-24 h-24 rounded-full overflow-hidden mx-auto border-4 border-white shadow-xl mb-6 bg-gray-100 ring-2 ring-black">
                     <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" id="incoming-avatar" class="w-full h-full object-cover">
                 </div>
-                <h3 class="text-2xl font-bold mb-1">Incoming Call...</h3>
-                <p class="text-gray-500 mb-8 font-medium">Peer wants to connect</p>
-                <div class="flex justify-center gap-6">
-                    <button onclick="rejectCall()" class="tactile-btn bg-red-50 text-red-600 w-16 h-16 rounded-full flex items-center justify-center hover:bg-red-100 transition-colors"><i class="ph-bold ph-phone-slash text-2xl"></i></button>
-                    <button onclick="answerCall()" class="tactile-btn bg-green-500 text-white w-20 h-20 rounded-full flex items-center justify-center animate-bounce shadow-lg hover:bg-green-600"><i class="ph-bold ph-phone text-4xl"></i></button>
+                <h3 class="text-2xl font-bold mb-2 font-display">Incoming Call</h3>
+                <p class="text-gray-500 mb-8 font-medium text-sm">Peer is requesting a video connection...</p>
+                <div class="flex justify-center gap-8">
+                    <div class="flex flex-col items-center gap-2">
+                        <button onclick="rejectCall()" class="tactile-btn bg-red-50 text-red-600 w-16 h-16 rounded-2xl flex items-center justify-center hover:bg-red-100 transition-colors"><i class="ph-bold ph-phone-slash text-2xl"></i></button>
+                        <span class="text-xs font-bold text-gray-400 uppercase">Decline</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-2">
+                        <button onclick="answerCall()" class="tactile-btn bg-green-500 text-white w-16 h-16 rounded-2xl flex items-center justify-center animate-bounce shadow-lg hover:bg-green-600 border-green-700"><i class="ph-bold ph-phone text-2xl"></i></button>
+                        <span class="text-xs font-bold text-green-600 uppercase">Accept</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -515,8 +471,8 @@
                 <span class="reaction-opt" onclick="sendReaction('🔥')">🔥</span>
             </div>
             <div class="ctx-item" onclick="handleCtxAction('reply')"><i class="ph-bold ph-arrow-u-up-left"></i> Reply</div>
-            <div class="ctx-item" onclick="handleCtxAction('copy')"><i class="ph-bold ph-copy"></i> Copy</div>
-            <div class="ctx-item hidden" id="ctx-edit" onclick="handleCtxAction('edit')"><i class="ph-bold ph-pencil"></i> Edit</div>
+            <div class="ctx-item" onclick="handleCtxAction('copy')"><i class="ph-bold ph-copy"></i> Copy Text</div>
+            <div class="ctx-item hidden" id="ctx-edit" onclick="handleCtxAction('edit')"><i class="ph-bold ph-pencil-simple"></i> Edit Message</div>
             <div class="ctx-item delete hidden" id="ctx-delete" onclick="handleCtxAction('delete')"><i class="ph-bold ph-trash"></i> Delete</div>
         </div>
     </div>
@@ -557,16 +513,24 @@
         // Sounds
         const sounds = {
             pop: new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.m4a'),
-            msg: new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.m4a')
+            msg: new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.m4a'),
+            ring: new Audio('https://assets.mixkit.co/active_storage/sfx/2060/2060-preview.m4a')
         };
-        sounds.pop.volume = 0.5;
-        sounds.msg.volume = 0.4;
+        sounds.pop.volume = 0.4;
+        sounds.msg.volume = 0.3;
+        sounds.ring.loop = true;
 
         // --- INIT & UI LOGIC ---
 
         document.addEventListener('DOMContentLoaded', () => {
             renderStickerGrid(initialStickers);
             
+            // Restore from LocalStorage
+            const storedName = localStorage.getItem('tactile_name');
+            const storedRoom = localStorage.getItem('tactile_room');
+            if(storedName) document.getElementById('username-input').value = storedName;
+            if(storedRoom) document.getElementById('room-input').value = storedRoom;
+
             // AutoAnimate init
             if(window.autoAnimate) window.autoAnimate(document.getElementById('messages-container'));
 
@@ -579,17 +543,14 @@
                 sendTyping();
             });
 
-            // Context Menu Dismiss
+            // Global Click Listeners for dismissals
             document.addEventListener('click', (e) => {
                 const menu = document.getElementById('context-menu');
                 if(!menu.contains(e.target)) menu.classList.add('hidden');
                 
-                // Emoji Popover Dismiss
                 const popover = document.getElementById('emoji-popover');
                 const trigger = document.querySelector('button[onclick="toggleEmojiPicker()"]');
-                if (!popover.classList.contains('hidden') && 
-                    !popover.contains(e.target) && 
-                    !trigger.contains(e.target)) {
+                if (!popover.classList.contains('hidden') && !popover.contains(e.target) && !trigger.contains(e.target)) {
                     popover.classList.add('hidden');
                 }
             });
@@ -601,7 +562,6 @@
                 input.focus();
             });
             
-            // Audio Recording Setup
             setupVoiceRecording();
 
             if(Notification.permission === 'granted') {
@@ -612,7 +572,8 @@
 
         function showToast(msg, type = 'info') {
             const bg = type === 'error' ? '#fee2e2' : '#ffffff';
-            const color = type === 'error' ? '#ef4444' : '#000000';
+            const color = type === 'error' ? '#dc2626' : '#000000';
+            const border = type === 'error' ? '#dc2626' : '#000000';
             
             Toastify({
                 text: msg,
@@ -622,6 +583,8 @@
                 style: {
                     background: bg,
                     color: color,
+                    border: `2px solid ${border}`,
+                    boxShadow: '4px 4px 0px rgba(0,0,0,1)'
                 },
                 offset: { y: 20 }
             }).showToast();
@@ -634,7 +597,6 @@
                 e.preventDefault();
                 if(!conn || !conn.open) return showToast("Connect first!", "error");
                 
-                // Feature detection
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                      return showToast("Audio recording not supported by this browser.", "error");
                 }
@@ -660,14 +622,7 @@
                     btn.classList.add('recording-active');
                     sendActivity('Recording Audio...');
                 } catch(err) {
-                    console.error("Mic error:", err);
-                    if(err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-                         showToast("No microphone found.", "error");
-                    } else if(err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-                         showToast("Microphone permission denied.", "error");
-                    } else {
-                         showToast("Could not access microphone.", "error");
-                    }
+                    handleMediaError(err);
                 }
             };
 
@@ -678,7 +633,6 @@
                 }
             };
 
-            // Touch events for mobile, Mouse for desktop
             btn.addEventListener('mousedown', start);
             btn.addEventListener('mouseup', stop);
             btn.addEventListener('mouseleave', stop);
@@ -686,10 +640,28 @@
             btn.addEventListener('touchend', stop);
         }
 
+        function handleMediaError(err) {
+            console.error("Media Error:", err);
+            if(err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+                 showToast("Microphone/Camera not found.", "error");
+            } else if(err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                 showToast("Permission denied. Enable it in browser settings (Lock icon in URL bar).", "error");
+            } else {
+                 showToast("Media Error: " + err.message, "error");
+            }
+        }
+
         function playSound(type) {
             if(settings.sound && sounds[type]) {
                 sounds[type].currentTime = 0;
                 sounds[type].play().catch(e => {});
+            }
+        }
+
+        function stopSound(type) {
+            if(sounds[type]) {
+                sounds[type].pause();
+                sounds[type].currentTime = 0;
             }
         }
 
@@ -702,6 +674,7 @@
             } else {
                 Notification.requestPermission().then(perm => {
                     if(perm === 'granted') settings.notifs = true;
+                    else showToast("Notifications blocked by browser.", "error");
                     updateSettingsUI();
                 });
             }
@@ -723,8 +696,7 @@
         }
 
         function toggleMediaDrawer() {
-            const drawer = document.getElementById('media-drawer');
-            drawer.classList.toggle('hidden');
+            document.getElementById('media-drawer').classList.toggle('hidden');
         }
 
         function renderStickerGrid(list) {
@@ -733,7 +705,7 @@
             list.forEach(item => {
                 const img = document.createElement('img');
                 img.src = item.url;
-                img.className = 'sticker-img cursor-pointer object-contain h-20 w-full bg-gray-50 rounded-lg border border-gray-200 hover:border-black transition-colors';
+                img.className = 'sticker-img cursor-pointer object-contain h-20 w-full rounded-lg border border-transparent hover:border-black transition-all';
                 img.onclick = () => {
                     sendSticker(item.url);
                     toggleMediaDrawer();
@@ -751,7 +723,9 @@
         document.getElementById('file-picker').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if(file) {
-                if(file.size > 2500000) return showToast("File max size 2.5MB", "error");
+                if(file.size > 2500000) return showToast("File limit is 2.5MB", "error");
+                
+                showToast("Processing file...");
                 const reader = new FileReader();
                 reader.onload = (evt) => {
                     const id = crypto.randomUUID();
@@ -774,19 +748,21 @@
             const x = e.clientX;
             const y = e.clientY;
             const menuW = 200;
-            const menuH = 160;
+            const menuH = 180; // slightly taller
             
-            menu.style.left = (x + menuW > window.innerWidth ? x - menuW : x) + 'px';
-            menu.style.top = (y + menuH > window.innerHeight ? y - menuH : y) + 'px';
+            // Boundary checks
+            const left = (x + menuW > window.innerWidth) ? window.innerWidth - menuW - 10 : x;
+            const top = (y + menuH > window.innerHeight) ? y - menuH : y;
+            
+            menu.style.left = left + 'px';
+            menu.style.top = top + 'px';
             menu.classList.remove('hidden');
         }
 
         function sendReaction(emoji) {
             if(!ctxTarget) return;
             const id = ctxTarget.dataset.id;
-            // Render locally
             renderReaction(id, emoji, true);
-            // Send network
             if(conn && conn.open) conn.send({ type: 'reaction', id: id, emoji: emoji });
             document.getElementById('context-menu').classList.add('hidden');
         }
@@ -802,8 +778,6 @@
                 msgEl.appendChild(container);
             }
             
-            // Avoid duplicate reactions from same person (simplified logic)
-            // In a real app we'd track who reacted
             const pill = document.createElement('div');
             pill.className = 'reaction-pill';
             pill.innerHTML = emoji;
@@ -817,16 +791,20 @@
             const id = ctxTarget.dataset.id;
             const text = ctxTarget.querySelector('.msg-text')?.innerText || "";
 
-            if(action === 'copy') navigator.clipboard.writeText(text);
+            if(action === 'copy') {
+                navigator.clipboard.writeText(text);
+                showToast("Copied to clipboard");
+            }
             else if(action === 'reply') setReply(id, text || '[Media]');
             else if(action === 'delete') {
                 ctxTarget.remove();
                 if(conn && conn.open) conn.send({type: 'delete', id: id});
             } else if(action === 'edit') {
                 isEditing = id;
-                document.getElementById('msg-input').value = text;
-                document.getElementById('msg-input').focus();
-                document.getElementById('msg-input').style.borderColor = '#E71D36';
+                const input = document.getElementById('msg-input');
+                input.value = text;
+                input.focus();
+                input.style.borderColor = '#219EBC'; // Visual cue
             }
         }
 
@@ -834,7 +812,13 @@
         function startSession(role) {
             const userIn = document.getElementById('username-input').value.trim();
             const roomIn = document.getElementById('room-input').value.trim().toLowerCase().replace(/[^a-z0-9]/g, '-');
+            
             if(!userIn || !roomIn) return showToast("Enter Name and Room Code.", "error");
+            
+            // Persist
+            localStorage.setItem('tactile_name', userIn);
+            localStorage.setItem('tactile_room', roomIn);
+
             myName = userIn;
             
             const hostId = `tactile-chat-${roomIn}-host`;
@@ -844,76 +828,104 @@
 
             document.getElementById('landing-page').classList.add('hidden');
             document.getElementById('chat-interface').classList.remove('hidden');
-            document.getElementById('chat-title').innerText = `${roomIn}`;
+            document.getElementById('chat-title').innerText = roomIn.toUpperCase();
+            document.getElementById('session-id-display').innerText = myId;
 
             initPeer(myId, targetId, role);
         }
 
         function initPeer(id, targetId, role) {
-            peer = new Peer(id);
+            peer = new Peer(id, { debug: 1 });
+            
             peer.on('open', () => {
-                role === 'join' ? connectToPeer(targetId) : showToast("Waiting for peer...", "info");
+                if (role === 'join') {
+                    showToast("Connecting to host...");
+                    connectToPeer(targetId);
+                } else {
+                    showToast("Room created. Waiting for guest...", "success");
+                    document.getElementById('chat-status').innerText = "Waiting for guest...";
+                }
             });
-            peer.on('connection', c => { if(conn) c.close(); else setupConnection(c); });
+
+            peer.on('connection', c => { 
+                if(conn && conn.open) {
+                    c.close(); // Reject 3rd party
+                    showToast("A third user tried to join (rejected).", "error");
+                } else {
+                    setupConnection(c); 
+                }
+            });
+
             peer.on('call', call => {
+                // Incoming Call Logic
                 document.getElementById('incoming-call-modal').classList.remove('hidden');
                 document.getElementById('incoming-avatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${remoteName}`;
-                playSound('msg');
+                playSound('ring');
+
                 window.answerCall = () => {
+                    stopSound('ring');
                     document.getElementById('incoming-call-modal').classList.add('hidden');
-                    document.getElementById('call-overlay').classList.remove('hidden');
                     
-                    // Robust getUserMedia call
                     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                        conn.send({ type: 'call-rejected' });
                         return showToast("WebRTC not supported.", "error");
                     }
                     
+                    // Default to video/audio
                     navigator.mediaDevices.getUserMedia({video: true, audio: true})
                     .then(stream => {
-                        localStream = stream;
-                        document.getElementById('local-video').srcObject = stream;
-                        call.answer(stream);
-                        currentCall = call;
-                        handleStream(call);
+                        handleCallStart(call, stream);
                     })
                     .catch(err => {
-                        console.error("Call answer error:", err);
-                        showToast("Could not access camera/mic.", "error");
-                        // Fallback: answer with audio only? Or fail gracefully.
+                        handleMediaError(err);
+                        // Try audio only fallback?
                         conn.send({ type: 'call-rejected' });
                     });
                 };
+
                 window.rejectCall = () => {
+                    stopSound('ring');
                     document.getElementById('incoming-call-modal').classList.add('hidden');
                     call.close();
                     conn.send({ type: 'call-rejected' });
                 };
             });
+
             peer.on('error', err => {
-                if(err.type === 'unavailable-id') showToast("Room occupied!", "error");
-                else showToast(`Error: ${err.type}`, "error");
+                if(err.type === 'unavailable-id') {
+                    showToast("Room occupied! Try a different code.", "error");
+                    setTimeout(() => location.reload(), 2000);
+                }
+                else if(err.type === 'network') showToast("Network error. Checking connection...", "error");
+                else console.log(err.type);
             });
         }
 
         function connectToPeer(targetId) {
-            setupConnection(peer.connect(targetId));
+            const c = peer.connect(targetId, { reliable: true });
+            setupConnection(c);
         }
 
         function setupConnection(connection) {
             conn = connection;
+            
             conn.on('open', () => {
-                document.getElementById('chat-status').innerText = "Connected";
-                document.getElementById('chat-status').className = "text-xs font-bold text-green-600";
-                document.getElementById('status-dot').className = "absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-black bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.6)]";
+                document.getElementById('chat-status').innerText = "Encrypted Connection";
+                document.getElementById('chat-status').className = "text-xs font-mono font-medium text-green-600";
+                document.getElementById('status-dot').className = "absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-black bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]";
+                
                 conn.send({ type: 'info', name: myName });
                 playSound('pop');
-                showToast("Connected securely.");
+                showToast("Connected securely.", "success");
             });
+
             conn.on('data', handleData);
+            
             conn.on('close', () => {
                 document.getElementById('chat-status').innerText = "Disconnected";
-                document.getElementById('status-dot').className = "absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-black bg-red-500";
-                showToast("Peer disconnected", "error");
+                document.getElementById('chat-status').className = "text-xs font-mono font-medium text-red-500";
+                document.getElementById('status-dot').className = "absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-black bg-red-500";
+                showToast("Peer disconnected.", "error");
                 conn = null;
             });
         }
@@ -963,16 +975,20 @@
                 case 'read': updateStatus(data.id, 'read'); break;
                 case 'delete': 
                     const el = document.querySelector(`[data-id="${data.id}"]`);
-                    if(el) el.remove(); 
+                    if(el) {
+                        el.style.opacity = '0.5';
+                        el.innerHTML = '<span class="italic text-gray-400 text-xs">Message deleted</span>';
+                    } 
                     break;
                 case 'edit':
                     const editEl = document.querySelector(`[data-id="${data.id}"]`);
                     if(editEl) editEl.querySelector('.msg-text').innerText = data.content + " (edited)";
                     break;
                 case 'call-rejected':
+                    stopSound('ring');
                     document.getElementById('call-overlay').classList.add('hidden');
                     if(localStream) localStream.getTracks().forEach(t => t.stop());
-                    showToast("Call Declined");
+                    showToast("Call ended or declined.");
                     break;
             }
         }
@@ -1003,7 +1019,7 @@
                 }
                 input.value = '';
                 cancelReply();
-            } else showToast("Not connected!", "error");
+            } else showToast("Waiting for connection...", "error");
         }
 
         function sendSticker(url) {
@@ -1014,7 +1030,12 @@
             }
         }
 
-        function sendData(payload) { if(conn && conn.open) conn.send(payload); }
+        function sendData(payload) { 
+            if(conn && conn.open) {
+                if(payload.type === 'file') showToast("Sending file...", "info");
+                conn.send(payload); 
+            }
+        }
 
         function setReply(id, text) {
             replyContext = { id, text };
@@ -1040,10 +1061,7 @@
 
         function scrollToBottom() {
             const c = document.getElementById('messages-container');
-            // Force scroll to bottom immediately
             c.scrollTop = c.scrollHeight;
-            
-            // Also retry after images load
             setTimeout(() => c.scrollTop = c.scrollHeight, 100);
         }
 
@@ -1051,12 +1069,12 @@
             const container = document.getElementById('messages-container');
             const div = document.createElement('div');
             const isMe = sender === 'me';
-            let replyHtml = replyTo ? `<div class="mb-2 text-xs bg-black/5 p-2 rounded border-l-4 ${isMe ? 'border-black' : 'border-accent-2'} truncate font-bold">Re: ${replyTo.text}</div>` : '';
+            let replyHtml = replyTo ? `<div class="mb-2 text-xs bg-white/40 p-2 rounded border-l-4 ${isMe ? 'border-blue-500' : 'border-black'} truncate font-bold">Re: ${replyTo.text}</div>` : '';
             let content = linkifyHtml(escapeHtml(text), { target: '_blank', className: 'underline font-bold' });
 
             div.className = `msg-bubble ${isMe ? 'msg-me' : 'msg-other'}`;
             div.dataset.id = id;
-            div.innerHTML = `${replyHtml}<div class="msg-content text-sm md:text-base font-medium leading-normal"><span class="msg-text">${content}</span></div><div class="flex justify-end items-center mt-1"><span class="text-[10px] opacity-60">${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span>${isMe ? '<i class="ph-bold ph-check status-tick"></i>' : ''}</div>`;
+            div.innerHTML = `${replyHtml}<div class="msg-content"><span class="msg-text">${content}</span></div><div class="flex justify-end items-center mt-1"><span class="text-[10px] opacity-60 font-mono">${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span>${isMe ? '<i class="ph-bold ph-check status-tick"></i>' : ''}</div>`;
             
             div.oncontextmenu = (e) => showContextMenu(e, div, isMe);
             let t;
@@ -1071,9 +1089,12 @@
             const container = document.getElementById('messages-container');
             const div = document.createElement('div');
             const isMe = sender === 'me';
-            div.className = `flex ${isMe ? 'justify-end' : 'justify-start'} mb-6`;
+            div.className = `flex ${isMe ? 'justify-end' : 'justify-start'} mb-6 relative`;
             div.dataset.type = 'media';
-            div.innerHTML = `<img src="${url}" class="sticker-img border-2 border-black bg-white shadow-tactile" onload="scrollToBottom()">`;
+            div.dataset.id = crypto.randomUUID(); // Needed for context menu on stickers
+            div.innerHTML = `<img src="${url}" class="sticker-img border-2 border-black shadow-tactile" onload="scrollToBottom()">`;
+            
+            div.oncontextmenu = (e) => showContextMenu(e, div, isMe);
             container.appendChild(div);
             scrollToBottom();
         }
@@ -1093,7 +1114,7 @@
 
             div.innerHTML = `
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-black/10 rounded flex items-center justify-center shrink-0"><i class="ph-bold ph-file text-xl"></i></div>
+                    <div class="w-10 h-10 bg-black/10 rounded-lg flex items-center justify-center shrink-0 border border-black/10"><i class="ph-bold ph-file text-xl"></i></div>
                     <div class="overflow-hidden"><p class="text-sm font-bold truncate w-40">${name}</p><p class="text-xs opacity-70">Download</p></div>
                 </div>
                 ${preview}
@@ -1120,11 +1141,11 @@
             const audioId = `audio-${id}`;
             div.innerHTML = `
                 <div class="flex items-center gap-3 min-w-[200px]">
-                    <button onclick="document.getElementById('${audioId}').play()" class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center hover:scale-110 transition"><i class="ph-fill ph-play"></i></button>
-                    <div class="flex flex-col">
-                        <span class="text-xs font-bold">Voice Note</span>
-                        <div class="w-32 h-1 bg-black/20 mt-1 rounded-full overflow-hidden">
-                            <div class="h-full bg-black w-1/2"></div>
+                    <button onclick="document.getElementById('${audioId}').play()" class="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:scale-110 transition shadow-md"><i class="ph-fill ph-play text-lg"></i></button>
+                    <div class="flex flex-col w-full">
+                        <span class="text-xs font-bold uppercase tracking-wide opacity-70">Voice Note</span>
+                        <div class="w-full h-1 bg-black/10 mt-2 rounded-full overflow-hidden">
+                            <div class="h-full bg-black/80 w-1/3"></div>
                         </div>
                     </div>
                 </div>
@@ -1144,43 +1165,48 @@
         function startCall(isVideo) {
             if(!conn || !conn.open) return showToast("Connect first!", "error");
             
-            // Check for devices support first
              if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 return showToast("Browser does not support media devices.", "error");
              }
 
             navigator.mediaDevices.getUserMedia({ video: isVideo, audio: true }).then(stream => {
-                localStream = stream;
-                document.getElementById('call-overlay').classList.remove('hidden');
-                document.getElementById('local-video').srcObject = stream;
-                if(!isVideo) stream.getVideoTracks().forEach(t => t.enabled = false);
                 const call = peer.call(conn.peer, stream);
-                currentCall = call;
-                handleStream(call);
-            }).catch(e => {
-                console.error("Media Error:", e);
-                if (e.name === 'NotFoundError' || e.name === 'DevicesNotFoundError') {
-                    showToast("Camera or Microphone not found.", "error");
-                } else if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
-                    showToast("Permission denied. Check browser settings.", "error");
-                } else {
-                    showToast("Media Error: " + e.message, "error");
-                }
-            });
+                handleCallStart(call, stream);
+            }).catch(e => handleMediaError(e));
         }
 
-        function handleStream(call) {
+        function handleCallStart(call, stream) {
+            localStream = stream;
+            document.getElementById('call-overlay').classList.remove('hidden');
+            document.getElementById('local-video').srcObject = stream;
+            
+            // If audio only call, disable video track to save bandwidth/confusion
+            if(stream.getVideoTracks().length > 0 && call.type === 'media' && !stream.getVideoTracks()[0].enabled) {
+               // Logic handled by buttons
+            }
+
+            currentCall = call;
+            
             call.on('stream', remoteStream => {
                 document.getElementById('remote-video').srcObject = remoteStream;
                 startCallTimer();
                 document.getElementById('call-status-text').innerText = "Connected";
             });
-            call.on('close', () => { document.getElementById('call-overlay').classList.add('hidden'); stopCallTimer(); });
+            
+            call.on('close', () => { 
+                endCall(); 
+            });
+            
+            call.on('error', (err) => {
+                console.error(err);
+                showToast("Call error occurred.");
+                endCall();
+            });
         }
 
         function endCall() {
             if(currentCall) currentCall.close();
-            if(conn) conn.send({type: 'call-rejected'});
+            if(conn && conn.open) conn.send({type: 'call-rejected'});
             document.getElementById('call-overlay').classList.add('hidden');
             if(localStream) localStream.getTracks().forEach(t => t.stop());
             if(screenStream) screenStream.getTracks().forEach(t => t.stop());
@@ -1191,7 +1217,14 @@
             if(localStream) {
                 const t = localStream.getAudioTracks()[0];
                 t.enabled = !t.enabled;
-                document.getElementById('btn-mute').classList.toggle('bg-red-500', !t.enabled);
+                const btn = document.getElementById('btn-mute');
+                if(!t.enabled) {
+                    btn.classList.add('bg-red-600', 'border-red-600');
+                    btn.classList.remove('bg-gray-800');
+                } else {
+                    btn.classList.remove('bg-red-600', 'border-red-600');
+                    btn.classList.add('bg-gray-800');
+                }
             }
         }
 
@@ -1200,7 +1233,14 @@
                 const t = localStream.getVideoTracks()[0];
                 if(t) {
                     t.enabled = !t.enabled;
-                    document.getElementById('btn-cam').classList.toggle('bg-red-500', !t.enabled);
+                    const btn = document.getElementById('btn-cam');
+                    if(!t.enabled) {
+                        btn.classList.add('bg-red-600', 'border-red-600');
+                        btn.classList.remove('bg-gray-800');
+                    } else {
+                        btn.classList.remove('bg-red-600', 'border-red-600');
+                        btn.classList.add('bg-gray-800');
+                    }
                 }
             }
         }
@@ -1208,38 +1248,36 @@
         function toggleScreenShare() {
             if (!currentCall) return;
             
-            // Screen share might not be supported on mobile
             if (!navigator.mediaDevices.getDisplayMedia) {
                 return showToast("Screen share not supported on this device.", "error");
             }
 
             if (screenStream) {
-                // Stop screen share, switch back to camera
+                // Stop screen share
                 const videoTrack = localStream.getVideoTracks()[0];
                 const sender = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'video');
                 if (sender) sender.replaceTrack(videoTrack);
                 
                 screenStream.getTracks().forEach(t => t.stop());
                 screenStream = null;
-                document.getElementById('btn-screen').classList.remove('bg-green-500');
+                document.getElementById('btn-screen').classList.remove('bg-green-600');
             } else {
                 navigator.mediaDevices.getDisplayMedia({ video: true }).then(stream => {
                     screenStream = stream;
                     const videoTrack = stream.getVideoTracks()[0];
                     
-                    // Handle user stopping share via browser UI
                     videoTrack.onended = () => {
                          const camTrack = localStream.getVideoTracks()[0];
                          const sender = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'video');
                          if(sender) sender.replaceTrack(camTrack);
                          screenStream = null;
-                         document.getElementById('btn-screen').classList.remove('bg-green-500');
+                         document.getElementById('btn-screen').classList.remove('bg-green-600');
                     };
 
                     const sender = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'video');
                     if(sender) sender.replaceTrack(videoTrack);
                     
-                    document.getElementById('btn-screen').classList.add('bg-green-500');
+                    document.getElementById('btn-screen').classList.add('bg-green-600');
                 }).catch(err => console.log("Screen share cancelled", err));
             }
         }
@@ -1255,7 +1293,11 @@
             }, 1000);
         }
         function stopCallTimer() { clearInterval(callInterval); document.getElementById('call-timer').innerText = "00:00"; }
-        function disconnect() { if(conn) conn.close(); if(peer) peer.destroy(); location.reload(); }
+        function disconnect() { 
+            if(conn) conn.close(); 
+            if(peer) peer.destroy(); 
+            location.reload(); 
+        }
 
     </script>
 </body>
