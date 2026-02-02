@@ -1,836 +1,630 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="lofi">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Tactile.io - Pro P2P Chat</title>
+    <title>Tactile v0.3 - P2P Suite</title>
     
-    <!-- Tailwind CSS & DaisyUI -->
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.6.0/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <!-- Dependencies -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     
-    <!-- PeerJS -->
+    <!-- Core JS -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    
-    <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
-    <!-- Emoji Picker -->
     <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.18.3/index.js"></script>
-
-    <!-- Linkify -->
     <script src="https://cdn.jsdelivr.net/npm/linkifyjs@4.1.3/dist/linkify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/linkify-html@4.1.3/dist/linkify-html.min.js"></script>
-
-    <!-- Toastify JS -->
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
-    <!-- AutoAnimate -->
-    <script type="module">
-        import autoAnimate from 'https://cdn.jsdelivr.net/npm/@formkit/auto-animate@1.0.0/index.min.js';
-        window.autoAnimate = autoAnimate;
-    </script>
-
+    <!-- Fonts -->
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
         :root {
-            --accent-primary: #0088cc;
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --bg-app: #f8fafc;
         }
 
-        body {
-            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #e5e7eb;
-            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.05' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");
-            height: 100dvh;
+        html, body {
+            height: 100%; width: 100%; margin: 0; padding: 0;
+            font-family: var(--font-sans);
+            background-color: var(--bg-app);
+            color: #0f172a;
             overflow: hidden;
         }
 
-        /* Message Area Background */
-        #messages-container {
-            background-color: #f3f4f6;
-            scroll-behavior: smooth;
-        }
+        /* UTILS */
+        .full-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; overflow-y: auto; }
+        .center-flex { display: flex; align-items: center; justify-content: center; }
 
-        /* DaisyUI Chat Bubble Overrides */
+        /* CHAT BUBBLES - REFINED */
         .chat-bubble {
-            min-height: auto;
-            padding: 0.5rem 1rem;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            max-width: 85%;
+            font-size: 0.925rem;
+            line-height: 1.4;
+            padding: 0.6rem 0.85rem;
+            border-radius: 1.25rem; 
+            box-shadow: 0 1px 1px rgba(0,0,0,0.03);
+            max-width: 70%; /* Reduced width */
+            min-height: auto; 
+            position: relative;
+            display: flex; 
+            flex-direction: column;
         }
         
-        .chat-bubble-primary {
-            background-color: #2563eb;
-            color: white;
-        }
+        .chat-start .chat-bubble { background-color: white; color: #1e293b; border: 1px solid #e2e8f0; border-bottom-left-radius: 4px; }
+        .chat-end .chat-bubble { background: #3b82f6; color: white; border-bottom-right-radius: 4px; border: none; }
+        
+        .chat-end .chat-bubble a { color: #dbeafe !important; text-decoration: underline; }
+        .chat-start .chat-bubble a { color: #2563eb !important; text-decoration: underline; }
 
-        /* Ephemeral Message Style */
-        .msg-timed .chat-bubble {
-            border: 2px dashed #7c3aed;
-            background-color: #f3e8ff;
-            color: #4c1d95;
-        }
-        .chat-end.msg-timed .chat-bubble {
-            background-color: #7c3aed;
-            color: white;
-            border: 2px dashed rgba(255,255,255,0.5);
-        }
+        /* Media / Images - CLEANER */
+        .chat-bubble.media-only { background: transparent !important; box-shadow: none !important; padding: 0 !important; border: none !important; overflow: visible !important; }
+        .media-wrapper { border-radius: 1rem; overflow: hidden; background: #e2e8f0; border: 1px solid rgba(0,0,0,0.05); position: relative; display: inline-block; box-shadow: 0 2px 8px -2px rgba(0,0,0,0.1); }
+        .media-wrapper img { display: block; max-width: 100%; max-height: 250px; object-fit: cover; transition: transform 0.2s; }
+        .media-wrapper:hover img { transform: scale(1.02); }
 
-        /* Image Constraints */
-        .chat-image-content {
-            max-height: 300px;
-            width: auto;
-            max-width: 100%;
-            border-radius: 0.75rem;
+        /* Link Card */
+        .link-preview-card {
+            margin-top: 6px;
+            background: rgba(0,0,0,0.03);
+            border-radius: 8px;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid rgba(0,0,0,0.05);
+            text-decoration: none !important;
+        }
+        .chat-end .link-preview-card { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.2); }
+        .link-domain { font-weight: 700; font-size: 0.75rem; opacity: 0.9; display: block; }
+        .link-url { font-size: 0.7rem; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; display: block; }
+
+        /* FILE CARD - HORIZONTAL LAYOUT */
+        .file-card-container {
+            margin-top: 4px;
+            max-width: 280px;
+        }
+        .file-card {
+            display: flex;
+            flex-direction: row; /* FORCE HORIZONTAL */
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             cursor: pointer;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+            text-decoration: none !important;
+            color: #1e293b !important;
         }
+        .file-card:hover { background: #f8fafc; transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .file-icon {
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            background: #eff6ff;
+            color: #3b82f6;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        .file-info {
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            flex-grow: 1;
+        }
+        .file-name { font-weight: 600; font-size: 0.85rem; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;}
+        .file-status { font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; display: block; }
 
-        /* Emoji Picker Override */
-        emoji-picker {
-            width: 100%;
-            height: 300px;
-            --background: #fff;
-            --border-color: #e5e7eb;
-        }
+        /* SCROLLBAR */
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        /* ANIMATIONS */
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .msg-enter { animation: slideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        /* INPUT RESET */
+        .input:focus, .textarea:focus { outline: none !important; box-shadow: none !important; border-color: transparent !important; }
+        #emoji-popover emoji-picker { width: 100%; height: 300px; --background: #ffffff; --border-color: #e2e8f0; }
+
+        .glass-panel { background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border-bottom: 1px solid #e2e8f0; }
         
-        #context-menu {
-            position: fixed;
-            z-index: 2000;
-        }
-        
-        #upload-progress { transition: width 0.1s linear; }
-
-        .recording-active {
-            animation: pulse-red 1.5s infinite;
-            background-color: #fee2e2 !important;
-            color: #dc2626 !important;
-            border-color: #dc2626 !important;
-        }
-
-        @keyframes pulse-red {
-            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
-        }
-
-        /* Input Area Fixes */
-        .textarea-chat {
-            min-height: 3rem;
-            max-height: 8rem;
-            padding-right: 4rem; /* Space for absolute buttons */
-            line-height: 1.5;
-        }
+        canvas { touch-action: none; }
     </style>
 </head>
-<body class="text-base-content">
+<body class="bg-slate-50 text-base-content antialiased h-full w-full overflow-hidden">
 
-    <div id="app" class="relative w-full h-full max-w-6xl mx-auto flex flex-col sm:p-4 lg:p-6">
-        
-        <!-- 1. LANDING PAGE -->
-        <div id="landing-page" class="flex-1 w-full h-full flex flex-col items-center justify-center p-4 z-20">
-            <div class="card w-full max-w-3xl bg-base-100 shadow-xl overflow-hidden border border-base-200">
-                <div class="card-body p-0 md:flex-row">
-                    <!-- Brand Section -->
-                    <div class="bg-neutral text-neutral-content p-10 flex flex-col items-center justify-center md:w-5/12 text-center">
-                        <i class="ph-duotone ph-chats-circle text-6xl mb-4"></i>
-                        <h1 class="text-4xl font-bold tracking-tight">Tactile.io</h1>
-                        <p class="mt-2 opacity-90 font-medium">Professional P2P Suite</p>
-                        <div class="mt-8 text-xs opacity-75 font-mono bg-white/10 px-3 py-1 rounded-full">v5.1 Stable</div>
+    <!-- 1. LANDING PAGE -->
+    <div id="landing-page" class="full-overlay bg-white flex flex-col items-center justify-center transition-opacity duration-500 z-[100]">
+        <div class="hero min-h-screen bg-slate-50 w-full">
+            <div class="hero-content flex-col lg:flex-row-reverse gap-12 w-full max-w-5xl p-6">
+                <div class="text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold mb-6 border border-blue-100">
+                        <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span> v0.3 STABLE
                     </div>
-
-                    <!-- Input Section -->
-                    <div class="p-8 flex flex-col justify-center gap-6 md:w-7/12 bg-base-100">
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text font-bold uppercase text-xs tracking-wider opacity-70">Identity</span>
-                            </label>
-                            <input type="text" id="username-input" placeholder="Display Name" class="input input-bordered w-full" maxlength="20" />
-                        </div>
-                        
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text font-bold uppercase text-xs tracking-wider opacity-70">Secure Frequency</span>
-                            </label>
-                            <div class="relative">
-                                <i class="ph-bold ph-hash absolute left-3 top-1/2 -translate-y-1/2 opacity-50"></i>
-                                <input type="text" id="room-input" placeholder="ROOM-CODE" class="input input-bordered w-full pl-9 font-mono uppercase" />
+                    <h1 class="text-6xl font-extrabold tracking-tight text-slate-900">Tactile.io</h1>
+                    <p class="py-6 text-xl text-slate-500 leading-relaxed font-light">
+                        P2P Chat, File Sharing & <span class="font-bold text-indigo-600">Games</span>.
+                    </p>
+                </div>
+                
+                <div class="card shrink-0 w-full max-w-md shadow-2xl bg-white border border-slate-100">
+                    <div class="card-body gap-5 p-8">
+                        <input type="text" id="username-input" class="input input-bordered w-full bg-slate-50" placeholder="Display Name" />
+                        <input type="text" id="room-input" class="input input-bordered w-full bg-slate-50 font-mono uppercase" placeholder="ROOM-ID" />
+                        <div class="grid grid-cols-1 gap-3 mt-2">
+                            <button onclick="initSession('host-group')" class="btn btn-primary bg-blue-600 border-none text-white">Host Group</button>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button onclick="initSession('host-1on1')" class="btn btn-outline">Private</button>
+                                <button onclick="initSession('join')" class="btn btn-neutral">Join</button>
                             </div>
                         </div>
-
-                        <div class="grid grid-cols-2 gap-3 mt-4">
-                            <button onclick="startSession('create')" class="btn btn-neutral gap-2">
-                                <i class="ph-bold ph-broadcast"></i> Host
-                            </button>
-                            <button onclick="startSession('join')" class="btn btn-outline gap-2">
-                                <i class="ph-bold ph-plugs-connected"></i> Join
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- 2. CHAT INTERFACE -->
-        <div id="chat-interface" class="hidden absolute inset-0 sm:static sm:h-full sm:rounded-2xl overflow-hidden flex flex-col bg-base-100 shadow-2xl ring-1 ring-base-300">
+    <!-- 2. CONNECTING -->
+    <div id="connecting-state" class="full-overlay bg-white z-[90] hidden flex flex-col items-center justify-center">
+        <div class="loading loading-ring loading-lg text-primary"></div>
+        <p class="mt-4 font-mono text-xs font-bold text-slate-400">CONNECTING...</p>
+    </div>
+
+    <!-- 3. MAIN APP -->
+    <div id="app-interface" class="hidden h-full w-full">
+        <div class="drawer md:drawer-open h-full">
+            <input id="main-drawer" type="checkbox" class="drawer-toggle" />
             
-            <!-- Header -->
-            <div class="navbar bg-base-100 border-b border-base-200 h-16 min-h-[4rem] px-4 shrink-0 z-40">
-                <div class="flex-1 gap-3 overflow-hidden">
-                    <div class="avatar online placeholder cursor-pointer" onclick="toggleSettings()">
-                        <div class="bg-neutral text-neutral-content rounded-full w-10 ring-1 ring-base-content/10">
-                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Init" id="remote-avatar">
+            <div class="drawer-content flex flex-col h-full relative overflow-hidden bg-white">
+                
+                <!-- Navbar -->
+                <div class="navbar h-14 min-h-[3.5rem] px-4 flex-none z-30 glass-panel sticky top-0">
+                    <div class="flex-none md:hidden">
+                        <label for="main-drawer" class="btn btn-square btn-ghost text-slate-500 btn-sm">
+                            <i class="ph-bold ph-list text-xl"></i>
+                        </label>
+                    </div>
+                    <div class="flex-1 px-2 mx-2 overflow-hidden">
+                        <div class="flex flex-col">
+                            <span class="font-bold text-sm leading-tight truncate text-slate-800" id="header-title">Room</span>
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Live</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="flex flex-col overflow-hidden">
-                        <h2 id="chat-title" class="font-bold text-sm sm:text-base leading-tight truncate">Waiting...</h2>
-                        <span id="chat-status" class="text-xs text-base-content/60 truncate">Disconnected</span>
-                    </div>
-                </div>
-                <div class="flex-none gap-1">
-                    <button onclick="startCall(false)" class="btn btn-ghost btn-circle btn-sm" title="Voice Call">
-                        <i class="ph-bold ph-phone text-lg"></i>
-                    </button>
-                    <button onclick="startCall(true)" class="btn btn-ghost btn-circle btn-sm text-success" title="Video Call">
-                        <i class="ph-bold ph-video text-lg"></i>
-                    </button>
-                    <div class="divider divider-horizontal m-0 mx-1 h-6 self-center"></div>
-                    <button onclick="toggleSettings()" class="btn btn-ghost btn-circle btn-sm">
-                        <i class="ph-bold ph-dots-three-vertical text-lg"></i>
-                    </button>
-                    <button onclick="disconnect()" class="btn btn-ghost btn-circle btn-sm text-error" title="Disconnect">
-                        <i class="ph-bold ph-power text-lg"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Upload Bar -->
-            <div id="upload-bar" class="hidden h-1 w-full bg-base-200 shrink-0">
-                <div id="upload-progress" class="h-full bg-primary w-0"></div>
-            </div>
-
-            <!-- Messages Area -->
-            <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-4">
-                <div class="flex flex-col items-center justify-center mt-20 opacity-50 select-none text-center">
-                    <div class="w-16 h-16 rounded-2xl bg-base-200 flex items-center justify-center mb-4">
-                        <i class="ph-duotone ph-shield-check text-3xl"></i>
-                    </div>
-                    <p class="text-sm font-bold">End-to-End Encrypted</p>
-                    <p class="text-xs mt-1 max-w-xs">Messages are peer-to-peer. No server storage.</p>
-                </div>
-                <!-- Spacer for bottom elements -->
-                <div class="h-2"></div>
-            </div>
-
-            <!-- Indicators -->
-            <div id="indicators-area" class="relative z-20 px-4">
-                <div id="activity-indicator" class="hidden absolute bottom-2 left-6 bg-base-100/95 backdrop-blur px-3 py-1.5 rounded-full text-xs font-bold shadow-md border border-base-200 flex items-center gap-2 transform -translate-y-full">
-                    <span class="loading loading-dots loading-xs text-primary"></span>
-                    <span id="activity-text">Typing...</span>
-                </div>
-
-                <div id="reply-preview" class="hidden bg-base-200/80 border-t border-base-300 p-2 px-4 flex justify-between items-center text-sm backdrop-blur-sm rounded-t-xl mx-1 mb-[-1px]">
-                    <div class="border-l-4 border-primary pl-3 py-1 overflow-hidden">
-                        <span class="font-bold text-[10px] text-primary uppercase tracking-wider block">Replying to</span>
-                        <p class="truncate max-w-[200px] text-xs opacity-70" id="reply-text">...</p>
-                    </div>
-                    <button onclick="cancelReply()" class="btn btn-ghost btn-xs btn-circle"><i class="ph-bold ph-x"></i></button>
-                </div>
-            </div>
-
-            <!-- Input Area -->
-            <footer class="p-2 sm:p-3 bg-base-100 border-t border-base-200 shrink-0 relative z-30">
-                
-                <!-- Expanded Tools -->
-                <div id="media-drawer" class="hidden absolute bottom-full left-0 right-0 bg-base-100 border-t border-base-200 h-64 flex flex-col shadow-2xl rounded-t-2xl overflow-hidden z-50">
-                    <div class="p-2 border-b border-base-200 bg-base-200/50">
-                         <div class="relative">
-                            <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 opacity-50"></i>
-                            <input type="text" id="sticker-search" placeholder="Search stickers..." class="input input-sm input-bordered w-full pl-9" oninput="filterStickers()">
-                         </div>
-                    </div>
-                    <div id="sticker-grid" class="flex-1 overflow-y-auto p-3 grid grid-cols-4 sm:grid-cols-5 gap-3 bg-base-100">
-                        <!-- Populated via JS -->
-                    </div>
-                </div>
-
-                <div class="flex items-end gap-2">
-                    <!-- Left Buttons -->
-                    <div class="join shrink-0">
-                        <button onclick="document.getElementById('file-picker').click()" class="btn btn-square btn-ghost join-item text-base-content/70" title="Attach File">
-                            <i class="ph-bold ph-paperclip text-xl"></i>
+                    <div class="flex-none gap-1">
+                        <button onclick="toggleGameMode()" class="btn btn-ghost btn-circle btn-sm text-indigo-500 hover:bg-indigo-50" title="Play Game">
+                            <i class="ph-bold ph-game-controller text-lg"></i>
                         </button>
-                        <button onclick="toggleMediaDrawer()" class="btn btn-square btn-ghost join-item text-base-content/70" title="Stickers">
-                            <i class="ph-bold ph-sticker text-xl"></i>
-                        </button>
+                        <div class="w-px h-4 bg-slate-200 mx-1"></div>
+                        <button onclick="startCall(false)" class="btn btn-ghost btn-circle btn-sm text-slate-500"><i class="ph-bold ph-phone text-lg"></i></button>
+                        <button onclick="startCall(true)" class="btn btn-ghost btn-circle btn-sm text-slate-500"><i class="ph-bold ph-video text-lg"></i></button>
+                    </div>
+                </div>
+
+                <!-- GAME CONTAINER -->
+                <div id="game-container" class="hidden flex-col h-64 bg-slate-100 border-b border-slate-200 shrink-0 relative">
+                    <div class="absolute top-2 right-2 flex gap-2 z-10">
+                        <span class="badge badge-neutral font-mono" id="game-word-display">WAITING...</span>
+                        <button onclick="clearCanvas()" class="btn btn-xs btn-square bg-white"><i class="ph-bold ph-eraser"></i></button>
+                        <button onclick="toggleGameMode()" class="btn btn-xs btn-square btn-error text-white"><i class="ph-bold ph-x"></i></button>
+                    </div>
+                    <canvas id="game-canvas" class="w-full h-full bg-white cursor-crosshair touch-none"></canvas>
+                    <div class="absolute bottom-2 left-2 flex gap-1">
+                        <button onclick="setGameColor('#000000')" class="w-6 h-6 rounded-full bg-black border border-white"></button>
+                        <button onclick="setGameColor('#ef4444')" class="w-6 h-6 rounded-full bg-red-500 border border-white"></button>
+                        <button onclick="setGameColor('#3b82f6')" class="w-6 h-6 rounded-full bg-blue-500 border border-white"></button>
+                        <button onclick="setGameColor('#22c55e')" class="w-6 h-6 rounded-full bg-green-500 border border-white"></button>
+                    </div>
+                </div>
+
+                <!-- Messages -->
+                <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scroll bg-slate-50/50 relative">
+                    <div class="divider text-[10px] opacity-40 my-4 font-mono">TODAY</div>
+                </div>
+
+                <!-- Floating -->
+                <div class="absolute bottom-[4.5rem] left-0 right-0 px-4 pointer-events-none z-20 flex flex-col gap-2 items-center">
+                    <div id="typing-indicator" class="hidden bg-white/90 backdrop-blur shadow border border-slate-200 rounded-full px-3 py-1 flex items-center gap-2">
+                        <span class="loading loading-dots loading-xs text-blue-500"></span>
+                        <span class="text-[10px] font-bold text-slate-500" id="typing-text">...</span>
+                    </div>
+                </div>
+
+                <!-- Reply -->
+                <div id="reply-preview" class="hidden mx-3 mb-2 bg-white rounded-lg p-2 shadow-sm border-l-4 border-blue-500 flex justify-between items-center animate-slide-up z-20 ring-1 ring-slate-100">
+                    <div class="flex flex-col overflow-hidden min-w-0">
+                        <span class="text-[10px] font-bold text-blue-500 uppercase">Replying</span>
+                        <span id="reply-text" class="text-xs truncate text-slate-600">...</span>
+                    </div>
+                    <button onclick="cancelReply()" class="btn btn-ghost btn-xs btn-square text-slate-400"><i class="ph-bold ph-x"></i></button>
+                </div>
+
+                <!-- Input -->
+                <div class="p-2 bg-white border-t border-slate-100 shrink-0 z-30 safe-pb relative">
+                    
+                    <div id="media-drawer" class="hidden absolute bottom-full left-0 right-0 bg-white border-t border-slate-200 shadow-xl h-64 flex flex-col z-20 rounded-t-xl">
+                        <div class="p-2 border-b border-slate-100 flex gap-2">
+                            <input type="text" id="sticker-search" class="input input-sm w-full bg-slate-50" placeholder="Search GIPHY..." oninput="filterStickers()">
+                            <button onclick="toggleMediaDrawer(event)" class="btn btn-sm btn-ghost btn-square"><i class="ph-bold ph-x"></i></button>
+                        </div>
+                        <div id="sticker-grid" class="flex-1 overflow-y-auto p-2 grid grid-cols-4 gap-2 bg-slate-50 custom-scroll"></div>
                     </div>
 
-                    <!-- Text Input Wrapper -->
-                    <div class="flex-1 relative min-w-0">
-                        <textarea id="msg-input" rows="1" class="textarea textarea-bordered w-full resize-none textarea-chat bg-base-200/50 focus:bg-base-100 transition-colors" placeholder="Message..."></textarea>
+                    <div class="flex items-end gap-2 bg-slate-100 p-1 rounded-3xl focus-within:bg-white focus-within:ring-1 focus-within:ring-blue-200 transition-all border border-transparent focus-within:border-blue-100">
+                        <button onclick="document.getElementById('file-picker').click()" class="btn btn-circle btn-sm btn-ghost text-slate-400 hover:text-blue-600">
+                            <i class="ph-bold ph-paperclip text-lg"></i>
+                        </button>
                         
-                        <!-- Inside Textarea Actions -->
-                        <div class="absolute right-2 bottom-1.5 flex gap-1 bg-transparent p-1 rounded-lg">
-                             <button onclick="cycleEphemeral()" id="btn-timed" class="btn btn-ghost btn-xs btn-circle text-base-content/40 hover:text-primary transition-colors relative" title="Ephemeral Timer">
-                                <i class="ph-bold ph-timer text-lg"></i>
-                                <span id="timed-label" class="absolute -top-1 -right-1 badge badge-xs badge-primary hidden scale-75 border-none">OFF</span>
-                            </button>
-                            <button onclick="toggleEmojiPicker()" class="btn btn-ghost btn-xs btn-circle text-base-content/40 hover:text-warning transition-colors">
-                                <i class="ph-fill ph-smiley text-lg"></i>
-                            </button>
-                        </div>
-
-                        <!-- Emoji Popover -->
-                        <div id="emoji-popover" class="hidden absolute bottom-14 right-0 w-72 sm:w-80 shadow-2xl border border-base-300 rounded-xl z-50 overflow-hidden">
-                            <emoji-picker></emoji-picker>
+                        <textarea id="msg-input" rows="1" class="textarea textarea-ghost w-full p-2 min-h-[2.5rem] max-h-[100px] resize-none text-sm custom-scroll bg-transparent placeholder:text-slate-400" placeholder="Type a message..."></textarea>
+                        
+                        <div class="flex items-center gap-0.5 shrink-0 pb-0.5 pr-1">
+                            <button onclick="toggleMediaDrawer(event)" class="btn btn-circle btn-xs btn-ghost text-slate-400" data-tip="GIFs"><i class="ph-bold ph-sticker text-lg"></i></button>
+                            <button onclick="toggleEmojiPicker(event)" class="btn btn-circle btn-xs btn-ghost text-slate-400" data-tip="Emoji"><i class="ph-bold ph-smiley text-lg"></i></button>
+                            <button onclick="sendMessage()" class="btn btn-circle btn-sm btn-primary ml-1 bg-blue-600 border-none text-white shadow-sm hover:bg-blue-700"><i class="ph-bold ph-paper-plane-right"></i></button>
                         </div>
                     </div>
 
-                    <!-- Right Buttons -->
-                    <div class="flex items-end gap-2 shrink-0">
-                        <button id="btn-record" class="btn btn-circle btn-ghost text-base-content/70" title="Hold to Record">
-                            <i class="ph-bold ph-microphone text-xl"></i>
-                        </button>
-
-                        <button onclick="sendMessage()" class="btn btn-circle btn-primary shadow-md">
-                            <i class="ph-bold ph-paper-plane-right text-xl"></i>
-                        </button>
+                    <div id="emoji-popover" class="hidden absolute bottom-16 right-2 z-50 shadow-2xl rounded-xl overflow-hidden border border-slate-100 w-80 max-w-[90vw]">
+                        <emoji-picker></emoji-picker>
                     </div>
                 </div>
-            </footer>
-        </div>
+            </div> 
 
-        <!-- SETTINGS MODAL -->
-        <dialog id="settings-modal" class="modal">
-            <div class="modal-box border border-base-200 shadow-2xl">
-                <h3 class="font-bold text-lg mb-4 flex justify-between items-center">
-                    Settings
-                    <form method="dialog"><button class="btn btn-sm btn-circle btn-ghost">✕</button></form>
-                </h3>
-                
-                <div class="flex flex-col gap-4">
-                    <div class="form-control">
-                        <label class="label cursor-pointer border border-base-200 rounded-lg p-3 hover:bg-base-200/50 transition-colors">
-                            <span class="label-text flex items-center gap-3 font-medium">
-                                <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center"><i class="ph-bold ph-bell"></i></div>
-                                Notifications
-                            </span>
-                            <input type="checkbox" class="toggle toggle-primary" id="toggle-notif" onchange="toggleNotifs()" />
-                        </label>
+            <!-- SIDEBAR -->
+            <div class="drawer-side z-40">
+                <label for="main-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
+                <ul class="menu p-4 w-72 min-h-full bg-white text-base-content border-r border-slate-100">
+                    <div class="flex items-center gap-3 mb-6 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                        <div class="avatar online placeholder">
+                            <div class="bg-blue-600 text-white rounded-lg w-10 text-xl font-bold flex items-center justify-center"><span id="my-avatar-initial">?</span></div>
+                        </div>
+                        <div class="overflow-hidden">
+                            <div class="font-bold text-slate-800 truncate text-sm" id="my-name-display">Guest</div>
+                            <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider" id="my-role-display">...</div>
+                        </div>
                     </div>
 
-                    <div class="form-control">
-                        <label class="label cursor-pointer border border-base-200 rounded-lg p-3 hover:bg-base-200/50 transition-colors">
-                            <span class="label-text flex items-center gap-3 font-medium">
-                                <div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center"><i class="ph-bold ph-speaker-high"></i></div>
-                                Sound Effects
-                            </span>
-                            <input type="checkbox" class="toggle toggle-warning" id="toggle-sound" onchange="toggleSound()" checked />
-                        </label>
+                    <li class="menu-title text-xs font-bold text-slate-400 uppercase mb-1 px-2">Channels</li>
+                    <li>
+                        <a onclick="switchContext('group')" id="nav-group" class="active flex justify-between rounded-lg mb-1 font-medium hover:bg-blue-50 text-sm">
+                            <span class="flex items-center gap-2"><i class="ph-bold ph-users-three text-blue-500"></i> <span id="group-nav-text">General</span></span>
+                            <span class="badge badge-sm badge-ghost font-mono" id="group-badge"></span>
+                        </a>
+                    </li>
+
+                    <li class="menu-title text-xs font-bold text-slate-400 uppercase mt-4 mb-1 px-2">People</li>
+                    <div id="dm-list" class="flex flex-col gap-1"></div>
+
+                    <div class="mt-auto">
+                        <div class="bg-slate-900 p-3 rounded-lg text-white shadow-lg cursor-pointer hover:bg-slate-800 transition" onclick="navigator.clipboard.writeText(this.innerText); showToast('ID Copied')">
+                            <p class="text-[9px] font-bold text-slate-400 uppercase mb-1">Session ID</p>
+                            <div class="font-mono text-xs break-all select-all" id="session-id-display">...</div>
+                        </div>
                     </div>
-
-                    <button onclick="clearChat()" class="btn btn-outline btn-error w-full mt-2">
-                        <i class="ph-bold ph-trash"></i> Clear Chat History
-                    </button>
-                </div>
-                <div class="mt-6 text-center text-xs opacity-50 font-mono select-all cursor-text">
-                    ID: <span id="session-id-display">...</span>
-                </div>
-            </div>
-            <form method="dialog" class="modal-backdrop"><button>close</button></form>
-        </dialog>
-
-        <!-- CALL OVERLAY (Fullscreen) -->
-        <div id="call-overlay" class="hidden fixed inset-0 z-50 bg-neutral text-neutral-content flex flex-col">
-            <div class="flex-1 relative group bg-black flex flex-col justify-center">
-                <video id="remote-video" autoplay playsinline class="w-full h-full object-contain max-h-screen"></video>
-                
-                <!-- Local Video (Draggable) -->
-                <div class="absolute top-4 right-4 w-28 md:w-48 aspect-[3/4] bg-base-300 rounded-xl overflow-hidden shadow-2xl border border-white/20 draggable cursor-grab active:cursor-grabbing hover:scale-105 transition-transform z-10">
-                    <video id="local-video" autoplay playsinline muted class="w-full h-full object-cover transform scale-x-[-1]"></video>
-                </div>
-
-                <!-- Status Badge -->
-                <div class="absolute top-8 left-1/2 -translate-x-1/2 text-center pointer-events-none z-10">
-                    <div class="badge badge-neutral gap-2 py-3 px-4 shadow-lg border-white/10 backdrop-blur-md">
-                        <div class="w-2 h-2 rounded-full bg-success animate-pulse"></div>
-                        <span id="call-status-text" class="font-bold text-xs uppercase tracking-wide">Connected</span>
-                        <div class="divider divider-horizontal m-0 h-3"></div>
-                        <span id="call-timer" class="font-mono text-xs">00:00</span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Controls -->
-            <div class="bg-neutral/90 p-6 pb-8 safe-pb flex justify-center gap-4 sm:gap-6 backdrop-blur-md border-t border-white/5">
-                <button onclick="toggleMute()" id="btn-mute" class="btn btn-circle btn-lg btn-outline border-white/20 text-white hover:bg-white/10 hover:border-white">
-                    <i class="ph-fill ph-microphone text-2xl"></i>
-                </button>
-                <button onclick="endCall()" class="btn btn-circle btn-lg btn-error shadow-lg scale-110">
-                    <i class="ph-fill ph-phone-slash text-2xl"></i>
-                </button>
-                <button onclick="toggleCamera()" id="btn-cam" class="btn btn-circle btn-lg btn-outline border-white/20 text-white hover:bg-white/10 hover:border-white">
-                    <i class="ph-fill ph-video-camera text-2xl"></i>
-                </button>
-                <button onclick="toggleScreenShare()" id="btn-screen" class="btn btn-circle btn-lg btn-outline border-white/20 text-white hover:bg-white/10 hover:border-white hidden sm:flex">
-                    <i class="ph-fill ph-monitor-play text-2xl"></i>
-                </button>
+                </ul>
             </div>
         </div>
+    </div>
 
-        <!-- INCOMING CALL MODAL -->
-        <dialog id="incoming-call-modal" class="modal">
-            <div class="modal-box text-center shadow-2xl">
-                <div class="avatar mb-4 animate-bounce">
-                    <div class="w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 mx-auto">
-                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" id="incoming-avatar" />
-                    </div>
-                </div>
-                <h3 class="font-bold text-2xl">Incoming Call</h3>
-                <p class="py-4 opacity-70">Peer is requesting a connection...</p>
-                <div class="flex justify-center gap-8 mt-4">
-                    <button onclick="rejectCall()" class="btn btn-circle btn-lg btn-error shadow-lg">
-                        <i class="ph-bold ph-phone-slash text-2xl"></i>
-                    </button>
-                    <button onclick="answerCall()" class="btn btn-circle btn-lg btn-success shadow-lg">
-                        <i class="ph-bold ph-phone text-2xl"></i>
-                    </button>
-                </div>
+    <!-- CALL OVERLAY -->
+    <div id="call-overlay" class="hidden fixed inset-0 z-[200] bg-slate-900 flex flex-col">
+        <div class="flex-1 relative bg-black flex flex-col justify-center">
+            <video id="remote-video" autoplay playsinline class="w-full h-full object-contain"></video>
+            <div class="absolute top-6 right-6 w-32 aspect-[3/4] bg-slate-800 rounded-xl overflow-hidden shadow-2xl border border-white/10">
+                <video id="local-video" autoplay playsinline muted class="w-full h-full object-cover transform scale-x-[-1]"></video>
             </div>
-        </dialog>
-
-        <!-- CONTEXT MENU -->
-        <div id="context-menu" class="hidden bg-base-100 border border-base-200 rounded-xl shadow-2xl overflow-hidden min-w-[180px] p-1 z-50">
-            <div class="flex justify-between px-3 py-2 bg-base-200/50 rounded-lg mb-1">
-                <span class="cursor-pointer hover:scale-125 transition-transform text-lg" onclick="sendReaction('👍')">👍</span>
-                <span class="cursor-pointer hover:scale-125 transition-transform text-lg" onclick="sendReaction('❤️')">❤️</span>
-                <span class="cursor-pointer hover:scale-125 transition-transform text-lg" onclick="sendReaction('😂')">😂</span>
-                <span class="cursor-pointer hover:scale-125 transition-transform text-lg" onclick="sendReaction('🔥')">🔥</span>
-            </div>
-            <ul class="menu menu-sm p-0 rounded-box">
-                <li><a onclick="handleCtxAction('reply')"><i class="ph-bold ph-arrow-u-up-left"></i> Reply</a></li>
-                <li><a onclick="handleCtxAction('copy')"><i class="ph-bold ph-copy"></i> Copy Text</a></li>
-                <li id="ctx-edit" class="hidden"><a onclick="handleCtxAction('edit')"><i class="ph-bold ph-pencil-simple"></i> Edit</a></li>
-                <li id="ctx-delete" class="hidden"><a onclick="handleCtxAction('delete')" class="text-error"><i class="ph-bold ph-trash"></i> Delete</a></li>
-            </ul>
         </div>
+        <div class="p-6 flex justify-center gap-6 bg-slate-900 border-t border-slate-800">
+            <button onclick="endCall()" class="btn btn-circle btn-error text-white"><i class="ph-fill ph-phone-slash text-xl"></i></button>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <dialog id="incoming-call-modal" class="modal"><div class="modal-box text-center shadow-xl"><h3 class="font-bold text-lg">Incoming Call</h3><div class="flex justify-center gap-4 mt-4"><button onclick="rejectCall()" class="btn btn-error btn-circle"><i class="ph-bold ph-phone-slash"></i></button><button onclick="answerCall()" class="btn btn-success btn-circle"><i class="ph-bold ph-phone"></i></button></div></div></dialog>
+
+    <!-- CONTEXT MENU -->
+    <div id="context-menu" class="hidden fixed z-[9999] bg-white border border-slate-100 shadow-xl rounded-xl p-1.5 min-w-[150px] animate-scale-in">
+        <div class="flex gap-1 mb-2 p-1 bg-slate-50 rounded-lg justify-center">
+            <button class="hover:scale-125 transition" onclick="sendReaction('👍')">👍</button>
+            <button class="hover:scale-125 transition" onclick="sendReaction('❤️')">❤️</button>
+            <button class="hover:scale-125 transition" onclick="sendReaction('😂')">😂</button>
+        </div>
+        <button onclick="handleCtxAction('reply')" class="btn btn-sm btn-ghost w-full justify-start font-normal text-xs h-8 min-h-0"><i class="ph-bold ph-arrow-u-up-left"></i> Reply</button>
+        <button onclick="handleCtxAction('copy')" class="btn btn-sm btn-ghost w-full justify-start font-normal text-xs h-8 min-h-0"><i class="ph-bold ph-copy"></i> Copy</button>
+        <button id="ctx-delete-btn" onclick="handleCtxAction('delete')" class="btn btn-sm btn-ghost w-full justify-start font-normal text-xs h-8 min-h-0 text-red-500 hidden"><i class="ph-bold ph-trash"></i> Delete</button>
     </div>
 
     <input type="file" id="file-picker" class="hidden">
 
     <script>
-        // --- CONFIG & STATE ---
-        const initialStickers = [
-            { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3Zt/l0HlHJGHe3yAMhdQY/giphy.gif', tags: 'cat dance' },
-            { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3Zt/JIX9t2j0ZTN9S/giphy.gif', tags: 'cat meme' },
-            { url: 'https://media.giphy.com/media/3o7TKSjRrfIPjeiVyM/giphy.gif', tags: 'laugh' },
+        const STICKERS = [
+            { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3ZtZ3Zt/l0HlHJGHe3yAMhdQY/giphy.gif', tags: 'cat' },
             { url: 'https://media.giphy.com/media/26tPplGWjN0xLybiU/giphy.gif', tags: 'yes' },
             { url: 'https://media.giphy.com/media/xT5LMHxhOfscxPfIfm/giphy.gif', tags: 'no' },
-            { url: 'https://media.giphy.com/media/3o6UB3VhArvomJHtdK/giphy.gif', tags: 'wave' },
-            { url: 'https://media.giphy.com/media/OPU6wzx8JrHna/giphy.gif', tags: 'sad' },
             { url: 'https://media.giphy.com/media/l3q2K5jinAlChoCLS/giphy.gif', tags: 'what' }
         ];
 
-        let peer = null;
-        let conn = null;
-        let myId = '';
-        let myName = '';
-        let remoteName = 'Peer';
-        let currentCall = null;
-        let localStream = null;
-        let screenStream = null;
-        let typingTimeout = null;
-        let replyContext = null; 
-        let settings = { sound: true, notifs: false };
-        let ctxTarget = null; 
-        let isEditing = null; 
+        let peer, myId, myName, myRole='guest', sessionMode='group', connections={}, participants={}, chats={'group':[]}, unread={}, activeContext='group';
+        let ctxTarget=null, replyContext=null, typingTimeout=null, incomingFileBuffer={}, localStream, currentCall;
+        const CHUNK_SIZE=16*1024;
         
-        const ephemeralTimes = [0, 5000, 15000, 30000, 60000];
-        let ephemeralIndex = 0;
-        
-        let mediaRecorder = null;
-        let audioChunks = [];
+        // GAME STATE
+        let gameActive = false;
+        let isDrawer = false;
+        let currentWord = "";
+        let canvas, ctx;
+        let isDrawing = false;
+        let lastX = 0, lastY = 0;
+        let gameColor = "#000000";
 
-        const CHUNK_SIZE = 16 * 1024;
-        let incomingFileBuffer = {};
-
-        const sounds = {
-            pop: new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.m4a'),
-            msg: new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.m4a'),
-            ring: new Audio('https://assets.mixkit.co/active_storage/sfx/2060/2060-preview.m4a')
-        };
-        sounds.pop.volume = 0.4;
-        sounds.msg.volume = 0.3;
-        sounds.ring.loop = true;
-
-        // --- INIT ---
+        const sounds = { pop: new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.m4a'), msg: new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.m4a') };
 
         document.addEventListener('DOMContentLoaded', () => {
-            renderStickerGrid(initialStickers);
-            const storedName = localStorage.getItem('tactile_name');
-            const storedRoom = localStorage.getItem('tactile_room');
-            if(storedName) document.getElementById('username-input').value = storedName;
-            if(storedRoom) document.getElementById('room-input').value = storedRoom;
-
-            if(window.autoAnimate) window.autoAnimate(document.getElementById('messages-container'));
-
-            document.getElementById('msg-input').addEventListener('keydown', (e) => {
-                if(e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                }
-                sendTyping();
-            });
-
-            document.addEventListener('click', (e) => {
-                const menu = document.getElementById('context-menu');
-                if(!menu.classList.contains('hidden') && !menu.contains(e.target)) menu.classList.add('hidden');
-                
-                const popover = document.getElementById('emoji-popover');
-                const trigger = document.querySelector('button[onclick="toggleEmojiPicker()"]');
-                if (!popover.classList.contains('hidden') && !popover.contains(e.target) && !trigger.contains(e.target)) {
-                    popover.classList.add('hidden');
-                }
-            });
-
-            document.querySelector('emoji-picker').addEventListener('emoji-click', event => {
-                const input = document.getElementById('msg-input');
-                input.value += event.detail.unicode;
-                input.focus();
-            });
+            renderStickerGrid(STICKERS);
+            canvas = document.getElementById('game-canvas');
+            ctx = canvas.getContext('2d');
+            resizeCanvas();
             
-            setupVoiceRecording();
-            if(Notification.permission === 'granted') { 
-                settings.notifs = true; 
-                document.getElementById('toggle-notif').checked = true;
-            }
+            document.addEventListener('mousedown', e => {
+                if(!e.target.closest('#context-menu')) document.getElementById('context-menu').classList.add('hidden');
+                if(!e.target.closest('#emoji-popover') && !e.target.closest('button[data-tip="Emoji"]')) document.getElementById('emoji-popover').classList.add('hidden');
+                if(!e.target.closest('#media-drawer') && !e.target.closest('button[data-tip="GIFs"]')) document.getElementById('media-drawer').classList.add('hidden');
+            });
+
+            const ta = document.getElementById('msg-input');
+            ta.addEventListener('input', function(){ this.style.height='auto';this.style.height=this.scrollHeight+'px'; });
+            ta.addEventListener('keydown', e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault(); checkGameGuess(ta.value); sendMessage();} sendTyping(); });
+            document.querySelector('emoji-picker').addEventListener('emoji-click', e=>{ta.value+=e.detail.unicode;ta.focus();});
+            
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            canvas.addEventListener('touchstart', (e)=>{e.preventDefault(); startDrawing(e.touches[0])});
+            canvas.addEventListener('touchmove', (e)=>{e.preventDefault(); draw(e.touches[0])});
+            canvas.addEventListener('touchend', stopDrawing);
+            window.addEventListener('resize', resizeCanvas);
         });
 
-        function showToast(msg, type = 'info') {
-            const bg = type === 'error' ? '#f87171' : '#374151';
-            Toastify({
-                text: msg, duration: 3000, gravity: "top", position: "center",
-                style: { background: bg, borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' },
-                offset: { y: 20 }
-            }).showToast();
-        }
-
-        // --- UI & FEATURES ---
-
-        function toggleEmojiPicker() {
-            const popover = document.getElementById('emoji-popover');
-            popover.classList.toggle('hidden');
-        }
-
-        function cycleEphemeral() {
-            ephemeralIndex = (ephemeralIndex + 1) % ephemeralTimes.length;
-            const time = ephemeralTimes[ephemeralIndex];
-            const btn = document.getElementById('btn-timed');
-            const label = document.getElementById('timed-label');
-            
-            if (time === 0) {
-                btn.classList.remove('text-primary');
-                label.classList.add('hidden');
-                showToast("Ephemeral Mode OFF");
-            } else {
-                btn.classList.add('text-primary');
-                label.classList.remove('hidden');
-                const text = time >= 60000 ? (time/60000 + 'm') : (time/1000 + 's');
-                label.innerText = text;
-                showToast(`Messages vanish in ${text}`);
-            }
-        }
-
-        function clearChat() {
-            document.getElementById('messages-container').innerHTML = '';
-            document.getElementById('settings-modal').close();
-            showToast("Chat cleared.");
-        }
-
-        // --- FILE CHUNKING ---
-
-        document.getElementById('file-picker').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if(!file) return;
-            if(!conn || !conn.open) return showToast("Not connected!", "error");
-
-            showToast("Processing...");
-            const reader = new FileReader();
-            
-            reader.onload = async (e) => {
-                const arrayBuffer = e.target.result;
-                const totalChunks = Math.ceil(arrayBuffer.byteLength / CHUNK_SIZE);
-                const fileId = crypto.randomUUID();
-                const mime = file.type;
-                const name = file.name;
-
-                conn.send({ type: 'file-start', id: fileId, name: name, mime: mime, totalChunks: totalChunks });
-                document.getElementById('upload-bar').classList.remove('hidden');
-                const progBar = document.getElementById('upload-progress');
-
-                for (let i = 0; i < totalChunks; i++) {
-                    const start = i * CHUNK_SIZE;
-                    const end = Math.min(start + CHUNK_SIZE, arrayBuffer.byteLength);
-                    const chunk = arrayBuffer.slice(start, end);
-                    const chunkBase64 = await arrayBufferToBase64(chunk);
-
-                    conn.send({ type: 'file-chunk', id: fileId, index: i, data: chunkBase64 });
-                    
-                    const percent = Math.round(((i + 1) / totalChunks) * 100);
-                    progBar.style.width = percent + '%';
-                    if(i % 20 === 0) await new Promise(r => setTimeout(r, 1));
-                }
-
-                document.getElementById('upload-bar').classList.add('hidden');
-                progBar.style.width = '0%';
-                
-                const blob = new Blob([arrayBuffer], { type: mime });
-                const localUrl = URL.createObjectURL(blob);
-                renderFile(fileId, name, localUrl, mime, 'me');
-                showToast("Sent!");
-            };
-            reader.readAsArrayBuffer(file);
-        });
-
-        function arrayBufferToBase64(buffer) {
-            return new Promise((resolve) => {
-                const blob = new Blob([buffer]);
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result.split(',')[1]);
-                reader.readAsDataURL(blob);
-            });
-        }
-
-        // --- PEERJS & CALLING ---
-
-        function startSession(role) {
-            const userIn = document.getElementById('username-input').value.trim();
-            const roomIn = document.getElementById('room-input').value.trim().toLowerCase().replace(/[^a-z0-9]/g, '-');
-            if(!userIn || !roomIn) return showToast("Enter Name and Room.", "error");
-            
-            localStorage.setItem('tactile_name', userIn);
-            localStorage.setItem('tactile_room', roomIn);
-            myName = userIn;
-            
-            myId = (role === 'create') ? `tactile-${roomIn}-host` : `tactile-${roomIn}-guest`;
-            const targetId = (role === 'create') ? `tactile-${roomIn}-guest` : `tactile-${roomIn}-host`;
+        // --- INIT ---
+        function initSession(action) {
+            const name = document.getElementById('username-input').value.trim() || "Guest";
+            const room = document.getElementById('room-input').value.trim().toLowerCase().replace(/[^a-z0-9]/g,'-');
+            if(!room) return showToast("Room ID required", "error");
+            myName = name;
+            if(action==='host-group') { myRole='host'; sessionMode='group'; myId=`tactile-${room}-HOST`; }
+            else if(action==='host-1on1') { myRole='host'; sessionMode='1on1'; myId=`tactile-${room}-HOST`; }
+            else { myRole='guest'; myId=`tactile-${room}-${Math.random().toString(36).substr(2,5)}`; }
 
             document.getElementById('landing-page').classList.add('hidden');
-            document.getElementById('chat-interface').classList.remove('hidden');
-            document.getElementById('chat-title').innerText = roomIn.toUpperCase();
+            document.getElementById('connecting-state').classList.remove('hidden');
+            document.getElementById('my-name-display').innerText = myName;
+            document.getElementById('my-avatar-initial').innerText = myName[0].toUpperCase();
+            document.getElementById('my-role-display').innerText = myRole.toUpperCase();
             document.getElementById('session-id-display').innerText = myId;
 
-            initPeer(myId, targetId, role);
+            peer = new Peer(myId);
+            peer.on('open', ()=>{
+                document.getElementById('connecting-state').classList.add('hidden');
+                document.getElementById('app-interface').classList.remove('hidden');
+                if(myRole==='guest') connectToHost(myId.split('-').slice(0,2).join('-')+'-HOST');
+            });
+            peer.on('connection', handleConn);
+            peer.on('call', handleIncomingCall);
+            peer.on('error', e=>{ showToast("Connection Error: "+e.type, 'error'); setTimeout(()=>location.reload(),2000); });
         }
 
-        function initPeer(id, targetId, role) {
-            peer = new Peer(id);
-            peer.on('open', () => {
-                if (role === 'join') { showToast("Connecting..."); connectToPeer(targetId); }
-                else { showToast("Waiting for guest...", "success"); document.getElementById('chat-status').innerText = "Waiting..."; }
-            });
-            peer.on('connection', c => { if(conn) c.close(); else setupConnection(c); });
-            
-            peer.on('call', call => {
-                document.getElementById('incoming-call-modal').showModal();
-                playSound('ring');
-                
-                window.answerCall = () => {
-                    stopSound('ring');
-                    document.getElementById('incoming-call-modal').close();
-                    
-                    // Robust Device Check
-                    navigator.mediaDevices.enumerateDevices().then(devices => {
-                        const hasVideo = devices.some(d => d.kind === 'videoinput');
-                        const constraints = hasVideo ? {video: true, audio: true} : {audio: true};
-                        
-                        navigator.mediaDevices.getUserMedia(constraints)
-                        .then(stream => handleCallStart(call, stream))
-                        .catch(err => {
-                            console.warn("Media failed", err);
-                            conn.send({ type: 'call-rejected' });
-                            showToast("Could not access media devices.", "error");
-                        });
-                    });
-                };
-                
-                window.rejectCall = () => {
-                    stopSound('ring');
-                    document.getElementById('incoming-call-modal').close();
-                    call.close();
-                    conn.send({ type: 'call-rejected' });
-                };
-            });
-
-            peer.on('error', err => {
-                if(err.type === 'unavailable-id') { showToast("Room occupied!", "error"); setTimeout(()=>location.reload(), 2000); }
-                else if(err.type === 'network') showToast("Network error", "error");
-            });
+        function connectToHost(id) { const c=peer.connect(id,{metadata:{name:myName}}); handleConn(c); }
+        function handleConn(conn) {
+            if(myRole==='host'&&sessionMode==='1on1'&&Object.keys(connections).length>0) { conn.on('open', ()=>{conn.send({type:'error',msg:'Room Full'});setTimeout(()=>conn.close(),500)}); return; }
+            conn.on('open', ()=>{ connections[conn.peer]=conn; conn.send({type:'handshake',name:myName}); });
+            conn.on('data', d=>processData(d,conn));
+            conn.on('close', ()=>{ delete connections[conn.peer]; delete participants[conn.peer]; updateNav(); showToast("Peer Left"); });
         }
 
-        function connectToPeer(targetId) {
-            setupConnection(peer.connect(targetId));
-        }
-
-        function setupConnection(connection) {
-            conn = connection;
-            conn.on('open', () => {
-                document.getElementById('chat-status').innerText = "Online";
-                document.getElementById('chat-status').className = "text-xs font-bold text-success";
-                document.getElementById('status-dot').className = "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white bg-success";
-                conn.send({ type: 'info', name: myName });
-                playSound('pop');
-            });
-            conn.on('data', handleData);
-            conn.on('close', () => {
-                document.getElementById('chat-status').innerText = "Offline";
-                document.getElementById('status-dot').className = "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white bg-error";
-                showToast("Disconnected", "error");
-                conn = null;
-            });
-        }
-
-        function handleData(data) {
-            const ind = document.getElementById('activity-indicator');
+        function processData(data, conn) {
+            if(myRole==='host') {
+                if(data.to&&data.to!==myId && connections[data.to]) connections[data.to].send(data);
+                else if(!data.to && data.type!=='handshake') Object.values(connections).forEach(c=>{if(c.peer!==conn.peer)c.send(data)});
+            }
             switch(data.type) {
-                case 'info':
-                    remoteName = data.name;
-                    document.getElementById('chat-title').innerText = remoteName;
-                    break;
-                case 'text':
-                case 'timed-text':
-                    renderMessage(data.id, data.content, 'other', data.replyTo, data.type==='timed-text', data.duration);
-                    ind.classList.add('hidden');
-                    playSound('msg');
-                    break;
-                case 'file-start':
-                    incomingFileBuffer[data.id] = { name: data.name, mime: data.mime, chunks: [], count: 0, total: data.totalChunks };
-                    break;
-                case 'file-chunk':
-                    const f = incomingFileBuffer[data.id];
-                    if(f) {
-                        f.chunks[data.index] = data.data;
-                        f.count++;
-                        if(f.count === f.total) {
-                            renderFile(data.id, f.name, `data:${f.mime};base64,${f.chunks.join('')}`, f.mime, 'other');
-                            playSound('msg');
-                            delete incomingFileBuffer[data.id];
-                        }
+                case 'handshake':
+                    participants[conn.peer]=data.name; updateNav();
+                    if(myRole==='host') {
+                        conn.send({type:'sync', list:{...participants,[myId]:myName}, mode:sessionMode});
+                        broadcast({type:'join', id:conn.peer, name:data.name}, conn.peer);
                     }
                     break;
-                case 'audio':
-                case 'timed-audio':
-                    renderAudio(data.id, data.data, 'other', data.type==='timed-audio');
-                    ind.classList.add('hidden');
-                    playSound('msg');
-                    break;
-                case 'typing':
-                    ind.classList.remove('hidden');
-                    clearTimeout(typingTimeout);
-                    typingTimeout = setTimeout(() => ind.classList.add('hidden'), 3000);
-                    break;
-                case 'call-rejected':
-                    stopSound('ring');
-                    document.getElementById('call-overlay').classList.add('hidden');
-                    if(localStream) localStream.getTracks().forEach(t => t.stop());
-                    showToast("Call ended.");
-                    break;
-                case 'sticker':
-                    renderSticker(data.url, 'other');
-                    ind.classList.add('hidden');
-                    playSound('msg');
-                    break;
+                case 'sync': participants=data.list; sessionMode=data.mode||'group'; delete participants[myId]; updateNav(); break;
+                case 'join': participants[data.id]=data.name; updateNav(); showToast(data.name+" joined"); break;
+                case 'message': receiveMessage(data); break;
+                case 'typing': showTyping(data); break;
+                case 'reaction': handleReaction(data); break;
+                case 'delete': handleDelete(data); break;
+                case 'file-start': case 'file-chunk': handleFile(data); break;
+                case 'game-start': startGame(data.drawer, false); break;
+                case 'game-draw': drawRemote(data); break;
+                case 'game-clear': ctx.clearRect(0,0,canvas.width,canvas.height); break;
+                case 'game-win': showToast(`Winner: ${data.winner}! Word: ${data.word}`, 'success'); resetGame(); break;
             }
         }
 
-        // --- CALLING LOGIC (UPDATED) ---
-        
-        function startCall(isVideo) {
-            if(!conn || !conn.open) return showToast("Connect first!", "error");
-            
-            // Explicit Permission Request Check with Fallback
-            // Request audio first as baseline, then video if requested
-            
-            const constraints = isVideo ? {video: true, audio: true} : {audio: true};
-
-            navigator.mediaDevices.getUserMedia(constraints)
-            .then(stream => {
-                const call = peer.call(conn.peer, stream);
-                handleCallStart(call, stream);
-            })
-            .catch(e => {
-                if(isVideo && (e.name === 'NotFoundError' || e.name === 'DevicesNotFoundError')) {
-                    // Try fallback to audio only
-                    showToast("Camera not found. Switching to audio call...");
-                    navigator.mediaDevices.getUserMedia({audio: true})
-                    .then(stream => {
-                        const call = peer.call(conn.peer, stream);
-                        handleCallStart(call, stream);
-                    })
-                    .catch(err2 => showToast("Microphone access failed.", "error"));
-                } else if (e.name === 'NotAllowedError') {
-                    showToast("Permission denied! Please allow access in browser settings.", "error");
-                } else {
-                    showToast("Call Error: " + e.message, "error");
-                }
-            });
+        // --- MESSAGING ---
+        function sendMessage() {
+            const input = document.getElementById('msg-input');
+            const txt = input.value.trim();
+            if(!txt) return;
+            const msg = {type:'message', id:crypto.randomUUID(), content:txt, from:myId, senderName:myName, to:activeContext==='group'?null:activeContext, timestamp:Date.now(), replyTo:replyContext};
+            storeMessage(msg, activeContext); renderMessage(msg, true); sendNetwork(msg);
+            input.value=''; input.style.height='auto'; cancelReply(); sounds.pop.play().catch(()=>{});
         }
 
-        function handleCallStart(call, stream) {
-            localStream = stream;
-            document.getElementById('call-overlay').classList.remove('hidden');
-            document.getElementById('local-video').srcObject = stream;
-            currentCall = call;
+        function renderMessage(msg, isMe) {
+            const c = document.getElementById('messages-container');
+            const d = document.createElement('div');
+            d.className = `chat ${isMe?'chat-end':'chat-start'} msg-enter group`;
+            d.id = `msg-${msg.id}`;
+
+            const urlRegex = /((https?|blob):\/\/[^\s]+)/g;
+            const match = msg.content.match(urlRegex);
+            let mediaHtml = '', isMediaOnly = false, linkCardHtml = '';
+
+            // Detect Image (Mime or Regex)
+            const isImg = msg.mimeType?.startsWith('image/') || /\.(jpeg|jpg|gif|png|webp)(\?.*)?$/i.test(msg.content) || (match && msg.content.startsWith('blob:'));
+
+            if(isImg && match) {
+                const url = match[0];
+                if(msg.content.trim() === url) isMediaOnly = true;
+                mediaHtml = `<div class="media-wrapper mt-1 cursor-pointer" onclick="window.open('${url}')"><img src="${url}"></div>`;
+            } else if(match) {
+                // Regular Link Card
+                try {
+                    const url = match[0];
+                    const domain = new URL(url).hostname;
+                    linkCardHtml = `<a href="${url}" target="_blank" class="link-preview-card text-base-content/70 hover:bg-base-200"><div class="w-8 h-8 bg-base-300 rounded flex items-center justify-center"><i class="ph-bold ph-link"></i></div><div class="flex flex-col overflow-hidden"><span class="link-domain">${domain}</span><span class="link-url">${url}</span></div></a>`;
+                } catch(e){}
+            }
+
+            const formatted = linkifyHtml(msg.content, {target:'_blank', className:'font-bold underline decoration-2'});
+            const senderHeader = (!isMe && activeContext==='group' && sessionMode!=='1on1') ? `<div class="chat-header text-[10px] opacity-50 mb-1 ml-1 font-bold">${msg.senderName}</div>` : '';
+            const replyHtml = msg.replyTo ? `<div class="text-xs border-l-2 border-base-content/20 pl-2 mb-1 opacity-60 truncate">${msg.replyTo.text}</div>` : '';
+
+            d.innerHTML = `
+                ${senderHeader}
+                <div class="chat-bubble ${isMediaOnly?'media-only':''} shadow-sm">
+                    ${replyHtml}
+                    ${!isMediaOnly ? `<div class="break-words">${formatted}</div>` : ''}
+                    ${mediaHtml}
+                    ${linkCardHtml}
+                    <div class="text-[9px] opacity-50 text-right mt-1 font-mono">${new Date(msg.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>
+                    <div id="reacts-${msg.id}" class="absolute -bottom-2 ${isMe?'right-0':'left-0'} bg-base-100 border text-[10px] px-1.5 rounded-full hidden shadow-sm scale-90"></div>
+                </div>`;
             
-            call.on('stream', remoteStream => {
-                document.getElementById('remote-video').srcObject = remoteStream;
-                startCallTimer();
-                document.getElementById('call-status-text').innerText = "Connected";
+            d.querySelector('.chat-bubble').oncontextmenu = e => { e.preventDefault(); ctxTarget={id:msg.id,text:msg.content,isMe}; const m=document.getElementById('context-menu'); m.style.left=Math.min(e.clientX,window.innerWidth-160)+'px'; m.style.top=e.clientY+'px'; m.classList.remove('hidden'); document.getElementById('ctx-delete-btn').classList.toggle('hidden',!isMe); };
+            c.appendChild(d); c.scrollTop = c.scrollHeight;
+        }
+
+        // --- FILE HANDLING ---
+        document.getElementById('file-picker').addEventListener('change', async e => {
+            const f = e.target.files[0]; if(!f) return;
+            const fid = crypto.randomUUID();
+            const url = URL.createObjectURL(f);
+            const mime = f.type;
+            
+            const msg = {type:'message', id:fid, content:url, senderName:myName, from:myId, timestamp:Date.now(), mimeType:mime};
+            
+            if(mime.startsWith('image/')) renderMessage(msg, true);
+            else renderFileCard(fid, f.name, url, true, true);
+            
+            const meta = {type:'file-start', id:fid, name:f.name, mime:mime, total:Math.ceil(f.size/CHUNK_SIZE), senderName:myName, from:myId, to:activeContext==='group'?null:activeContext};
+            sendNetwork(meta);
+            const buf = await f.arrayBuffer(); const u8 = new Uint8Array(buf);
+            for(let i=0; i<meta.total; i++) {
+                const chunk = u8.slice(i*CHUNK_SIZE, (i+1)*CHUNK_SIZE);
+                let bin = ''; for(let b of chunk) bin+=String.fromCharCode(b);
+                sendNetwork({type:'file-chunk', id:fid, index:i, data:window.btoa(bin), from:myId, to:meta.to});
+                if(i%5===0) await new Promise(r=>setTimeout(r,10));
+            }
+        });
+
+        function handleFile(d) {
+            if(d.type==='file-start') { incomingFileBuffer[d.id]={name:d.name, mime:d.mime, total:d.total, count:0, chunks:[]}; renderFilePlaceholder(d.id, d.name, false, d.senderName); }
+            else {
+                const f = incomingFileBuffer[d.id]; if(!f) return;
+                f.chunks[d.index] = d.data; f.count++;
+                if(f.count===f.total) {
+                    try {
+                        const bin = f.chunks.map(c=>window.atob(c)).join('');
+                        const u8 = new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u8[i]=bin.charCodeAt(i);
+                        const url = URL.createObjectURL(new Blob([u8],{type:f.mime}));
+                        document.getElementById(`msg-${d.id}`)?.remove();
+                        if(f.mime.startsWith('image/')) renderMessage({id:d.id, content:url, senderName:participants[d.from]||'Peer', from:d.from, timestamp:Date.now(), mimeType:f.mime}, false);
+                        else renderFileCard(d.id, f.name, url, false);
+                    } catch(e){ console.error(e); }
+                    delete incomingFileBuffer[d.id];
+                }
+            }
+        }
+
+        function renderFileCard(id, name, url, isMe, isLocal=false) {
+            const c = document.getElementById('messages-container');
+            const d = document.createElement('div');
+            d.className = `chat ${isMe?'chat-end':'chat-start'}`;
+            // Use dedicated file-card-container to opt-out of chat bubble styling
+            d.innerHTML = `
+                <div class="file-card-container">
+                    <div class="file-card" onclick="const a=document.createElement('a');a.href='${url}';a.download='${name}';a.click()">
+                        <div class="file-icon"><i class="ph-bold ph-file"></i></div>
+                        <div class="file-info">
+                            <span class="file-name">${name}</span>
+                            <span class="file-status">${isLocal?'Uploaded':'Download'}</span>
+                        </div>
+                    </div>
+                </div>`;
+            c.appendChild(d); c.scrollTop=c.scrollHeight;
+        }
+
+        function renderFilePlaceholder(id, name, isMe, sender) {
+            const c = document.getElementById('messages-container');
+            const d = document.createElement('div'); d.id=`msg-${id}`; d.className=`chat ${isMe?'chat-end':'chat-start'}`;
+            d.innerHTML = `<div class="chat-bubble !bg-base-100 !text-base-content border border-base-200 flex items-center gap-2"><span class="loading loading-spinner loading-xs"></span> Receiving ${name}...</div>`;
+            c.appendChild(d);
+        }
+
+        // --- CALLING ---
+        function startCall(isVideo) {
+            if(Object.keys(connections).length === 0) return showToast("No peers connected", "error");
+            const constraints = isVideo ? {video: true, audio: true} : {audio: true};
+            
+            navigator.mediaDevices.getUserMedia(constraints).then(stream => {
+                localStream = stream;
+                document.getElementById('call-overlay').classList.remove('hidden');
+                document.getElementById('local-video').srcObject = stream;
+                Object.values(connections).forEach(c => { const call = peer.call(c.peer, stream); setupCallEvents(call); });
+            }).catch(e => showToast("Media Access Denied", "error"));
+        }
+
+        function handleIncomingCall(call) {
+            document.getElementById('incoming-call-modal').showModal();
+            window.answerCall = () => {
+                document.getElementById('incoming-call-modal').close();
+                navigator.mediaDevices.getUserMedia({video: true, audio: true}).then(stream => {
+                    localStream = stream;
+                    document.getElementById('call-overlay').classList.remove('hidden');
+                    document.getElementById('local-video').srcObject = stream;
+                    call.answer(stream);
+                    setupCallEvents(call);
+                });
+            };
+            window.rejectCall = () => {
+                document.getElementById('incoming-call-modal').close();
+                call.close();
+                const conn = connections[call.peer];
+                if(conn) conn.send({type: 'call-rejected'});
+            };
+        }
+
+        function setupCallEvents(call) {
+            currentCall = call;
+            call.on('stream', stream => {
+                document.getElementById('remote-video').srcObject = stream;
             });
-            call.on('close', () => endCall());
+            call.on('close', endCall);
         }
 
         function endCall() {
             if(currentCall) currentCall.close();
-            if(conn && conn.open) conn.send({type: 'call-rejected'});
-            document.getElementById('call-overlay').classList.add('hidden');
             if(localStream) localStream.getTracks().forEach(t => t.stop());
-            if(screenStream) screenStream.getTracks().forEach(t => t.stop());
-            stopCallTimer();
-        }
-
-        function toggleScreenShare() {
-            if (!currentCall) return;
-            
-            if (screenStream) {
-                // Stop share, revert to camera
-                const videoTrack = localStream.getVideoTracks()[0];
-                const sender = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'video');
-                if (sender) sender.replaceTrack(videoTrack);
-                
-                screenStream.getTracks().forEach(t => t.stop());
-                screenStream = null;
-                document.getElementById('btn-screen').classList.remove('btn-active');
-            } else {
-                navigator.mediaDevices.getDisplayMedia({ video: true }).then(stream => {
-                    screenStream = stream;
-                    const videoTrack = stream.getVideoTracks()[0];
-                    
-                    videoTrack.onended = () => {
-                         const camTrack = localStream.getVideoTracks()[0];
-                         const sender = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'video');
-                         if(sender) sender.replaceTrack(camTrack);
-                         screenStream = null;
-                         document.getElementById('btn-screen').classList.remove('btn-active');
-                    };
-
-                    const sender = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'video');
-                    if(sender) sender.replaceTrack(videoTrack);
-                    
-                    document.getElementById('btn-screen').classList.add('btn-active');
-                }).catch(err => console.log("Screen share cancelled", err));
-            }
+            document.getElementById('call-overlay').classList.add('hidden');
         }
 
         function toggleMute() {
@@ -853,281 +647,130 @@
             }
         }
 
-        // --- MESSAGING ---
-
-        function sendMessage() {
-            const input = document.getElementById('msg-input');
-            const text = input.value.trim();
-            if(!text) return;
-
-            if(conn && conn.open) {
-                const id = crypto.randomUUID();
-                const time = ephemeralTimes[ephemeralIndex];
-                const payload = { type: time > 0 ? 'timed-text' : 'text', id, content: text, replyTo: replyContext, duration: time };
-                
-                conn.send(payload);
-                renderMessage(id, text, 'me', replyContext, time > 0, time);
-                playSound('pop');
-                input.value = '';
-                cancelReply();
-            } else showToast("Offline", "error");
+        // --- GAME LOGIC ---
+        function toggleGameMode() {
+            if(activeContext !== 'group') return showToast("Games only available in Group Chat", "error");
+            const el = document.getElementById('game-container');
+            el.classList.toggle('hidden');
+            if(!el.classList.contains('hidden')) resizeCanvas();
+            if(myRole === 'host' && !gameActive) startGame(myId, true);
         }
 
-        function sendSticker(url) {
-            if(conn && conn.open) {
-                const id = crypto.randomUUID();
-                conn.send({ type: 'sticker', id: id, url: url });
-                renderSticker(url, 'me');
-            } else {
-                showToast("Not connected!", "error");
+        function startGame(drawerId, broadcastStart) {
+            gameActive = true;
+            isDrawer = (drawerId === myId);
+            currentWord = isDrawer ? ["APPLE", "HOUSE", "SUN", "TREE", "CAR"][Math.floor(Math.random()*5)] : "";
+            
+            document.getElementById('game-container').classList.remove('hidden');
+            resizeCanvas();
+            clearCanvas();
+            
+            const display = document.getElementById('game-word-display');
+            display.innerText = isDrawer ? `DRAW: ${currentWord}` : "GUESS THE DRAWING!";
+            display.className = isDrawer ? "badge badge-primary font-mono" : "badge badge-neutral font-mono";
+            
+            if(broadcastStart && myRole === 'host') sendNetwork({type: 'game-start', drawer: drawerId});
+        }
+
+        function resetGame() {
+            gameActive = false; isDrawer = false; currentWord = "";
+            document.getElementById('game-container').classList.add('hidden');
+        }
+
+        function checkGameGuess(text) {
+            if(gameActive && !isDrawer && text.toUpperCase().trim() === currentWord) {
+                sendNetwork({type: 'game-win', winner: myName, word: currentWord});
+                showToast("You guessed it!", "success");
             }
         }
 
-        function renderFile(id, name, data, mime, sender) {
-            const div = document.createElement('div');
-            const isMe = sender === 'me';
-            div.className = `chat ${isMe ? 'chat-end' : 'chat-start'}`;
-            
-            let content = '';
-            if(mime.startsWith('image/')) {
-                content = `<img src="${data}" class="chat-image-content" onclick="window.open(this.src)">`;
+        function startDrawing(e) { if(!isDrawer) return; isDrawing=true; draw(e); }
+        function stopDrawing() { isDrawing=false; ctx.beginPath(); }
+        function draw(e) {
+            if(!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX||e.touches[0].clientX) - rect.left;
+            const y = (e.clientY||e.touches[0].clientY) - rect.top;
+            ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = gameColor;
+            ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
+            sendNetwork({type: 'game-draw', x, y, color: gameColor, newStroke: false});
+        }
+        function drawRemote(d) {
+            if(isDrawer) return;
+            ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = d.color;
+            ctx.lineTo(d.x, d.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(d.x, d.y);
+        }
+        function resizeCanvas() { canvas.width = canvas.parentElement.offsetWidth; canvas.height = canvas.parentElement.offsetHeight; }
+        function clearCanvas() { ctx.clearRect(0,0,canvas.width,canvas.height); if(isDrawer) sendNetwork({type:'game-clear'}); }
+        function setGameColor(c) { gameColor = c; }
+
+        // --- UTILS ---
+        function broadcast(data, exclude) { Object.values(connections).forEach(c => { if(c.peer !== exclude) c.send(data); }); }
+        function sendNetwork(data) {
+            if(myRole === 'host') {
+                if(data.to && connections[data.to]) connections[data.to].send(data);
+                else broadcast(data, null);
             } else {
-                content = `
-                    <div class="flex items-center gap-3 bg-base-200 p-3 rounded-lg cursor-pointer hover:bg-base-300 transition-colors" onclick="const a = document.createElement('a'); a.href='${data}'; a.download='${name}'; a.click();">
-                        <div class="w-10 h-10 rounded bg-primary/10 flex items-center justify-center text-primary"><i class="ph-bold ph-file text-xl"></i></div>
-                        <div class="overflow-hidden text-left">
-                            <div class="font-bold text-sm truncate w-32">${name}</div>
-                            <div class="text-xs opacity-60">Tap to download</div>
-                        </div>
-                    </div>`;
+                const h = Object.values(connections)[0];
+                if(h) h.send(data);
             }
-
-            div.innerHTML = `
-                <div class="chat-bubble ${isMe ? 'chat-bubble-primary' : 'bg-base-100 text-base-content'} !p-2 !bg-transparent shadow-none">
-                    ${content}
-                </div>
-                <div class="chat-footer opacity-50 text-xs mt-1">
-                    ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
-                </div>
-            `;
-            
-            document.getElementById('messages-container').appendChild(div);
-            scrollToBottom();
         }
-
-        // Helpers
-        function sendTyping() { if(conn && conn.open) conn.send({ type: 'typing' }); }
-        function cancelReply() { replyContext = null; document.getElementById('reply-preview').classList.add('hidden'); }
-        function toggleSettings() { document.getElementById('settings-modal').showModal(); }
-        function toggleMediaDrawer() { document.getElementById('media-drawer').classList.toggle('hidden'); }
-        function playSound(t) { if(settings.sound) sounds[t].play().catch(()=>{}); }
-        function stopSound(t) { sounds[t].pause(); sounds[t].currentTime = 0; }
-        
-        function renderMessage(id, text, sender, replyTo, isTimed, duration) {
-            const div = document.createElement('div');
-            const isMe = sender === 'me';
-            const link = linkifyHtml(text, { target: '_blank', className: 'underline font-bold' });
-            
-            let replyHtml = replyTo ? `<div class="text-xs opacity-70 mb-1 border-l-2 pl-2 border-current">Replying...</div>` : '';
-            let timerHtml = isTimed ? `<div class="absolute -top-3 -right-2 badge badge-xs badge-secondary">15s</div>` : '';
-
-            div.className = `chat ${isMe ? 'chat-end' : 'chat-start'} ${isTimed ? 'msg-timed' : ''}`;
-            div.dataset.id = id;
-            div.innerHTML = `
-                <div class="chat-bubble ${isMe ? 'chat-bubble-primary' : 'bg-base-100 text-base-content shadow-sm'} relative group">
-                    ${timerHtml}
-                    ${replyHtml}
-                    <div class="break-words">${link}</div>
-                </div>
-                <div class="chat-footer opacity-50 text-xs mt-1">
-                    ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
-                </div>
-            `;
-            
-            // Context Menu Bindings
-            div.querySelector('.chat-bubble').oncontextmenu = (e) => showContextMenu(e, div, isMe);
-            // Mobile Long Press
-            let t;
-            div.querySelector('.chat-bubble').addEventListener('touchstart', (e) => { t = setTimeout(() => showContextMenu(e.touches[0], div, isMe), 500); });
-            div.querySelector('.chat-bubble').addEventListener('touchend', () => clearTimeout(t));
-
-            document.getElementById('messages-container').appendChild(div);
-            scrollToBottom();
-            if(isTimed) setTimeout(() => { div.style.opacity='0'; setTimeout(()=>div.remove(),500); }, duration||15000);
+        function storeMessage(m, c) { if(!chats[c]) chats[c]=[]; chats[c].push(m); }
+        function receiveMessage(msg) {
+            const ctx = (msg.to === myId) ? msg.from : 'group';
+            storeMessage(msg, ctx);
+            if(activeContext === ctx) renderMessage(msg, false);
+            else { unread[ctx] = (unread[ctx]||0) + 1; updateNav(); showToast(`New message from ${msg.senderName}`); }
         }
-
-        function scrollToBottom() {
-            const c = document.getElementById('messages-container');
-            c.scrollTop = c.scrollHeight;
-            setTimeout(() => c.scrollTop = c.scrollHeight, 100);
+        function switchContext(ctx) {
+            activeContext = ctx; unread[ctx] = 0; updateNav();
+            document.getElementById('messages-container').innerHTML = '<div class="divider text-[10px] opacity-40 my-4 font-mono">HISTORY</div>';
+            (chats[ctx]||[]).forEach(m => renderMessage(m, m.from===myId));
+            document.getElementById('header-title').innerText = ctx==='group' ? (sessionMode==='1on1'?'Private Room':'General') : (participants[ctx]||'Unknown');
+            document.getElementById('main-drawer').checked = false;
         }
-
-        function setupVoiceRecording() {
-            const btn = document.getElementById('btn-record');
-            const start = async () => {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({audio: true});
-                    mediaRecorder = new MediaRecorder(stream);
-                    audioChunks = [];
-                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-                    mediaRecorder.onstop = () => {
-                        const reader = new FileReader();
-                        reader.readAsDataURL(new Blob(audioChunks));
-                        reader.onloadend = () => {
-                            const id = crypto.randomUUID();
-                            const time = ephemeralTimes[ephemeralIndex];
-                            const payload = { type: time > 0 ? 'timed-audio' : 'audio', id, data: reader.result, duration: time };
-                            conn.send(payload);
-                            renderAudio(id, reader.result, 'me', time > 0);
-                        };
-                        stream.getTracks().forEach(t=>t.stop());
-                    };
-                    mediaRecorder.start();
-                    btn.classList.add('recording-active');
-                } catch(e) { showToast("Mic permission required", "error"); }
-            };
-            const stop = () => { if(mediaRecorder && mediaRecorder.state === 'recording') { mediaRecorder.stop(); btn.classList.remove('recording-active'); } };
-            btn.onmousedown = start; btn.onmouseup = stop; btn.ontouchstart = start; btn.ontouchend = stop;
-        }
-
-        function renderAudio(id, data, sender, isTimed) {
-            const div = document.createElement('div');
-            const isMe = sender === 'me';
-            div.className = `chat ${isMe ? 'chat-end' : 'chat-start'} ${isTimed ? 'msg-timed' : ''}`;
-            const aid = `aud-${id}`;
-            div.innerHTML = `
-                <div class="chat-bubble ${isMe ? 'chat-bubble-primary' : 'bg-base-100 text-base-content'} flex items-center gap-3 min-w-[150px]">
-                    <button onclick="document.getElementById('${aid}').play()" class="btn btn-circle btn-sm btn-ghost bg-black/10 hover:bg-black/20 border-none text-current">
-                        <i class="ph-fill ph-play"></i>
-                    </button>
-                    <div class="flex flex-col">
-                        <span class="text-xs font-bold opacity-70 uppercase">Voice Note</span>
-                        <div class="w-24 h-1 bg-current opacity-20 rounded-full mt-1"></div>
-                    </div>
-                </div>
-                <audio id="${aid}" src="${data}"></audio>
-            `;
-            document.getElementById('messages-container').appendChild(div);
-            scrollToBottom();
-            if(isTimed) setTimeout(() => { div.style.opacity='0'; setTimeout(()=>div.remove(),500); }, 15000);
-        }
-
-        function renderSticker(url, sender) {
-            const div = document.createElement('div');
-            const isMe = sender === 'me';
-            div.className = `chat ${isMe ? 'chat-end' : 'chat-start'}`;
-            div.innerHTML = `
-                <div class="chat-bubble bg-transparent p-0 shadow-none">
-                    <img src="${url}" class="chat-image-content border-2 border-base-300 bg-base-100" onload="scrollToBottom()">
-                </div>
-            `;
-            
-            div.querySelector('img').oncontextmenu = (e) => showContextMenu(e, div, isMe);
-            document.getElementById('messages-container').appendChild(div);
-            scrollToBottom();
-        }
-
-        function renderStickerGrid(list) {
-            const grid = document.getElementById('sticker-grid');
-            if(!grid) return;
-            grid.innerHTML = '';
-            list.forEach(item => {
-                const img = document.createElement('img');
-                img.src = item.url;
-                img.className = 'w-full h-20 object-contain bg-base-100 rounded-lg border border-base-200 cursor-pointer hover:border-primary transition-colors';
-                img.onclick = () => {
-                    sendSticker(item.url);
-                    toggleMediaDrawer();
-                };
-                grid.appendChild(img);
+        function updateNav() {
+            const list = document.getElementById('dm-list'); list.innerHTML = '';
+            Object.entries(participants).forEach(([id, name]) => {
+                list.innerHTML += `<li onclick="switchContext('${id}')"><a class="${activeContext===id?'active bg-blue-50 text-blue-700':''} text-xs font-medium"><div class="avatar placeholder online"><div class="w-5 rounded-full bg-neutral/10 text-neutral-content"><span class="text-[10px]">${name[0]}</span></div></div>${name}</a></li>`;
             });
         }
-
-        function filterStickers() {
-            const query = document.getElementById('sticker-search').value.toLowerCase();
-            const filtered = initialStickers.filter(s => s.tags.includes(query));
-            renderStickerGrid(filtered);
-        }
-
-        // --- CONTEXT MENU ---
-        function showContextMenu(e, element, isMe) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            ctxTarget = element;
-            const menu = document.getElementById('context-menu');
-            document.getElementById('ctx-edit').classList.toggle('hidden', !isMe || element.dataset.type === 'media');
-            document.getElementById('ctx-delete').classList.toggle('hidden', !isMe);
-
-            const x = e.clientX;
-            const y = e.clientY;
-            const menuW = 180;
-            const menuH = 200;
-            
-            const left = (x + menuW > window.innerWidth) ? window.innerWidth - menuW - 10 : x;
-            const top = (y + menuH > window.innerHeight) ? y - menuH : y;
-            
-            menu.style.left = left + 'px';
-            menu.style.top = top + 'px';
-            menu.classList.remove('hidden');
-        }
-
-        function handleCtxAction(action) {
+        function toggleMediaDrawer(e) { e.stopPropagation(); document.getElementById('media-drawer').classList.toggle('hidden'); }
+        function toggleEmojiPicker(e) { e.stopPropagation(); document.getElementById('emoji-popover').classList.toggle('hidden'); }
+        function showToast(m, t='info') { Toastify({text:m, style:{background:t==='error'?'#ef4444':'#3b82f6', borderRadius:'8px', fontSize:'12px'}}).showToast(); }
+        function clearChat() { chats[activeContext]=[]; switchContext(activeContext); }
+        function disconnect() { location.reload(); }
+        
+        function handleCtxAction(a) {
             document.getElementById('context-menu').classList.add('hidden');
-            if(!ctxTarget) return;
-
-            const id = ctxTarget.dataset.id;
-            // Try to find text within chat bubble
-            const textEl = ctxTarget.querySelector('.break-words') || ctxTarget.querySelector('.chat-bubble');
-            const text = textEl ? textEl.innerText : "";
-
-            if(action === 'copy') { navigator.clipboard.writeText(text); showToast("Copied"); }
-            else if(action === 'reply') setReply(id, text);
-            else if(action === 'delete') {
-                ctxTarget.remove();
-                if(conn && conn.open) conn.send({type: 'delete', id: id});
-            } else if(action === 'edit') {
-                isEditing = id;
-                const input = document.getElementById('msg-input');
-                input.value = text;
-                input.focus();
+            if(a==='copy') navigator.clipboard.writeText(ctxTarget.text);
+            if(a==='reply') { replyContext={id:ctxTarget.id, text:ctxTarget.text.substring(0,50)+'...'}; document.getElementById('reply-preview').classList.remove('hidden'); document.getElementById('reply-text').innerText=replyContext.text; document.getElementById('msg-input').focus(); }
+            if(a==='delete') sendNetwork({type:'delete', msgId:ctxTarget.id, from:myId});
+        }
+        function sendReaction(e) {
+            document.getElementById('context-menu').classList.add('hidden');
+            sendNetwork({type:'reaction', msgId:ctxTarget.id, emoji:e, from:myId, to:activeContext==='group'?null:activeContext});
+            handleReaction({msgId:ctxTarget.id, emoji:e});
+        }
+        function handleReaction(d) { const el = document.getElementById(`reacts-${d.msgId}`); if(el) { el.innerHTML = d.emoji; el.classList.remove('hidden'); }}
+        function handleDelete(d) { const el = document.getElementById(`msg-${d.msgId}`); if(el) el.innerHTML = `<div class="text-[10px] italic opacity-50 text-center py-1">Message deleted</div>`; }
+        function cancelReply() { replyContext=null; document.getElementById('reply-preview').classList.add('hidden'); }
+        function showTyping(d) {
+            if((activeContext==='group' && !d.to) || (activeContext===d.from)) {
+                const el=document.getElementById('typing-indicator'); el.classList.remove('hidden');
+                document.getElementById('typing-text').innerText = `${d.senderName} is typing...`;
+                clearTimeout(typingTimeout); typingTimeout=setTimeout(()=>el.classList.add('hidden'),3000);
             }
         }
-
-        function setReply(id, text) {
-            replyContext = { id, text: text.substring(0, 50) + (text.length>50?'...':'') };
-            document.getElementById('reply-preview').classList.remove('hidden');
-            document.getElementById('reply-text').innerText = replyContext.text;
-            document.getElementById('msg-input').focus();
+        function sendTyping() { sendNetwork({type:'typing', senderName:myName, from:myId, to:activeContext==='group'?null:activeContext}); }
+        function renderStickerGrid(l) { 
+            const g=document.getElementById('sticker-grid'); g.innerHTML='';
+            l.forEach(s=>{ g.innerHTML+=`<img src="${s.url}" class="w-full h-16 object-contain bg-slate-50 rounded cursor-pointer hover:scale-105 transition" onclick="document.getElementById('msg-input').value='${s.url}';sendMessage();document.getElementById('media-drawer').classList.add('hidden')">`; });
         }
-
-        function sendReaction(emoji) {
-            // Implementation left simple for brevity
-            showToast("Reaction sent: " + emoji);
-            document.getElementById('context-menu').classList.add('hidden');
+        function filterStickers() { 
+            const q=document.getElementById('sticker-search').value.toLowerCase();
+            renderStickerGrid(STICKERS.filter(s=>s.tags.includes(q)));
         }
-
-        function toggleNotifs() {
-            settings.notifs = document.getElementById('toggle-notif').checked;
-        }
-        
-        function toggleSound() {
-            settings.sound = document.getElementById('toggle-sound').checked;
-        }
-
-        let callInterval;
-        function startCallTimer() {
-            let sec = 0;
-            const el = document.getElementById('call-timer');
-            clearInterval(callInterval);
-            callInterval = setInterval(() => {
-                sec++;
-                el.innerText = `${Math.floor(sec/60).toString().padStart(2,'0')}:${(sec%60).toString().padStart(2,'0')}`;
-            }, 1000);
-        }
-        function stopCallTimer() { clearInterval(callInterval); document.getElementById('call-timer').innerText = "00:00"; }
-        function disconnect() { if(conn) conn.close(); if(peer) peer.destroy(); location.reload(); }
-
     </script>
 </body>
 </html>
