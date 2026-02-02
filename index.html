@@ -37,86 +37,30 @@
 
     <style>
         :root {
-            /* Crystal Brutalism Palette */
-            --glass-bg: rgba(255, 255, 255, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.6);
-            --tactile-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-            --hard-shadow: 2px 2px 0px 0px rgba(0,0,0,1);
+            /* Modern Chat Palette */
+            --bg-chat: #efeae2; /* Telegram/WhatsApp-ish warm grey */
+            --bg-bubble-me: #dcf8c6; /* Classic reliable green/blue tint */
+            --bg-bubble-other: #ffffff;
             
-            --accent-primary: #2563eb;
-            --accent-danger: #ef4444;
-            --accent-success: #10b981;
-            --accent-ephemeral: #7c3aed; 
+            --accent-primary: #0088cc;
+            --accent-ephemeral: #8b5cf6; 
         }
 
         body {
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: #f3f4f6;
-            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
-            background-size: 24px 24px;
+            background: #f0f2f5;
             height: 100dvh;
             overflow: hidden;
             -webkit-tap-highlight-color: transparent;
-            color: #1f2937;
+            color: #111b21;
         }
 
         .font-display { font-family: 'Space Grotesk', sans-serif; }
 
-        /* Layout Utility */
-        .safe-pb { padding-bottom: env(safe-area-inset-bottom); }
-
-        /* Glassmorphic Tactile Box */
-        .tactile-box {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.9);
-            box-shadow: 
-                0 4px 6px -1px rgba(0, 0, 0, 0.05), 
-                0 2px 4px -1px rgba(0, 0, 0, 0.03),
-                inset 0 0 0 1px rgba(255,255,255,0.6);
-            border-radius: 20px;
-        }
-        
-        /* Buttons */
-        .tactile-btn {
-            background: #ffffff;
-            border: 1px solid #1f2937;
-            box-shadow: var(--hard-shadow);
-            transform: translate(0, 0);
-            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            font-weight: 600;
-        }
-        
-        .tactile-btn:active {
-            box-shadow: 0px 0px 0px 0px rgba(0,0,0,1);
-            transform: translate(2px, 2px);
-        }
-
-        .tactile-btn.active-mode {
-            background-color: var(--accent-ephemeral);
-            color: white;
-            border-color: var(--accent-ephemeral);
-        }
-
-        /* Inputs */
-        .tactile-input {
-            border: 1.5px solid #1f2937;
-            background: rgba(255,255,255,0.9);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-            transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
-        }
-        .tactile-input:focus {
-            background: #fff;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-            outline: none;
-        }
-
-        /* Chat Messages */
+        /* Background Pattern */
         #messages-container {
+            background-color: var(--bg-chat);
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239c92ac' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
             flex: 1 1 0;
             min-height: 0;
             overflow-y: auto;
@@ -124,91 +68,129 @@
             padding-bottom: 20px;
         }
 
-        .msg-bubble {
-            max-width: 85%;
-            padding: 12px 16px;
-            border-radius: 20px;
-            position: relative;
+        /* Tactile/Glass Elements */
+        .tactile-box {
+            background: rgba(255, 255, 255, 0.95);
             border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+        }
+        
+        /* Buttons */
+        .tactile-btn {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            color: #4b5563;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        .tactile-btn:hover { background: #f9fafb; color: #111827; }
+        .tactile-btn:active { transform: scale(0.95); background: #f3f4f6; }
+
+        .tactile-btn.active-mode {
+            background-color: #ede9fe;
+            color: #7c3aed;
+            border-color: #7c3aed;
+        }
+
+        /* Inputs */
+        .tactile-input {
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .tactile-input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.1);
+            outline: none;
+        }
+
+        /* Chat Bubbles - Improved Aesthetics */
+        .msg-bubble {
+            max-width: 75%;
+            padding: 8px 12px;
+            border-radius: 12px;
+            position: relative;
             word-wrap: break-word;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             font-size: 0.95rem;
-            line-height: 1.5;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            line-height: 1.4;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
             transition: opacity 0.5s ease-out;
         }
 
+        @media (min-width: 640px) {
+            .msg-bubble { max-width: 60%; }
+        }
+
         .msg-me {
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
-            color: white;
-            border-bottom-right-radius: 4px;
+            background: #e0f2fe; /* Soft blue */
+            color: #1e3a8a;
+            border-top-right-radius: 0;
             margin-left: auto;
-            border: none;
         }
         
-        .msg-me a { color: #bfdbfe !important; text-decoration: underline; }
+        .msg-me a { color: #2563eb !important; text-decoration: underline; }
 
         .msg-other {
             background: #ffffff;
             color: #1f2937;
-            border-bottom-left-radius: 4px;
+            border-top-left-radius: 0;
             margin-right: auto;
         }
 
-        /* Rich Link Preview */
-        .link-preview {
-            margin-top: 8px;
-            background: rgba(0,0,0,0.05);
+        /* File Attachments - Card Style */
+        .file-card {
+            background: rgba(0,0,0,0.03);
             border-radius: 8px;
             padding: 8px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 0.85rem;
+            gap: 10px;
+            margin-top: 4px;
             border: 1px solid rgba(0,0,0,0.05);
+            transition: background 0.2s;
         }
-        .msg-me .link-preview { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
-
-        /* Ephemeral Message */
-        .msg-timed {
-            border: 2px dashed var(--accent-ephemeral);
-            background: #f5f3ff;
-            color: #4c1d95;
-        }
-        .msg-me.msg-timed { background: #7c3aed; color: white; border: 2px dashed rgba(255,255,255,0.5); }
+        .msg-me .file-card { background: rgba(255,255,255,0.4); border-color: rgba(255,255,255,0.5); }
+        .msg-me .file-card:hover { background: rgba(255,255,255,0.6); }
 
         /* Image Constraints */
         .chat-image {
-            max-height: 250px;
-            width: auto;
+            max-height: 200px;
             max-width: 100%;
-            object-fit: contain;
-            border-radius: 12px;
-            margin-top: 8px;
-            border: 1px solid rgba(0,0,0,0.1);
-            background: #f3f4f6;
+            height: auto;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-top: 4px;
+            display: block;
+            cursor: pointer;
         }
 
+        /* Ephemeral Message */
+        .msg-timed {
+            border-left: 3px solid var(--accent-ephemeral);
+        }
+        
         /* Reactions */
         .reactions-container {
             position: absolute;
-            bottom: -10px;
+            bottom: -8px;
             display: flex;
             gap: 2px;
             z-index: 5;
         }
-        .msg-me .reactions-container { right: 0; }
-        .msg-other .reactions-container { left: 0; }
+        .msg-me .reactions-container { right: 4px; }
+        .msg-other .reactions-container { left: 4px; }
 
         .reaction-pill {
             background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 2px 6px;
+            border: 1px solid #f3f4f6;
+            border-radius: 10px;
+            padding: 1px 5px;
             font-size: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             animation: popIn 0.2s;
-            color: #000;
         }
 
         /* Animations */
@@ -231,19 +213,18 @@
 
         /* Toastify Override */
         .toastify {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            color: #1f2937;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
+            background: #1f2937;
+            color: #fff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
             font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            padding: 12px 16px;
+            font-weight: 500;
+            padding: 10px 16px;
+            font-size: 14px;
         }
         
         /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
@@ -251,127 +232,119 @@
         /* Emoji Picker */
         emoji-picker {
             width: 100%;
-            height: 320px;
+            height: 300px;
             --background: #fff;
             --border-color: #e5e7eb;
         }
         
-        /* Context Menu Fixed Positioning */
         #context-menu {
             position: fixed;
             z-index: 1000;
         }
         
-        /* Upload Progress */
-        #upload-progress {
-            transition: width 0.1s linear;
-        }
+        #upload-progress { transition: width 0.1s linear; }
     </style>
 </head>
-<body class="text-gray-900 selection:bg-blue-500 selection:text-white">
+<body class="text-gray-900">
 
-    <div id="app" class="relative w-full h-full max-w-6xl mx-auto flex flex-col sm:p-4 lg:p-6">
+    <div id="app" class="relative w-full h-full max-w-5xl mx-auto flex flex-col sm:p-4 lg:p-6">
         
         <!-- 1. LANDING PAGE -->
         <div id="landing-page" class="flex-1 w-full h-full flex flex-col items-center justify-center p-4 z-20">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
                 
-                <!-- Brand Box -->
-                <div class="tactile-box p-12 md:col-span-2 flex flex-col items-center text-center relative overflow-hidden bg-white/60">
-                    <div class="absolute inset-0 bg-gradient-to-br from-blue-100/40 to-purple-100/40 -z-10"></div>
-                    <h1 class="text-7xl font-bold mb-2 tracking-tighter relative z-10 font-display bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">TACTILE.IO</h1>
-                    <p class="text-lg text-gray-600 font-medium tracking-wide">Professional P2P Suite</p>
+                <div class="tactile-box p-12 md:col-span-2 flex flex-col items-center text-center bg-white shadow-xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-purple-500"></div>
+                    <h1 class="text-6xl font-bold mb-2 tracking-tight font-display text-gray-900">TACTILE</h1>
+                    <p class="text-lg text-gray-500 font-medium">Secure P2P Messaging</p>
                 </div>
 
-                <!-- Input Box -->
-                <div class="tactile-box p-8 bg-white/90 flex flex-col justify-center gap-6">
+                <div class="tactile-box p-8 bg-white flex flex-col justify-center gap-6">
                     <div>
-                        <label class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2 block">Identity</label>
-                        <input type="text" id="username-input" placeholder="Display Name" class="tactile-input w-full p-4 rounded-xl text-lg" maxlength="20">
+                        <label class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2 block">Your Name</label>
+                        <input type="text" id="username-input" placeholder="Display Name" class="tactile-input w-full p-4 rounded-xl text-lg bg-gray-50" maxlength="20">
                     </div>
                     
                     <div>
-                        <label class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2 block">Secure Frequency</label>
+                        <label class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2 block">Room Code</label>
                         <div class="relative">
                             <i class="ph-bold ph-hash absolute left-4 top-1/2 -translate-y-1/2 text-xl text-gray-400"></i>
-                            <input type="text" id="room-input" placeholder="ROOM-CODE" class="tactile-input w-full p-4 pl-12 rounded-xl text-lg font-mono uppercase tracking-widest text-gray-700">
+                            <input type="text" id="room-input" placeholder="secret-room" class="tactile-input w-full p-4 pl-12 rounded-xl text-lg font-mono uppercase tracking-widest text-gray-700 bg-gray-50">
                         </div>
                     </div>
                 </div>
 
-                <!-- Action Box -->
-                <div class="tactile-box p-8 bg-white/90 flex flex-col justify-center gap-4">
+                <div class="tactile-box p-8 bg-white flex flex-col justify-center gap-4">
                     <div class="grid grid-cols-2 gap-4 h-full">
-                        <button onclick="startSession('create')" class="tactile-btn rounded-xl flex flex-col items-center justify-center p-4 hover:bg-emerald-50 hover:border-emerald-500 group transition-all">
+                        <button onclick="startSession('create')" class="tactile-btn rounded-xl flex flex-col items-center justify-center p-4 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700 group transition-all shadow-sm">
                             <i class="ph-fill ph-broadcast text-3xl mb-3 text-emerald-500 group-hover:scale-110 transition-transform"></i>
-                            <span class="font-bold text-gray-700">Host Room</span>
+                            <span class="font-bold">Host</span>
                         </button>
-                        <button onclick="startSession('join')" class="tactile-btn rounded-xl flex flex-col items-center justify-center p-4 hover:bg-blue-50 hover:border-blue-500 group transition-all">
+                        <button onclick="startSession('join')" class="tactile-btn rounded-xl flex flex-col items-center justify-center p-4 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 group transition-all shadow-sm">
                             <i class="ph-fill ph-plugs-connected text-3xl mb-3 text-blue-500 group-hover:scale-110 transition-transform"></i>
-                            <span class="font-bold text-gray-700">Join Room</span>
+                            <span class="font-bold">Join</span>
                         </button>
                     </div>
                 </div>
             </div>
-            <p class="mt-12 text-xs font-semibold text-gray-400 tracking-widest uppercase">v4.0 • Unlimited File Size • Encrypted</p>
         </div>
 
         <!-- 2. CHAT INTERFACE -->
-        <div id="chat-interface" class="hidden absolute inset-0 sm:static sm:h-full sm:rounded-[24px] tactile-box overflow-hidden flex flex-col bg-white/90 shadow-2xl">
+        <div id="chat-interface" class="hidden absolute inset-0 sm:static sm:h-full sm:rounded-2xl tactile-box overflow-hidden flex flex-col bg-white shadow-2xl ring-1 ring-black/5">
             
             <!-- Header -->
-            <header class="h-18 border-b border-gray-200 bg-white/80 backdrop-blur-md flex items-center justify-between px-4 py-3 z-30 shrink-0">
+            <header class="h-16 border-b border-gray-100 bg-white flex items-center justify-between px-4 z-30 shrink-0">
                 <div class="flex items-center gap-3">
                     <div class="relative cursor-pointer hover:opacity-80 transition active:scale-95" onclick="toggleSettings()">
-                        <div class="w-10 h-10 rounded-full border border-gray-200 bg-white shadow-sm overflow-hidden">
+                        <div class="w-10 h-10 rounded-full bg-gray-100 overflow-hidden ring-1 ring-gray-200">
                              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Init" id="remote-avatar" class="w-full h-full object-cover">
                         </div>
-                        <div id="status-dot" class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white bg-gray-300 shadow-sm"></div>
+                        <div id="status-dot" class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white bg-gray-300"></div>
                     </div>
                     <div>
-                        <h2 id="chat-title" class="font-bold text-lg leading-tight truncate max-w-[140px] sm:max-w-xs font-display text-gray-800">Waiting...</h2>
+                        <h2 id="chat-title" class="font-bold text-base leading-tight truncate max-w-[140px] text-gray-900">Waiting...</h2>
                         <div class="flex items-center gap-1.5">
                             <span id="chat-status" class="text-xs font-medium text-gray-500">Disconnected</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="flex gap-1.5 items-center">
-                    <button onclick="startCall(false)" class="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-blue-50 text-gray-600 hover:text-blue-600 transition-colors" title="Voice Call">
+                <div class="flex gap-1 items-center">
+                    <button onclick="startCall(false)" class="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-blue-50 text-gray-600 hover:text-blue-600 transition-colors" title="Voice Call">
                         <i class="ph-bold ph-phone text-lg"></i>
                     </button>
-                    <button onclick="startCall(true)" class="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-emerald-50 text-gray-600 hover:text-emerald-600 transition-colors" title="Video Call">
+                    <button onclick="startCall(true)" class="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-emerald-50 text-gray-600 hover:text-emerald-600 transition-colors" title="Video Call">
                         <i class="ph-bold ph-video text-lg"></i>
                     </button>
-                    <div class="w-px h-6 bg-gray-300 mx-1"></div>
-                    <button onclick="toggleSettings()" class="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-gray-100 text-gray-600 transition-colors" title="Settings">
-                        <i class="ph-bold ph-gear text-lg"></i>
+                    <div class="w-px h-5 bg-gray-200 mx-1"></div>
+                    <button onclick="toggleSettings()" class="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 text-gray-600 transition-colors" title="Settings">
+                        <i class="ph-bold ph-dots-three-vertical text-lg"></i>
                     </button>
-                    <button onclick="disconnect()" class="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-red-50 text-red-500 transition-colors" title="Disconnect">
+                    <button onclick="disconnect()" class="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-red-50 text-red-500 transition-colors" title="Disconnect">
                         <i class="ph-bold ph-power text-lg"></i>
                     </button>
                 </div>
             </header>
 
             <!-- Upload Bar -->
-            <div id="upload-bar" class="hidden h-1 bg-gray-200 w-full relative">
+            <div id="upload-bar" class="hidden h-1 bg-gray-100 w-full relative">
                 <div id="upload-progress" class="h-full bg-blue-500 w-0"></div>
             </div>
 
-            <!-- Messages Area (Flex Grow) -->
-            <div id="messages-container" class="bg-gray-50/50">
-                <div class="flex flex-col items-center justify-center mt-20 opacity-40 select-none text-center px-4">
-                    <div class="w-16 h-16 rounded-2xl bg-gray-200 flex items-center justify-center mb-4 shadow-inner">
-                        <i class="ph-duotone ph-shield-check text-3xl text-gray-500"></i>
+            <!-- Messages Area -->
+            <div id="messages-container">
+                <div class="flex flex-col items-center justify-center mt-12 opacity-50 select-none text-center px-6">
+                    <div class="w-12 h-12 rounded-xl bg-gray-200 flex items-center justify-center mb-3">
+                        <i class="ph-duotone ph-lock-key text-2xl text-gray-500"></i>
                     </div>
-                    <p class="text-sm font-bold font-display text-gray-600">Secure Channel</p>
-                    <p class="text-xs mt-1 text-gray-500 max-w-xs">Messages are end-to-end encrypted. Large file support enabled.</p>
+                    <p class="text-xs font-bold uppercase tracking-wider text-gray-500">End-to-End Encrypted</p>
+                    <p class="text-xs mt-1 text-gray-400">Messages are peer-to-peer.</p>
                 </div>
             </div>
 
-            <!-- Typing & Reply Indicators (Absolute to bottom of messages) -->
+            <!-- Indicators -->
             <div id="indicators-area" class="relative z-20">
-                <div id="activity-indicator" class="hidden absolute bottom-2 left-6 bg-white/90 backdrop-blur px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-gray-200 flex items-center gap-2 text-gray-600 transform -translate-y-full">
+                <div id="activity-indicator" class="hidden absolute bottom-2 left-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-full text-xs font-bold shadow-sm border border-gray-100 flex items-center gap-2 text-gray-600 transform -translate-y-full">
                     <div class="flex gap-1">
                         <div class="w-1 h-1 bg-gray-500 rounded-full animate-bounce"></div>
                         <div class="w-1 h-1 bg-gray-500 rounded-full animate-bounce delay-75"></div>
@@ -380,24 +353,24 @@
                     <span id="activity-text">Typing...</span>
                 </div>
 
-                <div id="reply-preview" class="hidden bg-white border-t border-gray-200 p-3 flex justify-between items-center text-sm shadow-sm">
-                    <div class="border-l-4 border-blue-500 pl-3">
+                <div id="reply-preview" class="hidden bg-white border-t border-gray-100 p-2 px-4 flex justify-between items-center text-sm">
+                    <div class="border-l-4 border-blue-500 pl-3 py-1">
                         <span class="font-bold text-[10px] text-blue-600 uppercase tracking-wider">Replying to</span>
-                        <p class="truncate max-w-[200px] font-medium text-gray-700 text-xs mt-0.5" id="reply-text">...</p>
+                        <p class="truncate max-w-[200px] font-medium text-gray-700 text-xs" id="reply-text">...</p>
                     </div>
-                    <button onclick="cancelReply()" class="p-2 hover:bg-gray-100 rounded-full transition-colors"><i class="ph-bold ph-x text-gray-500"></i></button>
+                    <button onclick="cancelReply()" class="p-1.5 hover:bg-gray-100 rounded-full transition-colors"><i class="ph-bold ph-x text-gray-500"></i></button>
                 </div>
             </div>
 
-            <!-- Input Area (Fixed Height/Auto) -->
-            <footer class="p-3 bg-white border-t border-gray-200 shrink-0 relative z-30 safe-pb">
+            <!-- Input Area -->
+            <footer class="p-3 bg-white border-t border-gray-100 shrink-0 relative z-30 safe-pb">
                 
-                <!-- Sticker Drawer -->
-                <div id="media-drawer" class="hidden absolute bottom-full left-0 right-0 bg-white/95 border-t border-gray-200 h-64 flex flex-col shadow-[0_-10px_20px_rgba(0,0,0,0.05)] rounded-t-2xl overflow-hidden backdrop-blur-xl">
+                <!-- Expanded Tools -->
+                <div id="media-drawer" class="hidden absolute bottom-full left-0 right-0 bg-white/95 border-t border-gray-100 h-64 flex flex-col shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] backdrop-blur-xl">
                     <div class="p-3 border-b border-gray-100 bg-gray-50/50">
                          <div class="relative">
                             <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                            <input type="text" id="sticker-search" placeholder="Search visuals..." class="w-full p-2 pl-9 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition-colors" oninput="filterStickers()">
+                            <input type="text" id="sticker-search" placeholder="Search stickers..." class="w-full p-2 pl-9 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition-colors" oninput="filterStickers()">
                          </div>
                     </div>
                     <div id="sticker-grid" class="flex-1 overflow-y-auto p-3 grid grid-cols-4 sm:grid-cols-5 gap-3 bg-gray-50/30">
@@ -406,151 +379,132 @@
                 </div>
 
                 <div class="flex gap-2 items-end">
-                    <div class="flex flex-col gap-1">
-                        <button onclick="document.getElementById('file-picker').click()" class="tactile-btn w-10 h-10 rounded-xl flex items-center justify-center text-gray-600 hover:bg-gray-50 shrink-0" title="Send File">
-                            <i class="ph-bold ph-paperclip text-lg"></i>
-                        </button>
-                        <button onclick="toggleMediaDrawer()" class="tactile-btn w-10 h-10 rounded-xl flex items-center justify-center text-gray-600 hover:bg-gray-50 shrink-0" title="Stickers/GIFs">
-                            <i class="ph-bold ph-image text-lg"></i>
-                        </button>
-                    </div>
-
-                    <div class="flex flex-col gap-1">
-                         <button onclick="cycleEphemeral()" id="btn-timed" class="tactile-btn w-10 h-10 rounded-xl flex flex-col items-center justify-center text-gray-600 shrink-0 transition-colors text-[10px] leading-tight" title="Ephemeral Timer">
-                            <i class="ph-bold ph-timer text-base mb-0.5"></i>
-                            <span id="timed-label" class="font-bold">OFF</span>
-                        </button>
-                    </div>
+                    <button onclick="document.getElementById('file-picker').click()" class="tactile-btn w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-700 shrink-0" title="Attach File">
+                        <i class="ph-bold ph-paperclip text-xl"></i>
+                    </button>
+                    
+                    <button onclick="toggleMediaDrawer()" class="tactile-btn w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-700 shrink-0" title="Stickers">
+                        <i class="ph-bold ph-sticker text-xl"></i>
+                    </button>
 
                     <div class="flex-1 relative">
-                        <textarea id="msg-input" rows="1" class="w-full tactile-input p-3 pr-10 rounded-2xl resize-none max-h-32 min-h-[44px] text-base leading-relaxed" placeholder="Type a message..."></textarea>
-                        <button onclick="toggleEmojiPicker()" class="absolute right-3 bottom-2.5 text-gray-400 hover:text-gray-600 transition-colors transform active:scale-95">
-                            <i class="ph-fill ph-smiley text-2xl"></i>
-                        </button>
+                        <textarea id="msg-input" rows="1" class="w-full tactile-input p-2.5 px-4 pr-10 rounded-2xl resize-none max-h-32 min-h-[42px] text-[15px] leading-relaxed bg-gray-50 border-transparent focus:bg-white" placeholder="Message..."></textarea>
                         
-                        <div id="emoji-popover" class="hidden absolute bottom-14 right-0 w-80 shadow-2xl border border-gray-200 rounded-xl z-50 overflow-hidden animate-[popIn_0.1s]">
+                        <!-- Inside Textarea Actions -->
+                        <div class="absolute right-2 bottom-1.5 flex gap-1">
+                             <button onclick="cycleEphemeral()" id="btn-timed" class="p-1.5 rounded-full text-gray-400 hover:text-purple-600 transition-colors" title="Ephemeral Timer">
+                                <i class="ph-bold ph-timer text-lg"></i>
+                                <span id="timed-label" class="absolute -top-1 -right-1 text-[8px] font-bold bg-purple-100 text-purple-600 px-1 rounded-full hidden">OFF</span>
+                            </button>
+                            <button onclick="toggleEmojiPicker()" class="p-1.5 rounded-full text-gray-400 hover:text-yellow-500 transition-colors">
+                                <i class="ph-fill ph-smiley text-lg"></i>
+                            </button>
+                        </div>
+
+                        <div id="emoji-popover" class="hidden absolute bottom-14 right-0 w-80 shadow-xl border border-gray-200 rounded-xl z-50 overflow-hidden animate-[popIn_0.1s]">
                             <emoji-picker></emoji-picker>
                         </div>
                     </div>
 
-                    <button id="btn-record" class="tactile-btn w-11 h-11 mb-0.5 rounded-xl flex items-center justify-center text-gray-600 hover:bg-red-50 hover:text-red-500 shrink-0 transition-colors" title="Hold to Record">
+                    <button id="btn-record" class="tactile-btn w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:bg-red-50 hover:text-red-500 shrink-0 transition-colors" title="Hold to Record">
                         <i class="ph-bold ph-microphone text-xl"></i>
                     </button>
 
-                    <button onclick="sendMessage()" class="tactile-btn w-12 h-11 mb-0.5 rounded-xl flex items-center justify-center bg-gray-900 text-white border-gray-900 shrink-0 hover:bg-gray-800 active:scale-95 transition-transform shadow-lg">
-                        <i class="ph-bold ph-paper-plane-right text-xl"></i>
+                    <button onclick="sendMessage()" class="w-10 h-10 rounded-full flex items-center justify-center bg-blue-500 text-white hover:bg-blue-600 active:scale-95 transition-transform shadow-md shrink-0">
+                        <i class="ph-bold ph-paper-plane-right text-lg"></i>
                     </button>
                 </div>
             </footer>
         </div>
 
         <!-- SETTINGS MODAL -->
-        <div id="settings-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
-            <div class="tactile-box bg-white p-6 max-w-sm w-full animate-[popIn_0.2s] shadow-2xl">
-                <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
-                    <h3 class="text-xl font-bold font-display">Preferences</h3>
+        <div id="settings-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm p-4">
+            <div class="tactile-box bg-white p-6 max-w-sm w-full animate-[popIn_0.2s] shadow-xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-bold">Settings</h3>
                     <button onclick="toggleSettings()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"><i class="ph-bold ph-x text-lg"></i></button>
                 </div>
                 
-                <div class="space-y-3">
-                    <!-- Notifications -->
-                    <div class="flex justify-between items-center p-3 border border-gray-200 rounded-xl hover:border-gray-400 transition-colors cursor-pointer" onclick="toggleNotifs()">
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center p-3 hover:bg-gray-50 rounded-lg cursor-pointer" onclick="toggleNotifs()">
                         <div class="flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center text-blue-600"><i class="ph-duotone ph-bell text-lg"></i></div>
-                            <span class="font-bold text-sm">Notifications</span>
+                            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600"><i class="ph-duotone ph-bell"></i></div>
+                            <span class="font-medium text-sm">Notifications</span>
                         </div>
-                        <div id="btn-notif" class="w-10 h-5 bg-gray-200 rounded-full relative transition-colors duration-200 pointer-events-none">
+                        <div id="btn-notif" class="w-9 h-5 bg-gray-200 rounded-full relative transition-colors duration-200 pointer-events-none">
                             <div class="w-3 h-3 bg-white rounded-full absolute top-1 left-1 transition-transform duration-200 shadow-sm"></div>
                         </div>
                     </div>
 
-                    <!-- Sounds -->
-                    <div class="flex justify-between items-center p-3 border border-gray-200 rounded-xl hover:border-gray-400 transition-colors cursor-pointer" onclick="toggleSound()">
+                    <div class="flex justify-between items-center p-3 hover:bg-gray-50 rounded-lg cursor-pointer" onclick="toggleSound()">
                         <div class="flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-full bg-orange-50 flex items-center justify-center text-orange-600"><i class="ph-duotone ph-speaker-high text-lg"></i></div>
-                            <span class="font-bold text-sm">Sound Effects</span>
+                            <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600"><i class="ph-duotone ph-speaker-high"></i></div>
+                            <span class="font-medium text-sm">Sounds</span>
                         </div>
-                        <div id="btn-sound" class="w-10 h-5 bg-gray-900 rounded-full relative transition-colors duration-200 pointer-events-none">
-                            <div class="w-3 h-3 bg-white rounded-full absolute top-1 left-1 translate-x-5 transition-transform duration-200 shadow-sm"></div>
+                        <div id="btn-sound" class="w-9 h-5 bg-gray-800 rounded-full relative transition-colors duration-200 pointer-events-none">
+                            <div class="w-3 h-3 bg-white rounded-full absolute top-1 left-1 translate-x-4 transition-transform duration-200 shadow-sm"></div>
                         </div>
                     </div>
 
-                    <!-- Clear Chat -->
-                    <button onclick="clearChat()" class="w-full p-3 mt-2 border border-red-200 bg-red-50 text-red-600 rounded-xl font-bold text-sm hover:bg-red-100 transition-colors flex items-center justify-center gap-2">
-                        <i class="ph-bold ph-trash"></i> Clear Chat
+                    <button onclick="clearChat()" class="w-full p-3 mt-2 text-red-600 hover:bg-red-50 rounded-lg font-medium text-sm transition-colors flex items-center justify-center gap-2">
+                        <i class="ph-bold ph-trash"></i> Clear Chat History
                     </button>
                 </div>
-                <div class="mt-6 text-center text-xs text-gray-400 font-mono select-text">
+                <div class="mt-4 text-center text-[10px] text-gray-400 font-mono">
                     ID: <span id="session-id-display">...</span>
                 </div>
             </div>
         </div>
 
         <!-- CALL OVERLAY -->
-        <div id="call-overlay" class="hidden fixed inset-0 z-50 bg-black flex flex-col">
-            <div class="flex-1 relative group bg-gray-900">
+        <div id="call-overlay" class="hidden fixed inset-0 z-50 bg-gray-900 flex flex-col">
+            <div class="flex-1 relative group">
                 <video id="remote-video" autoplay playsinline class="w-full h-full object-contain"></video>
-                <div class="absolute top-4 right-4 w-32 h-48 bg-black rounded-xl border border-white/20 overflow-hidden shadow-2xl draggable transition-all hover:scale-105 cursor-grab active:cursor-grabbing">
+                <div class="absolute top-6 right-6 w-32 h-48 bg-black rounded-xl overflow-hidden shadow-2xl border border-white/10 draggable cursor-grab active:cursor-grabbing">
                     <video id="local-video" autoplay playsinline muted class="w-full h-full object-cover transform scale-x-[-1]"></video>
                 </div>
-                <div class="absolute top-8 left-1/2 -translate-x-1/2 text-center pointer-events-none w-full max-w-md px-4">
-                    <div class="inline-flex items-center gap-3 bg-black/60 backdrop-blur-md px-5 py-2 rounded-full text-white border border-white/10 shadow-lg">
-                        <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                        <span id="call-status-text" class="font-bold text-xs uppercase tracking-wide">Connected</span>
-                        <div class="h-4 w-px bg-white/20"></div>
-                        <span id="call-timer" class="font-mono text-sm tracking-widest">00:00</span>
+                <div class="absolute top-10 left-1/2 -translate-x-1/2 text-center pointer-events-none">
+                    <div class="bg-black/40 backdrop-blur-md px-4 py-1.5 rounded-full text-white border border-white/5 shadow-sm flex items-center gap-2">
+                        <div class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                        <span id="call-timer" class="font-mono text-xs">00:00</span>
                     </div>
                 </div>
             </div>
-            <div class="h-auto bg-gray-900 flex items-center justify-center gap-6 pb-8 pt-4 safe-area-pb">
-                <button onclick="toggleMute()" id="btn-mute" class="w-14 h-14 rounded-full bg-gray-800 text-white flex items-center justify-center hover:bg-gray-700 transition border border-white/10" title="Toggle Mic"><i class="ph-fill ph-microphone text-xl"></i></button>
-                <button onclick="endCall()" class="w-16 h-16 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg hover:bg-red-700 transform hover:scale-105 transition border-4 border-gray-900" title="End Call"><i class="ph-fill ph-phone-slash text-2xl"></i></button>
-                <button onclick="toggleCamera()" id="btn-cam" class="w-14 h-14 rounded-full bg-gray-800 text-white flex items-center justify-center hover:bg-gray-700 transition border border-white/10" title="Toggle Cam"><i class="ph-fill ph-video-camera text-xl"></i></button>
+            <div class="h-24 bg-gray-900 flex items-center justify-center gap-8 pb-4 safe-area-pb">
+                <button onclick="toggleMute()" id="btn-mute" class="w-12 h-12 rounded-full bg-gray-800 text-white flex items-center justify-center hover:bg-gray-700 transition" title="Toggle Mic"><i class="ph-fill ph-microphone text-xl"></i></button>
+                <button onclick="endCall()" class="w-16 h-16 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg hover:bg-red-600 transform hover:scale-105 transition" title="End Call"><i class="ph-fill ph-phone-slash text-2xl"></i></button>
+                <button onclick="toggleCamera()" id="btn-cam" class="w-12 h-12 rounded-full bg-gray-800 text-white flex items-center justify-center hover:bg-gray-700 transition" title="Toggle Cam"><i class="ph-fill ph-video-camera text-xl"></i></button>
             </div>
         </div>
 
         <!-- INCOMING CALL MODAL -->
-        <div id="incoming-call-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-            <div class="tactile-box bg-white p-8 max-w-sm w-full text-center animate-[popIn_0.3s]">
-                <div class="w-24 h-24 rounded-full overflow-hidden mx-auto border-4 border-white shadow-xl mb-6 bg-gray-100 ring-1 ring-gray-200">
+        <div id="incoming-call-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div class="bg-white p-8 max-w-sm w-full text-center rounded-2xl shadow-2xl animate-[popIn_0.3s]">
+                <div class="w-20 h-20 rounded-full overflow-hidden mx-auto mb-4 bg-gray-100">
                     <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" id="incoming-avatar" class="w-full h-full object-cover">
                 </div>
-                <h3 class="text-2xl font-bold mb-2 font-display">Incoming Call</h3>
-                <p class="text-gray-500 mb-8 font-medium text-sm">Peer is requesting a connection...</p>
+                <h3 class="text-xl font-bold mb-1 text-gray-900">Incoming Call</h3>
+                <p class="text-gray-500 mb-8 text-sm">Peer is calling...</p>
                 <div class="flex justify-center gap-8">
-                    <div class="flex flex-col items-center gap-2">
-                        <button onclick="rejectCall()" class="tactile-btn bg-red-50 text-red-600 w-16 h-16 rounded-2xl flex items-center justify-center hover:bg-red-100 transition-colors border-red-100"><i class="ph-bold ph-phone-slash text-2xl"></i></button>
-                        <span class="text-xs font-bold text-gray-400 uppercase">Decline</span>
-                    </div>
-                    <div class="flex flex-col items-center gap-2">
-                        <button onclick="answerCall()" class="tactile-btn bg-emerald-500 text-white w-16 h-16 rounded-2xl flex items-center justify-center animate-bounce shadow-lg hover:bg-emerald-600 border-emerald-600"><i class="ph-bold ph-phone text-2xl"></i></button>
-                        <span class="text-xs font-bold text-emerald-600 uppercase">Accept</span>
-                    </div>
+                    <button onclick="rejectCall()" class="w-14 h-14 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-200 transition-colors"><i class="ph-bold ph-phone-slash text-2xl"></i></button>
+                    <button onclick="answerCall()" class="w-14 h-14 rounded-full bg-green-500 text-white flex items-center justify-center animate-bounce shadow-lg hover:bg-green-600"><i class="ph-bold ph-phone text-2xl"></i></button>
                 </div>
             </div>
         </div>
 
-        <!-- CONTEXT MENU (Fixed Position) -->
-        <div id="context-menu" class="hidden bg-white/95 backdrop-blur border border-gray-200 rounded-xl shadow-2xl overflow-hidden min-w-[200px]">
-            <div class="flex justify-around p-3 bg-gray-50 border-b border-gray-100">
-                <span class="cursor-pointer hover:scale-125 transition-transform text-xl" onclick="sendReaction('👍')">👍</span>
-                <span class="cursor-pointer hover:scale-125 transition-transform text-xl" onclick="sendReaction('❤️')">❤️</span>
-                <span class="cursor-pointer hover:scale-125 transition-transform text-xl" onclick="sendReaction('😂')">😂</span>
-                <span class="cursor-pointer hover:scale-125 transition-transform text-xl" onclick="sendReaction('🔥')">🔥</span>
+        <!-- CONTEXT MENU -->
+        <div id="context-menu" class="hidden bg-white/95 backdrop-blur border border-gray-100 rounded-xl shadow-xl overflow-hidden min-w-[160px]">
+            <div class="flex justify-between px-4 py-3 bg-gray-50 border-b border-gray-100">
+                <span class="cursor-pointer hover:scale-125 transition-transform text-lg" onclick="sendReaction('👍')">👍</span>
+                <span class="cursor-pointer hover:scale-125 transition-transform text-lg" onclick="sendReaction('❤️')">❤️</span>
+                <span class="cursor-pointer hover:scale-125 transition-transform text-lg" onclick="sendReaction('😂')">😂</span>
+                <span class="cursor-pointer hover:scale-125 transition-transform text-lg" onclick="sendReaction('🔥')">🔥</span>
             </div>
             <div class="p-1">
-                <div class="px-3 py-2.5 hover:bg-gray-100 rounded-lg cursor-pointer flex items-center gap-3 text-sm font-medium text-gray-700 transition-colors" onclick="handleCtxAction('reply')">
-                    <i class="ph-bold ph-arrow-u-up-left"></i> Reply
-                </div>
-                <div class="px-3 py-2.5 hover:bg-gray-100 rounded-lg cursor-pointer flex items-center gap-3 text-sm font-medium text-gray-700 transition-colors" onclick="handleCtxAction('copy')">
-                    <i class="ph-bold ph-copy"></i> Copy Text
-                </div>
-                <div class="px-3 py-2.5 hover:bg-gray-100 rounded-lg cursor-pointer flex items-center gap-3 text-sm font-medium text-gray-700 hidden transition-colors" id="ctx-edit" onclick="handleCtxAction('edit')">
-                    <i class="ph-bold ph-pencil-simple"></i> Edit
-                </div>
-                <div class="px-3 py-2.5 hover:bg-red-50 rounded-lg cursor-pointer flex items-center gap-3 text-sm font-medium text-red-600 hidden transition-colors" id="ctx-delete" onclick="handleCtxAction('delete')">
-                    <i class="ph-bold ph-trash"></i> Delete
-                </div>
+                <div class="px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer flex items-center gap-3 text-sm text-gray-700" onclick="handleCtxAction('reply')"><i class="ph-bold ph-arrow-u-up-left"></i> Reply</div>
+                <div class="px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer flex items-center gap-3 text-sm text-gray-700" onclick="handleCtxAction('copy')"><i class="ph-bold ph-copy"></i> Copy</div>
+                <div class="px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer flex items-center gap-3 text-sm text-gray-700 hidden" id="ctx-edit" onclick="handleCtxAction('edit')"><i class="ph-bold ph-pencil-simple"></i> Edit</div>
+                <div class="px-3 py-2 hover:bg-red-50 rounded-lg cursor-pointer flex items-center gap-3 text-sm text-red-600 hidden" id="ctx-delete" onclick="handleCtxAction('delete')"><i class="ph-bold ph-trash"></i> Delete</div>
             </div>
         </div>
     </div>
@@ -560,16 +514,14 @@
     <script>
         // --- CONFIG & STATE ---
         const initialStickers = [
-            { url: 'https://media.tenor.com/2s_01J_1l6kAAAAi/cat-jam-vibe.gif', tags: 'cat vibe dance' },
-            { url: 'https://media.tenor.com/On7kvXy7QdkAAAAi/loading-cat.gif', tags: 'cat loading' },
-            { url: 'https://media.tenor.com/7100_lDpE8IAAAAi/cat-meme.gif', tags: 'cat meme huh' },
-            { url: 'https://media.tenor.com/hK3D38996yEAAAAi/happy-cat.gif', tags: 'cat happy' },
-            { url: 'https://media.tenor.com/gK1fsZc9FfUAAAAi/capoo-bugcat.gif', tags: 'capoo bugcat love' },
-            { url: 'https://media.tenor.com/1E6H4KaF85QAAAAi/sad-cat.gif', tags: 'cat sad crying' },
-            { url: 'https://media.tenor.com/N24M4b5mH58AAAAi/excited.gif', tags: 'cat excited' },
-            { url: 'https://media.tenor.com/0l_JmL2jMuwAAAAi/pepe-frog.gif', tags: 'pepe frog' },
-            { url: 'https://media.tenor.com/k9y3l7-rK44AAAAi/dog-cool.gif', tags: 'dog cool sunglasses' },
-            { url: 'https://media.tenor.com/q7SjG0G4pQAAAAAi/thumbs-up.gif', tags: 'thumbs up ok' }
+            { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3Zt/l0HlHJGHe3yAMhdQY/giphy.gif', tags: 'cat dance' },
+            { url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3ZtZ3Zt/JIX9t2j0ZTN9S/giphy.gif', tags: 'cat meme' },
+            { url: 'https://media.giphy.com/media/3o7TKSjRrfIPjeiVyM/giphy.gif', tags: 'laugh' },
+            { url: 'https://media.giphy.com/media/26tPplGWjN0xLybiU/giphy.gif', tags: 'yes' },
+            { url: 'https://media.giphy.com/media/xT5LMHxhOfscxPfIfm/giphy.gif', tags: 'no' },
+            { url: 'https://media.giphy.com/media/3o6UB3VhArvomJHtdK/giphy.gif', tags: 'wave' },
+            { url: 'https://media.giphy.com/media/OPU6wzx8JrHna/giphy.gif', tags: 'sad' },
+            { url: 'https://media.giphy.com/media/l3q2K5jinAlChoCLS/giphy.gif', tags: 'what' }
         ];
 
         let peer = null;
@@ -585,16 +537,14 @@
         let ctxTarget = null; 
         let isEditing = null; 
         
-        // Ephemeral Logic
-        const ephemeralTimes = [0, 5000, 15000, 30000, 60000]; // 0=Off
+        const ephemeralTimes = [0, 5000, 15000, 30000, 60000];
         let ephemeralIndex = 0;
         
         let mediaRecorder = null;
         let audioChunks = [];
 
-        // File Chunking
-        const CHUNK_SIZE = 16 * 1024; // 16KB Safe Chunk Size
-        let incomingFileBuffer = {}; // { fileId: { chunks: [], count: 0, total: 0, mime: '', name: '' } }
+        const CHUNK_SIZE = 16 * 1024;
+        let incomingFileBuffer = {};
 
         const sounds = {
             pop: new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.m4a'),
@@ -605,11 +555,10 @@
         sounds.msg.volume = 0.3;
         sounds.ring.loop = true;
 
-        // --- INIT & UI LOGIC ---
+        // --- INIT ---
 
         document.addEventListener('DOMContentLoaded', () => {
             renderStickerGrid(initialStickers);
-            
             const storedName = localStorage.getItem('tactile_name');
             const storedRoom = localStorage.getItem('tactile_room');
             if(storedName) document.getElementById('username-input').value = storedName;
@@ -643,34 +592,20 @@
             });
             
             setupVoiceRecording();
-
-            if(Notification.permission === 'granted') {
-                settings.notifs = true;
-                updateSettingsUI();
-            }
+            if(Notification.permission === 'granted') { settings.notifs = true; updateSettingsUI(); }
         });
 
         function showToast(msg, type = 'info') {
-            const bg = type === 'error' ? 'rgba(254, 226, 226, 0.95)' : 'rgba(255, 255, 255, 0.95)';
-            const color = type === 'error' ? '#dc2626' : '#1f2937';
-            const border = type === 'error' ? '#fecaca' : '#e5e7eb';
-            
+            const bg = type === 'error' ? '#fee2e2' : '#333';
+            const color = type === 'error' ? '#dc2626' : '#fff';
             Toastify({
-                text: msg,
-                duration: 3000,
-                gravity: "top",
-                position: "center",
-                style: {
-                    background: bg,
-                    color: color,
-                    border: `1px solid ${border}`,
-                    boxShadow: '0 8px 16px rgba(0,0,0,0.1)'
-                },
-                offset: { y: 24 }
+                text: msg, duration: 3000, gravity: "top", position: "center",
+                style: { background: bg, color: color, boxShadow: '0 4px 10px rgba(0,0,0,0.1)' },
+                offset: { y: 20 }
             }).showToast();
         }
 
-        // --- NEW FEATURES ---
+        // --- UI & FEATURES ---
 
         function cycleEphemeral() {
             ephemeralIndex = (ephemeralIndex + 1) % ephemeralTimes.length;
@@ -679,11 +614,14 @@
             const label = document.getElementById('timed-label');
             
             if (time === 0) {
-                btn.classList.remove('active-mode');
-                label.innerText = 'OFF';
+                btn.classList.remove('text-purple-600');
+                btn.classList.add('text-gray-400');
+                label.classList.add('hidden');
                 showToast("Ephemeral Mode OFF");
             } else {
-                btn.classList.add('active-mode');
+                btn.classList.remove('text-gray-400');
+                btn.classList.add('text-purple-600');
+                label.classList.remove('hidden');
                 const text = time >= 60000 ? (time/60000 + 'm') : (time/1000 + 's');
                 label.innerText = text;
                 showToast(`Messages vanish in ${text}`);
@@ -692,83 +630,18 @@
 
         function clearChat() {
             document.getElementById('messages-container').innerHTML = '';
-            const emptyState = `
-                <div class="flex flex-col items-center justify-center mt-20 opacity-40 select-none text-center">
-                    <div class="w-16 h-16 rounded-2xl bg-gray-200 flex items-center justify-center mb-4">
-                        <i class="ph-duotone ph-broom text-3xl text-gray-500"></i>
-                    </div>
-                    <p class="text-sm font-bold font-display text-gray-600">Chat Cleared</p>
-                </div>`;
-            document.getElementById('messages-container').innerHTML = emptyState;
             toggleSettings();
-            showToast("Chat history cleared locally.");
+            showToast("Chat cleared.");
         }
 
-        function setupVoiceRecording() {
-            const btn = document.getElementById('btn-record');
-            
-            const start = async (e) => {
-                e.preventDefault();
-                if(!conn || !conn.open) return showToast("Connect first!", "error");
-                
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                     return showToast("Audio recording not supported.", "error");
-                }
-
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    mediaRecorder = new MediaRecorder(stream);
-                    audioChunks = [];
-                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-                    mediaRecorder.onstop = () => {
-                        const blob = new Blob(audioChunks, { type: 'audio/webm' });
-                        const reader = new FileReader();
-                        reader.readAsDataURL(blob);
-                        reader.onloadend = () => {
-                            const id = crypto.randomUUID();
-                            const base64 = reader.result;
-                            const time = ephemeralTimes[ephemeralIndex];
-                            
-                            const payload = { type: 'audio', id: id, data: base64 };
-                            if(time > 0) { payload.type = 'timed-audio'; payload.duration = time; }
-                            
-                            sendData(payload);
-                            renderAudio(id, base64, 'me', time > 0);
-                        };
-                        stream.getTracks().forEach(t => t.stop());
-                    };
-                    mediaRecorder.start();
-                    btn.classList.add('recording-active');
-                    sendActivity('Recording Audio...');
-                } catch(err) {
-                    console.error(err);
-                    showToast("Microphone access denied or error.", "error");
-                }
-            };
-
-            const stop = (e) => {
-                if(mediaRecorder && mediaRecorder.state === 'recording') {
-                    mediaRecorder.stop();
-                    btn.classList.remove('recording-active');
-                }
-            };
-
-            btn.addEventListener('mousedown', start);
-            btn.addEventListener('mouseup', stop);
-            btn.addEventListener('mouseleave', stop);
-            btn.addEventListener('touchstart', start);
-            btn.addEventListener('touchend', stop);
-        }
-
-        // --- FILE CHUNKING LOGIC ---
+        // --- FILE CHUNKING ---
 
         document.getElementById('file-picker').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if(!file) return;
-            
             if(!conn || !conn.open) return showToast("Not connected!", "error");
 
-            showToast("Processing file...");
+            showToast("Processing...");
             const reader = new FileReader();
             
             reader.onload = async (e) => {
@@ -778,55 +651,31 @@
                 const mime = file.type;
                 const name = file.name;
 
-                // Send Metadata
-                conn.send({
-                    type: 'file-start',
-                    id: fileId,
-                    name: name,
-                    mime: mime,
-                    totalChunks: totalChunks,
-                    size: arrayBuffer.byteLength
-                });
-
+                conn.send({ type: 'file-start', id: fileId, name: name, mime: mime, totalChunks: totalChunks });
                 document.getElementById('upload-bar').classList.remove('hidden');
                 const progBar = document.getElementById('upload-progress');
 
-                // Send Chunks
                 for (let i = 0; i < totalChunks; i++) {
                     const start = i * CHUNK_SIZE;
                     const end = Math.min(start + CHUNK_SIZE, arrayBuffer.byteLength);
                     const chunk = arrayBuffer.slice(start, end);
-                    
-                    // Base64 encoding chunk for reliable transport via PeerJS data channel
-                    // (Binary types can be tricky with some PeerJS serialization)
                     const chunkBase64 = await arrayBufferToBase64(chunk);
 
-                    conn.send({
-                        type: 'file-chunk',
-                        id: fileId,
-                        index: i,
-                        data: chunkBase64
-                    });
-
-                    // Update UI roughly
+                    conn.send({ type: 'file-chunk', id: fileId, index: i, data: chunkBase64 });
+                    
                     const percent = Math.round(((i + 1) / totalChunks) * 100);
                     progBar.style.width = percent + '%';
-                    
-                    // Small delay to prevent flooding
-                    if(i % 10 === 0) await new Promise(r => setTimeout(r, 1));
+                    if(i % 20 === 0) await new Promise(r => setTimeout(r, 1));
                 }
 
                 document.getElementById('upload-bar').classList.add('hidden');
                 progBar.style.width = '0%';
                 
-                // Show local preview
-                // Convert full array buffer to Blob for local display
                 const blob = new Blob([arrayBuffer], { type: mime });
                 const localUrl = URL.createObjectURL(blob);
                 renderFile(fileId, name, localUrl, mime, 'me');
-                showToast("File sent successfully");
+                showToast("Sent!");
             };
-            
             reader.readAsArrayBuffer(file);
         });
 
@@ -834,64 +683,342 @@
             return new Promise((resolve) => {
                 const blob = new Blob([buffer]);
                 const reader = new FileReader();
-                reader.onload = () => {
-                    const dataUrl = reader.result;
-                    const base64 = dataUrl.split(',')[1];
-                    resolve(base64);
-                };
+                reader.onload = () => resolve(reader.result.split(',')[1]);
                 reader.readAsDataURL(blob);
             });
         }
 
-        // --- SETTINGS & UI ---
+        // --- PEERJS & CALLING ---
 
-        function playSound(type) {
-            if(settings.sound && sounds[type]) {
-                sounds[type].currentTime = 0;
-                sounds[type].play().catch(e => {});
+        function startSession(role) {
+            const userIn = document.getElementById('username-input').value.trim();
+            const roomIn = document.getElementById('room-input').value.trim().toLowerCase().replace(/[^a-z0-9]/g, '-');
+            if(!userIn || !roomIn) return showToast("Enter Name and Room.", "error");
+            
+            localStorage.setItem('tactile_name', userIn);
+            localStorage.setItem('tactile_room', roomIn);
+            myName = userIn;
+            
+            myId = (role === 'create') ? `tactile-${roomIn}-host` : `tactile-${roomIn}-guest`;
+            const targetId = (role === 'create') ? `tactile-${roomIn}-guest` : `tactile-${roomIn}-host`;
+
+            document.getElementById('landing-page').classList.add('hidden');
+            document.getElementById('chat-interface').classList.remove('hidden');
+            document.getElementById('chat-title').innerText = roomIn.toUpperCase();
+
+            initPeer(myId, targetId, role);
+        }
+
+        function initPeer(id, targetId, role) {
+            peer = new Peer(id);
+            peer.on('open', () => {
+                if (role === 'join') { showToast("Connecting..."); connectToPeer(targetId); }
+                else { showToast("Waiting for guest...", "success"); document.getElementById('chat-status').innerText = "Waiting..."; }
+            });
+            peer.on('connection', c => { if(conn) c.close(); else setupConnection(c); });
+            
+            peer.on('call', call => {
+                document.getElementById('incoming-call-modal').classList.remove('hidden');
+                playSound('ring');
+                
+                window.answerCall = () => {
+                    stopSound('ring');
+                    document.getElementById('incoming-call-modal').classList.add('hidden');
+                    
+                    navigator.mediaDevices.getUserMedia({video: true, audio: true})
+                    .then(stream => handleCallStart(call, stream))
+                    .catch(err => {
+                        console.warn("Video failed, trying audio only");
+                        navigator.mediaDevices.getUserMedia({audio: true})
+                        .then(stream => handleCallStart(call, stream))
+                        .catch(err2 => {
+                            showToast("No Microphone Found!", "error");
+                            conn.send({ type: 'call-rejected' });
+                        });
+                    });
+                };
+                
+                window.rejectCall = () => {
+                    stopSound('ring');
+                    document.getElementById('incoming-call-modal').classList.add('hidden');
+                    call.close();
+                    conn.send({ type: 'call-rejected' });
+                };
+            });
+
+            peer.on('error', err => {
+                if(err.type === 'unavailable-id') { showToast("Room occupied!", "error"); setTimeout(()=>location.reload(), 2000); }
+                else if(err.type === 'network') showToast("Network error", "error");
+            });
+        }
+
+        function connectToPeer(targetId) {
+            setupConnection(peer.connect(targetId));
+        }
+
+        function setupConnection(connection) {
+            conn = connection;
+            conn.on('open', () => {
+                document.getElementById('chat-status').innerText = "Online";
+                document.getElementById('chat-status').className = "text-xs font-bold text-green-600";
+                document.getElementById('status-dot').className = "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white bg-green-500";
+                conn.send({ type: 'info', name: myName });
+                playSound('pop');
+            });
+            conn.on('data', handleData);
+            conn.on('close', () => {
+                document.getElementById('chat-status').innerText = "Offline";
+                document.getElementById('status-dot').className = "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white bg-red-500";
+                showToast("Disconnected", "error");
+                conn = null;
+            });
+        }
+
+        function handleData(data) {
+            const ind = document.getElementById('activity-indicator');
+            switch(data.type) {
+                case 'info':
+                    remoteName = data.name;
+                    document.getElementById('chat-title').innerText = remoteName;
+                    break;
+                case 'text':
+                case 'timed-text':
+                    renderMessage(data.id, data.content, 'other', data.replyTo, data.type==='timed-text', data.duration);
+                    ind.classList.add('hidden');
+                    playSound('msg');
+                    break;
+                case 'file-start':
+                    incomingFileBuffer[data.id] = { name: data.name, mime: data.mime, chunks: [], count: 0, total: data.totalChunks };
+                    break;
+                case 'file-chunk':
+                    const f = incomingFileBuffer[data.id];
+                    if(f) {
+                        f.chunks[data.index] = data.data;
+                        f.count++;
+                        if(f.count === f.total) {
+                            renderFile(data.id, f.name, `data:${f.mime};base64,${f.chunks.join('')}`, f.mime, 'other');
+                            playSound('msg');
+                            delete incomingFileBuffer[data.id];
+                        }
+                    }
+                    break;
+                case 'audio':
+                case 'timed-audio':
+                    renderAudio(data.id, data.data, 'other', data.type==='timed-audio');
+                    ind.classList.add('hidden');
+                    playSound('msg');
+                    break;
+                case 'typing':
+                    ind.classList.remove('hidden');
+                    clearTimeout(typingTimeout);
+                    typingTimeout = setTimeout(() => ind.classList.add('hidden'), 3000);
+                    break;
+                case 'call-rejected':
+                    stopSound('ring');
+                    document.getElementById('call-overlay').classList.add('hidden');
+                    if(localStream) localStream.getTracks().forEach(t => t.stop());
+                    showToast("Call ended.");
+                    break;
+                case 'sticker':
+                    renderSticker(data.url, 'other');
+                    ind.classList.add('hidden');
+                    playSound('msg');
+                    break;
             }
         }
-        function stopSound(type) {
-            if(sounds[type]) {
-                sounds[type].pause();
-                sounds[type].currentTime = 0;
-            }
+
+        // --- CALLING LOGIC (UPDATED) ---
+        
+        function startCall(isVideo) {
+            if(!conn || !conn.open) return showToast("Connect first!", "error");
+            
+            // Explicit Permission Request Check
+            navigator.mediaDevices.getUserMedia(isVideo ? {video: true, audio: true} : {audio: true})
+            .then(stream => {
+                const call = peer.call(conn.peer, stream);
+                handleCallStart(call, stream);
+            })
+            .catch(e => {
+                if (e.name === 'NotFoundError' || e.name === 'DevicesNotFoundError') {
+                    showToast("No Camera/Microphone found on this device.", "error");
+                } else if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
+                    showToast("Permission denied! Please allow access in browser settings.", "error");
+                } else if(isVideo) {
+                    // Fallback to audio
+                    showToast("Video failed. Trying Audio only...");
+                    startCall(false);
+                } else {
+                    showToast("Media Error: " + e.message, "error");
+                }
+            });
         }
 
-        function toggleEmojiPicker() { document.getElementById('emoji-popover').classList.toggle('hidden'); }
-        function toggleSettings() { document.getElementById('settings-modal').classList.toggle('hidden'); }
+        function handleCallStart(call, stream) {
+            localStream = stream;
+            document.getElementById('call-overlay').classList.remove('hidden');
+            document.getElementById('local-video').srcObject = stream;
+            currentCall = call;
+            
+            call.on('stream', remoteStream => {
+                document.getElementById('remote-video').srcObject = remoteStream;
+                startCallTimer();
+                document.getElementById('call-status-text').innerText = "Connected";
+            });
+            call.on('close', () => endCall());
+        }
 
-        function toggleNotifs() {
-            if(settings.notifs) {
-                settings.notifs = false;
+        function endCall() {
+            if(currentCall) currentCall.close();
+            if(conn && conn.open) conn.send({type: 'call-rejected'});
+            document.getElementById('call-overlay').classList.add('hidden');
+            if(localStream) localStream.getTracks().forEach(t => t.stop());
+            stopCallTimer();
+        }
+
+        // --- MESSAGING ---
+
+        function sendMessage() {
+            const input = document.getElementById('msg-input');
+            const text = input.value.trim();
+            if(!text) return;
+
+            if(conn && conn.open) {
+                const id = crypto.randomUUID();
+                const time = ephemeralTimes[ephemeralIndex];
+                const payload = { type: time > 0 ? 'timed-text' : 'text', id, content: text, replyTo: replyContext, duration: time };
+                
+                conn.send(payload);
+                renderMessage(id, text, 'me', replyContext, time > 0, time);
+                playSound('pop');
+                input.value = '';
+                cancelReply();
+            } else showToast("Offline", "error");
+        }
+
+        function sendSticker(url) {
+            if(conn && conn.open) {
+                const id = crypto.randomUUID();
+                conn.send({ type: 'sticker', id: id, url: url });
+                renderSticker(url, 'me');
             } else {
-                Notification.requestPermission().then(perm => {
-                    if(perm === 'granted') settings.notifs = true;
-                    else showToast("Notifications blocked by browser.", "error");
-                    updateSettingsUI();
-                });
+                showToast("Not connected!", "error");
             }
-            updateSettingsUI();
         }
 
-        function toggleSound() { settings.sound = !settings.sound; updateSettingsUI(); }
+        function renderFile(id, name, data, mime, sender) {
+            const div = document.createElement('div');
+            const isMe = sender === 'me';
+            div.className = `msg-bubble ${isMe ? 'msg-me' : 'msg-other'}`;
+            
+            let content = '';
+            if(mime.startsWith('image/')) {
+                content = `<img src="${data}" class="chat-image" onclick="window.open(this.src)">`;
+            } else {
+                content = `
+                    <div class="file-card">
+                        <div class="w-10 h-10 rounded bg-blue-100 flex items-center justify-center text-blue-600"><i class="ph-bold ph-file"></i></div>
+                        <div class="overflow-hidden">
+                            <div class="text-sm font-bold truncate w-40">${name}</div>
+                            <div class="text-xs opacity-60">Tap to download</div>
+                        </div>
+                    </div>`;
+            }
 
-        function updateSettingsUI() {
-            const btnNotif = document.getElementById('btn-notif');
-            btnNotif.classList.toggle('bg-gray-900', settings.notifs);
-            btnNotif.classList.toggle('bg-gray-200', !settings.notifs);
-            btnNotif.querySelector('div').style.transform = settings.notifs ? 'translateX(20px)' : 'translateX(0)';
-
-            const btnSound = document.getElementById('btn-sound');
-            btnSound.classList.toggle('bg-gray-900', settings.sound);
-            btnSound.classList.toggle('bg-gray-200', !settings.sound);
-            btnSound.querySelector('div').style.transform = settings.sound ? 'translateX(20px)' : 'translateX(0)';
+            div.innerHTML = `${content} <div class="text-[10px] text-right mt-1 opacity-60">${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>`;
+            if(!mime.startsWith('image/')) div.onclick = () => { const a = document.createElement('a'); a.href = data; a.download = name; a.click(); };
+            
+            document.getElementById('messages-container').appendChild(div);
+            scrollToBottom();
         }
 
+        // Helpers
+        function sendTyping() { if(conn && conn.open) conn.send({ type: 'typing' }); }
+        function cancelReply() { replyContext = null; document.getElementById('reply-preview').classList.add('hidden'); }
+        function toggleSettings() { document.getElementById('settings-modal').classList.toggle('hidden'); }
         function toggleMediaDrawer() { document.getElementById('media-drawer').classList.toggle('hidden'); }
+        function playSound(t) { if(settings.sound) sounds[t].play().catch(()=>{}); }
+        function stopSound(t) { sounds[t].pause(); sounds[t].currentTime = 0; }
+        
+        function renderMessage(id, text, sender, replyTo, isTimed, duration) {
+            const div = document.createElement('div');
+            const isMe = sender === 'me';
+            const link = linkifyHtml(text, { target: '_blank', className: 'underline font-bold' });
+            
+            let replyHtml = replyTo ? `<div class="text-xs opacity-70 mb-1 border-l-2 pl-2 border-current">Replying...</div>` : '';
+            let timerHtml = isTimed ? `<div class="absolute -top-2 -right-2 bg-purple-100 text-purple-700 text-[10px] px-1.5 py-0.5 rounded-full border border-purple-200">⏳ 15s</div>` : '';
 
+            div.className = `msg-bubble ${isMe ? 'msg-me' : 'msg-other'} ${isTimed ? 'msg-timed' : ''}`;
+            div.innerHTML = `${timerHtml}${replyHtml}<div class="break-words">${link}</div><div class="text-[10px] text-right mt-1 opacity-60">${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>`;
+            
+            document.getElementById('messages-container').appendChild(div);
+            scrollToBottom();
+            if(isTimed) setTimeout(() => { div.style.opacity='0'; setTimeout(()=>div.remove(),500); }, duration||15000);
+        }
+
+        function scrollToBottom() {
+            const c = document.getElementById('messages-container');
+            c.scrollTop = c.scrollHeight;
+            setTimeout(() => c.scrollTop = c.scrollHeight, 100);
+        }
+
+        function setupVoiceRecording() {
+            const btn = document.getElementById('btn-record');
+            const start = async () => {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({audio: true});
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                    mediaRecorder.onstop = () => {
+                        const reader = new FileReader();
+                        reader.readAsDataURL(new Blob(audioChunks));
+                        reader.onloadend = () => {
+                            const id = crypto.randomUUID();
+                            const time = ephemeralTimes[ephemeralIndex];
+                            const payload = { type: time > 0 ? 'timed-audio' : 'audio', id, data: reader.result, duration: time };
+                            conn.send(payload);
+                            renderAudio(id, reader.result, 'me', time > 0);
+                        };
+                        stream.getTracks().forEach(t=>t.stop());
+                    };
+                    mediaRecorder.start();
+                    btn.classList.add('recording-active');
+                } catch(e) { showToast("Mic permission required", "error"); }
+            };
+            const stop = () => { if(mediaRecorder && mediaRecorder.state === 'recording') { mediaRecorder.stop(); btn.classList.remove('recording-active'); } };
+            btn.onmousedown = start; btn.onmouseup = stop; btn.ontouchstart = start; btn.ontouchend = stop;
+        }
+
+        function renderAudio(id, data, sender, isTimed) {
+            const div = document.createElement('div');
+            const isMe = sender === 'me';
+            div.className = `msg-bubble ${isMe ? 'msg-me' : 'msg-other'} ${isTimed ? 'msg-timed' : ''}`;
+            const aid = `aud-${id}`;
+            div.innerHTML = `<div class="flex items-center gap-2"><button onclick="document.getElementById('${aid}').play()" class="w-8 h-8 bg-black/10 rounded-full flex items-center justify-center"><i class="ph-fill ph-play"></i></button><div class="text-xs font-bold opacity-70">Voice Note</div></div><audio id="${aid}" src="${data}"></audio>`;
+            document.getElementById('messages-container').appendChild(div);
+            scrollToBottom();
+            if(isTimed) setTimeout(() => { div.style.opacity='0'; setTimeout(()=>div.remove(),500); }, 15000);
+        }
+
+        function renderSticker(url, sender) {
+            const container = document.getElementById('messages-container');
+            const div = document.createElement('div');
+            const isMe = sender === 'me';
+            div.className = `flex ${isMe ? 'justify-end' : 'justify-start'} mb-6 relative`;
+            div.dataset.type = 'media';
+            div.dataset.id = crypto.randomUUID(); 
+            div.innerHTML = `<img src="${url}" class="sticker-img shadow-lg" onload="scrollToBottom()" onerror="this.src='https://via.placeholder.com/150?text=Error'">`;
+            
+            div.oncontextmenu = (e) => showContextMenu(e, div, isMe);
+            container.appendChild(div);
+            scrollToBottom();
+        }
+
+        // --- MISSING FUNCTIONS RESTORED ---
+        
         function renderStickerGrid(list) {
             const grid = document.getElementById('sticker-grid');
+            if(!grid) return;
             grid.innerHTML = '';
             list.forEach(item => {
                 const img = document.createElement('img');
@@ -910,561 +1037,6 @@
             const filtered = initialStickers.filter(s => s.tags.includes(query));
             renderStickerGrid(filtered);
         }
-
-        // --- PEERJS LOGIC ---
-        function startSession(role) {
-            const userIn = document.getElementById('username-input').value.trim();
-            const roomIn = document.getElementById('room-input').value.trim().toLowerCase().replace(/[^a-z0-9]/g, '-');
-            
-            if(!userIn || !roomIn) return showToast("Enter Name and Room Code.", "error");
-            
-            localStorage.setItem('tactile_name', userIn);
-            localStorage.setItem('tactile_room', roomIn);
-
-            myName = userIn;
-            
-            const hostId = `tactile-chat-${roomIn}-host`;
-            const joinId = `tactile-chat-${roomIn}-guest`;
-            myId = (role === 'create') ? hostId : joinId;
-            const targetId = (role === 'create') ? joinId : hostId;
-
-            document.getElementById('landing-page').classList.add('hidden');
-            document.getElementById('chat-interface').classList.remove('hidden');
-            document.getElementById('chat-title').innerText = roomIn.toUpperCase();
-            document.getElementById('session-id-display').innerText = myId;
-
-            initPeer(myId, targetId, role);
-        }
-
-        function initPeer(id, targetId, role) {
-            peer = new Peer(id, { debug: 1 });
-            
-            peer.on('open', () => {
-                if (role === 'join') {
-                    showToast("Connecting to host...");
-                    connectToPeer(targetId);
-                } else {
-                    showToast("Room created. Waiting for guest...", "success");
-                    document.getElementById('chat-status').innerText = "Waiting for guest...";
-                }
-            });
-
-            peer.on('connection', c => { 
-                if(conn && conn.open) {
-                    c.close(); 
-                    showToast("A third user tried to join (rejected).", "error");
-                } else {
-                    setupConnection(c); 
-                }
-            });
-
-            peer.on('call', call => {
-                document.getElementById('incoming-call-modal').classList.remove('hidden');
-                document.getElementById('incoming-avatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${remoteName}`;
-                playSound('ring');
-
-                window.answerCall = () => {
-                    stopSound('ring');
-                    document.getElementById('incoming-call-modal').classList.add('hidden');
-                    
-                    // Try to answer with audio/video
-                    navigator.mediaDevices.getUserMedia({video: true, audio: true})
-                    .then(stream => {
-                        handleCallStart(call, stream);
-                    })
-                    .catch(err => {
-                        console.warn("Video failed, trying audio only", err);
-                        // Fallback to audio only
-                        navigator.mediaDevices.getUserMedia({audio: true})
-                        .then(stream => {
-                            handleCallStart(call, stream);
-                        })
-                        .catch(err2 => {
-                            console.error("Audio failed too", err2);
-                            showToast("Could not access microphone.", "error");
-                            conn.send({ type: 'call-rejected' });
-                        });
-                    });
-                };
-
-                window.rejectCall = () => {
-                    stopSound('ring');
-                    document.getElementById('incoming-call-modal').classList.add('hidden');
-                    call.close();
-                    conn.send({ type: 'call-rejected' });
-                };
-            });
-
-            peer.on('error', err => {
-                if(err.type === 'unavailable-id') {
-                    showToast("Room occupied! Try a different code.", "error");
-                    setTimeout(() => location.reload(), 2000);
-                }
-                else if(err.type === 'network') showToast("Network error. Checking connection...", "error");
-            });
-        }
-
-        function connectToPeer(targetId) {
-            const c = peer.connect(targetId, { reliable: true });
-            setupConnection(c);
-        }
-
-        function setupConnection(connection) {
-            conn = connection;
-            
-            conn.on('open', () => {
-                document.getElementById('chat-status').innerText = "Encrypted Connection";
-                document.getElementById('chat-status').className = "text-xs font-medium text-emerald-600";
-                document.getElementById('status-dot').className = "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white bg-emerald-500";
-                
-                conn.send({ type: 'info', name: myName });
-                playSound('pop');
-                showToast("Connected securely.", "success");
-            });
-
-            conn.on('data', handleData);
-            
-            conn.on('close', () => {
-                document.getElementById('chat-status').innerText = "Disconnected";
-                document.getElementById('chat-status').className = "text-xs font-medium text-red-500";
-                document.getElementById('status-dot').className = "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white bg-red-500";
-                showToast("Peer disconnected.", "error");
-                conn = null;
-            });
-        }
-
-        function handleData(data) {
-            const ind = document.getElementById('activity-indicator');
-            const indText = document.getElementById('activity-text');
-
-            switch(data.type) {
-                case 'info':
-                    remoteName = data.name;
-                    document.getElementById('chat-title').innerText = remoteName;
-                    document.getElementById('remote-avatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${remoteName}`;
-                    break;
-                case 'text':
-                case 'timed-text':
-                    const isTimed = data.type === 'timed-text';
-                    renderMessage(data.id, data.content, 'other', data.replyTo, isTimed, data.duration);
-                    ind.classList.add('hidden');
-                    conn.send({type: 'read', id: data.id});
-                    notifyUser(remoteName, isTimed ? "Sent an ephemeral message" : data.content);
-                    playSound('msg');
-                    break;
-                case 'sticker':
-                    renderSticker(data.url, 'other');
-                    ind.classList.add('hidden');
-                    playSound('msg');
-                    break;
-                
-                // Chunked File Handling
-                case 'file-start':
-                    incomingFileBuffer[data.id] = {
-                        name: data.name,
-                        mime: data.mime,
-                        chunks: new Array(data.totalChunks),
-                        count: 0,
-                        total: data.totalChunks
-                    };
-                    break;
-                case 'file-chunk':
-                    const fileEntry = incomingFileBuffer[data.id];
-                    if(fileEntry) {
-                        fileEntry.chunks[data.index] = data.data; // Store base64 chunk
-                        fileEntry.count++;
-                        
-                        if(fileEntry.count === fileEntry.total) {
-                            // Reassemble
-                            const fullBase64 = fileEntry.chunks.join('');
-                            const fileUrl = `data:${fileEntry.mime};base64,${fullBase64}`;
-                            
-                            renderFile(data.id, fileEntry.name, fileUrl, fileEntry.mime, 'other');
-                            playSound('msg');
-                            delete incomingFileBuffer[data.id];
-                        }
-                    }
-                    break;
-
-                case 'audio':
-                case 'timed-audio':
-                    renderAudio(data.id, data.data, 'other', data.type === 'timed-audio');
-                    ind.classList.add('hidden');
-                    playSound('msg');
-                    break;
-                case 'reaction':
-                    renderReaction(data.id, data.emoji, false);
-                    playSound('pop');
-                    break;
-                case 'typing':
-                    ind.classList.remove('hidden');
-                    indText.innerText = data.text || "Typing...";
-                    clearTimeout(typingTimeout);
-                    typingTimeout = setTimeout(() => ind.classList.add('hidden'), 3000);
-                    break;
-                case 'read': updateStatus(data.id, 'read'); break;
-                case 'delete': 
-                    const el = document.querySelector(`[data-id="${data.id}"]`);
-                    if(el) {
-                        el.style.opacity = '0.5';
-                        el.innerHTML = '<span class="italic text-gray-400 text-xs">Message deleted</span>';
-                    } 
-                    break;
-                case 'edit':
-                    const editEl = document.querySelector(`[data-id="${data.id}"]`);
-                    if(editEl) editEl.querySelector('.msg-text').innerText = data.content + " (edited)";
-                    break;
-                case 'call-rejected':
-                    stopSound('ring');
-                    document.getElementById('call-overlay').classList.add('hidden');
-                    if(localStream) localStream.getTracks().forEach(t => t.stop());
-                    showToast("Call ended or declined.");
-                    break;
-            }
-        }
-
-        function notifyUser(title, body) {
-            if(settings.notifs && document.hidden) new Notification(title, { body });
-        }
-
-        function sendTyping() { if(conn && conn.open) conn.send({ type: 'typing', text: 'Typing...' }); }
-        function sendActivity(txt) { if(conn && conn.open) conn.send({ type: 'typing', text: txt }); }
-
-        function sendMessage() {
-            const input = document.getElementById('msg-input');
-            const text = input.value.trim();
-            if(!text) return;
-
-            if(conn && conn.open) {
-                if(isEditing) {
-                    conn.send({ type: 'edit', id: isEditing, content: text });
-                    document.querySelector(`[data-id="${isEditing}"] .msg-text`).innerText = text + " (edited)";
-                    isEditing = null;
-                    input.style.borderColor = '';
-                } else {
-                    const id = crypto.randomUUID();
-                    const payload = { type: 'text', id: id, content: text, replyTo: replyContext };
-                    const time = ephemeralTimes[ephemeralIndex];
-                    
-                    if(time > 0) {
-                        payload.type = 'timed-text';
-                        payload.duration = time;
-                    }
-
-                    conn.send(payload);
-                    renderMessage(id, text, 'me', replyContext, time > 0, time);
-                    playSound('pop');
-                }
-                input.value = '';
-                cancelReply();
-            } else showToast("Waiting for connection...", "error");
-        }
-
-        function sendSticker(url) {
-            if(conn && conn.open) {
-                const id = crypto.randomUUID();
-                conn.send({ type: 'sticker', id: id, url: url });
-                renderSticker(url, 'me');
-            }
-        }
-
-        function sendData(payload) { 
-            if(conn && conn.open) {
-                conn.send(payload); 
-            }
-        }
-
-        function setReply(id, text) {
-            replyContext = { id, text };
-            document.getElementById('reply-preview').classList.remove('hidden');
-            document.getElementById('reply-text').innerText = text;
-            document.getElementById('msg-input').focus();
-        }
-        function cancelReply() { replyContext = null; document.getElementById('reply-preview').classList.add('hidden'); }
-        function updateStatus(id, status) {
-            const el = document.querySelector(`[data-id="${id}"] .status-tick`);
-            if(el && status === 'read') {
-                el.innerHTML = '<i class="ph-bold ph-checks-bold text-blue-100"></i>';
-            }
-        }
-
-        // --- RENDERERS ---
-
-        function scrollToBottom() {
-            const c = document.getElementById('messages-container');
-            c.scrollTop = c.scrollHeight;
-            setTimeout(() => c.scrollTop = c.scrollHeight, 100);
-        }
-
-        function renderMessage(id, text, sender, replyTo, isTimed, duration) {
-            const container = document.getElementById('messages-container');
-            const div = document.createElement('div');
-            const isMe = sender === 'me';
-            
-            let replyHtml = replyTo ? `<div class="mb-2 text-xs bg-white/20 p-2 rounded border-l-2 ${isMe ? 'border-white' : 'border-blue-500'} truncate font-bold">Re: ${replyTo.text}</div>` : '';
-            let content = linkifyHtml(escapeHtml(text), { target: '_blank', className: 'underline font-bold' });
-            
-            let timeSec = duration ? duration/1000 + 's' : '15s';
-            let timerHtml = isTimed ? `<div class="absolute top-1 right-2 text-[10px] font-bold opacity-70 flex items-center gap-1"><i class="ph-bold ph-timer"></i> ${timeSec}</div>` : '';
-
-            // Basic Link Preview Detection
-            let previewHtml = '';
-            const urlMatch = text.match(/https?:\/\/[^\s]+/);
-            if (urlMatch) {
-                const url = urlMatch[0];
-                previewHtml = `
-                    <div class="link-preview">
-                        <i class="ph-bold ph-link text-lg"></i>
-                        <div class="flex flex-col overflow-hidden">
-                            <span class="font-bold truncate">Link detected</span>
-                            <span class="text-xs opacity-70 truncate">${url}</span>
-                        </div>
-                    </div>
-                `;
-            }
-
-            div.className = `msg-bubble ${isMe ? 'msg-me' : 'msg-other'} ${isTimed ? 'msg-timed' : ''}`;
-            div.dataset.id = id;
-            div.innerHTML = `
-                ${timerHtml}
-                ${replyHtml}
-                <div class="msg-content"><span class="msg-text">${content}</span></div>
-                ${previewHtml}
-                <div class="flex justify-end items-center mt-1 space-x-1">
-                    <span class="text-[10px] opacity-60 font-mono">${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span>
-                    ${isMe ? '<span class="status-tick text-[10px] opacity-70"><i class="ph-bold ph-check"></i></span>' : ''}
-                </div>`;
-            
-            div.oncontextmenu = (e) => showContextMenu(e, div, isMe);
-            let t;
-            div.addEventListener('touchstart', (e) => { t = setTimeout(() => showContextMenu(e.touches[0], div, isMe), 500); });
-            div.addEventListener('touchend', () => clearTimeout(t));
-
-            container.appendChild(div);
-            scrollToBottom();
-
-            if (isTimed) startTimer(div, duration || 15000);
-        }
-
-        function renderAudio(id, data, sender, isTimed) {
-            const container = document.getElementById('messages-container');
-            const div = document.createElement('div');
-            const isMe = sender === 'me';
-            const audioId = `audio-${id}`;
-            let timerHtml = isTimed ? '<div class="absolute top-1 right-2 text-[10px] font-bold opacity-70 flex items-center gap-1"><i class="ph-bold ph-timer"></i></div>' : '';
-
-            div.className = `msg-bubble ${isMe ? 'msg-me' : 'msg-other'} ${isTimed ? 'msg-timed' : ''}`;
-            div.dataset.id = id;
-            div.dataset.type = 'media';
-
-            div.innerHTML = `
-                ${timerHtml}
-                <div class="flex items-center gap-3 min-w-[200px] mt-1">
-                    <button onclick="document.getElementById('${audioId}').play()" class="w-10 h-10 rounded-full bg-black/20 text-white flex items-center justify-center hover:bg-black/30 transition backdrop-blur-sm"><i class="ph-fill ph-play text-lg"></i></button>
-                    <div class="flex flex-col w-full">
-                        <span class="text-xs font-bold uppercase tracking-wide opacity-70">Voice Note</span>
-                        <div class="w-full h-1 bg-black/10 mt-2 rounded-full overflow-hidden">
-                            <div class="h-full bg-current w-1/3 opacity-50"></div>
-                        </div>
-                    </div>
-                </div>
-                <audio id="${audioId}" src="${data}" class="hidden"></audio>
-            `;
-            div.oncontextmenu = (e) => showContextMenu(e, div, isMe);
-            container.appendChild(div);
-            scrollToBottom();
-
-            if (isTimed) startTimer(div, 15000);
-        }
-
-        function startTimer(element, duration) {
-            setTimeout(() => {
-                if(element) {
-                    element.style.opacity = '0';
-                    setTimeout(() => element.remove(), 500);
-                }
-            }, duration);
-        }
-
-        function renderSticker(url, sender) {
-            const container = document.getElementById('messages-container');
-            const div = document.createElement('div');
-            const isMe = sender === 'me';
-            div.className = `flex ${isMe ? 'justify-end' : 'justify-start'} mb-6 relative`;
-            div.dataset.type = 'media';
-            div.dataset.id = crypto.randomUUID(); 
-            div.innerHTML = `<img src="${url}" class="sticker-img shadow-lg" onload="scrollToBottom()">`;
-            
-            div.oncontextmenu = (e) => showContextMenu(e, div, isMe);
-            container.appendChild(div);
-            scrollToBottom();
-        }
-
-        function renderFile(id, name, data, mime, sender) {
-            const container = document.getElementById('messages-container');
-            const div = document.createElement('div');
-            const isMe = sender === 'me';
-            div.className = `msg-bubble ${isMe ? 'msg-me' : 'msg-other'} cursor-pointer hover:bg-opacity-90`;
-            div.dataset.id = id;
-            div.dataset.type = 'media';
-
-            let preview = mime && mime.startsWith('image/') ? `<img src="${data}" class="chat-image block mt-2 rounded-lg" onload="scrollToBottom()">` : '';
-
-            div.innerHTML = `
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-black/5 rounded-lg flex items-center justify-center shrink-0"><i class="ph-bold ph-file text-xl opacity-70"></i></div>
-                    <div class="overflow-hidden"><p class="text-sm font-bold truncate w-40">${name}</p><p class="text-xs opacity-70">Tap to download</p></div>
-                </div>
-                ${preview}
-            `;
-            div.onclick = (e) => {
-                if(e.target.tagName !== 'IMG') {
-                    const a = document.createElement('a');
-                    a.href = data; a.download = name; a.click();
-                }
-            };
-            div.oncontextmenu = (e) => showContextMenu(e, div, isMe);
-            container.appendChild(div);
-            scrollToBottom();
-        }
-
-        // --- CONTEXT MENU & REACTIONS ---
-        function showContextMenu(e, element, isMe) {
-            e.preventDefault();
-            e.stopPropagation(); // Stop immediate dismissal
-            
-            ctxTarget = element;
-            const menu = document.getElementById('context-menu');
-            document.getElementById('ctx-edit').classList.toggle('hidden', !isMe || element.dataset.type === 'media');
-            document.getElementById('ctx-delete').classList.toggle('hidden', !isMe);
-
-            const x = e.clientX;
-            const y = e.clientY;
-            const menuW = 200;
-            const menuH = 180; 
-            
-            const left = (x + menuW > window.innerWidth) ? window.innerWidth - menuW - 20 : x;
-            const top = (y + menuH > window.innerHeight) ? y - menuH : y;
-            
-            menu.style.left = left + 'px';
-            menu.style.top = top + 'px';
-            menu.classList.remove('hidden');
-        }
-
-        function sendReaction(emoji) {
-            if(!ctxTarget) return;
-            const id = ctxTarget.dataset.id;
-            renderReaction(id, emoji, true);
-            if(conn && conn.open) conn.send({ type: 'reaction', id: id, emoji: emoji });
-            document.getElementById('context-menu').classList.add('hidden');
-        }
-
-        function renderReaction(msgId, emoji, isMe) {
-            const msgEl = document.querySelector(`[data-id="${msgId}"]`);
-            if(!msgEl) return;
-            
-            let container = msgEl.querySelector('.reactions-container');
-            if(!container) {
-                container = document.createElement('div');
-                container.className = 'reactions-container';
-                msgEl.appendChild(container);
-            }
-            
-            const pill = document.createElement('div');
-            pill.className = 'reaction-pill';
-            pill.innerHTML = emoji;
-            container.appendChild(pill);
-        }
-
-        function handleCtxAction(action) {
-            document.getElementById('context-menu').classList.add('hidden');
-            if(!ctxTarget) return;
-
-            const id = ctxTarget.dataset.id;
-            const text = ctxTarget.querySelector('.msg-text')?.innerText || "";
-
-            if(action === 'copy') { navigator.clipboard.writeText(text); showToast("Copied"); }
-            else if(action === 'reply') setReply(id, text || '[Media]');
-            else if(action === 'delete') {
-                ctxTarget.remove();
-                if(conn && conn.open) conn.send({type: 'delete', id: id});
-            } else if(action === 'edit') {
-                isEditing = id;
-                const input = document.getElementById('msg-input');
-                input.value = text;
-                input.focus();
-            }
-        }
-
-        function escapeHtml(text) {
-            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
-        }
-
-        // --- CALLING LOGIC ---
-        function startCall(isVideo) {
-            if(!conn || !conn.open) return showToast("Connect first!", "error");
-             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                return showToast("Browser does not support media devices.", "error");
-             }
-            
-            // Logic to handle auto-fallback if video requested but not available
-            const constraints = isVideo ? { video: true, audio: true } : { audio: true };
-
-            navigator.mediaDevices.getUserMedia(constraints)
-            .then(stream => {
-                const call = peer.call(conn.peer, stream);
-                handleCallStart(call, stream);
-            })
-            .catch(e => {
-                if(isVideo) {
-                    console.warn("Video failed, attempting audio only...");
-                    navigator.mediaDevices.getUserMedia({ audio: true })
-                    .then(stream => {
-                        const call = peer.call(conn.peer, stream);
-                        handleCallStart(call, stream);
-                        showToast("Switched to audio-only call.");
-                    })
-                    .catch(err2 => showToast("Microphone Access Error: " + err2.message, "error"));
-                } else {
-                    showToast("Media Access Error: " + e.message, "error");
-                }
-            });
-        }
-
-        function handleCallStart(call, stream) {
-            localStream = stream;
-            document.getElementById('call-overlay').classList.remove('hidden');
-            document.getElementById('local-video').srcObject = stream;
-            currentCall = call;
-            call.on('stream', remoteStream => {
-                document.getElementById('remote-video').srcObject = remoteStream;
-                startCallTimer();
-                document.getElementById('call-status-text').innerText = "Connected";
-            });
-            call.on('close', () => endCall());
-        }
-
-        function endCall() {
-            if(currentCall) currentCall.close();
-            if(conn && conn.open) conn.send({type: 'call-rejected'});
-            document.getElementById('call-overlay').classList.add('hidden');
-            if(localStream) localStream.getTracks().forEach(t => t.stop());
-            stopCallTimer();
-        }
-
-        let callInterval;
-        function startCallTimer() {
-            let sec = 0;
-            const el = document.getElementById('call-timer');
-            clearInterval(callInterval);
-            callInterval = setInterval(() => {
-                sec++;
-                el.innerText = `${Math.floor(sec/60).toString().padStart(2,'0')}:${(sec%60).toString().padStart(2,'0')}`;
-            }, 1000);
-        }
-        function stopCallTimer() { clearInterval(callInterval); document.getElementById('call-timer').innerText = "00:00"; }
-        function disconnect() { if(conn) conn.close(); if(peer) peer.destroy(); location.reload(); }
 
     </script>
 </body>
