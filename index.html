@@ -117,7 +117,6 @@
 
         /* Chat Messages */
         #messages-container {
-            /* Fix overlap issues */
             flex: 1 1 0;
             min-height: 0;
             overflow-y: auto;
@@ -128,22 +127,23 @@
         .msg-bubble {
             max-width: 85%;
             padding: 12px 16px;
-            border-radius: 16px;
+            border-radius: 20px;
             position: relative;
             border: 1px solid rgba(0,0,0,0.05);
             word-wrap: break-word;
             margin-bottom: 12px;
             font-size: 0.95rem;
             line-height: 1.5;
-            box-shadow: 0 2px 2px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             transition: opacity 0.5s ease-out;
         }
 
         .msg-me {
-            background: #2563eb;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
             color: white;
             border-bottom-right-radius: 4px;
             margin-left: auto;
+            border: none;
         }
         
         .msg-me a { color: #bfdbfe !important; text-decoration: underline; }
@@ -176,6 +176,18 @@
             color: #4c1d95;
         }
         .msg-me.msg-timed { background: #7c3aed; color: white; border: 2px dashed rgba(255,255,255,0.5); }
+
+        /* Image Constraints */
+        .chat-image {
+            max-height: 250px;
+            width: auto;
+            max-width: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+            margin-top: 8px;
+            border: 1px solid rgba(0,0,0,0.1);
+            background: #f3f4f6;
+        }
 
         /* Reactions */
         .reactions-container {
@@ -246,8 +258,13 @@
         
         /* Context Menu Fixed Positioning */
         #context-menu {
-            position: fixed; /* Changed from absolute to fixed */
+            position: fixed;
             z-index: 1000;
+        }
+        
+        /* Upload Progress */
+        #upload-progress {
+            transition: width 0.1s linear;
         }
     </style>
 </head>
@@ -296,7 +313,7 @@
                     </div>
                 </div>
             </div>
-            <p class="mt-12 text-xs font-semibold text-gray-400 tracking-widest uppercase">v3.5 • 10MB Limit • Encrypted</p>
+            <p class="mt-12 text-xs font-semibold text-gray-400 tracking-widest uppercase">v4.0 • Unlimited File Size • Encrypted</p>
         </div>
 
         <!-- 2. CHAT INTERFACE -->
@@ -336,6 +353,11 @@
                 </div>
             </header>
 
+            <!-- Upload Bar -->
+            <div id="upload-bar" class="hidden h-1 bg-gray-200 w-full relative">
+                <div id="upload-progress" class="h-full bg-blue-500 w-0"></div>
+            </div>
+
             <!-- Messages Area (Flex Grow) -->
             <div id="messages-container" class="bg-gray-50/50">
                 <div class="flex flex-col items-center justify-center mt-20 opacity-40 select-none text-center px-4">
@@ -343,7 +365,7 @@
                         <i class="ph-duotone ph-shield-check text-3xl text-gray-500"></i>
                     </div>
                     <p class="text-sm font-bold font-display text-gray-600">Secure Channel</p>
-                    <p class="text-xs mt-1 text-gray-500 max-w-xs">Messages are end-to-end encrypted. Files up to 10MB supported.</p>
+                    <p class="text-xs mt-1 text-gray-500 max-w-xs">Messages are end-to-end encrypted. Large file support enabled.</p>
                 </div>
             </div>
 
@@ -370,17 +392,13 @@
             <!-- Input Area (Fixed Height/Auto) -->
             <footer class="p-3 bg-white border-t border-gray-200 shrink-0 relative z-30 safe-pb">
                 
-                <!-- Expanded Tools -->
+                <!-- Sticker Drawer -->
                 <div id="media-drawer" class="hidden absolute bottom-full left-0 right-0 bg-white/95 border-t border-gray-200 h-64 flex flex-col shadow-[0_-10px_20px_rgba(0,0,0,0.05)] rounded-t-2xl overflow-hidden backdrop-blur-xl">
-                    <div class="p-3 border-b border-gray-100 bg-gray-50/50 flex gap-2 items-center">
-                         <div class="relative flex-1">
+                    <div class="p-3 border-b border-gray-100 bg-gray-50/50">
+                         <div class="relative">
                             <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                             <input type="text" id="sticker-search" placeholder="Search visuals..." class="w-full p-2 pl-9 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition-colors" oninput="filterStickers()">
                          </div>
-                         <button onclick="document.getElementById('file-picker').click()" class="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm font-semibold flex items-center gap-2 text-gray-700 transition-colors border border-gray-200">
-                            <i class="ph-bold ph-file-arrow-up"></i> 
-                            <span class="hidden sm:inline">File</span>
-                         </button>
                     </div>
                     <div id="sticker-grid" class="flex-1 overflow-y-auto p-3 grid grid-cols-4 sm:grid-cols-5 gap-3 bg-gray-50/30">
                         <!-- Populated via JS -->
@@ -389,11 +407,18 @@
 
                 <div class="flex gap-2 items-end">
                     <div class="flex flex-col gap-1">
-                        <button onclick="toggleMediaDrawer()" class="tactile-btn w-10 h-10 rounded-xl flex items-center justify-center text-gray-600 hover:bg-gray-50 shrink-0" title="Media Library">
-                            <i class="ph-bold ph-plus text-lg"></i>
+                        <button onclick="document.getElementById('file-picker').click()" class="tactile-btn w-10 h-10 rounded-xl flex items-center justify-center text-gray-600 hover:bg-gray-50 shrink-0" title="Send File">
+                            <i class="ph-bold ph-paperclip text-lg"></i>
                         </button>
-                        <button onclick="toggleTimedMode()" id="btn-timed" class="tactile-btn w-10 h-10 rounded-xl flex items-center justify-center text-gray-600 shrink-0 transition-colors" title="Ephemeral Mode">
-                            <i class="ph-bold ph-timer text-lg"></i>
+                        <button onclick="toggleMediaDrawer()" class="tactile-btn w-10 h-10 rounded-xl flex items-center justify-center text-gray-600 hover:bg-gray-50 shrink-0" title="Stickers/GIFs">
+                            <i class="ph-bold ph-image text-lg"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                         <button onclick="cycleEphemeral()" id="btn-timed" class="tactile-btn w-10 h-10 rounded-xl flex flex-col items-center justify-center text-gray-600 shrink-0 transition-colors text-[10px] leading-tight" title="Ephemeral Timer">
+                            <i class="ph-bold ph-timer text-base mb-0.5"></i>
+                            <span id="timed-label" class="font-bold">OFF</span>
                         </button>
                     </div>
 
@@ -559,9 +584,17 @@
         let settings = { sound: true, notifs: false };
         let ctxTarget = null; 
         let isEditing = null; 
-        let isEphemeral = false; 
+        
+        // Ephemeral Logic
+        const ephemeralTimes = [0, 5000, 15000, 30000, 60000]; // 0=Off
+        let ephemeralIndex = 0;
+        
         let mediaRecorder = null;
         let audioChunks = [];
+
+        // File Chunking
+        const CHUNK_SIZE = 16 * 1024; // 16KB Safe Chunk Size
+        let incomingFileBuffer = {}; // { fileId: { chunks: [], count: 0, total: 0, mime: '', name: '' } }
 
         const sounds = {
             pop: new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.m4a'),
@@ -577,16 +610,13 @@
         document.addEventListener('DOMContentLoaded', () => {
             renderStickerGrid(initialStickers);
             
-            // Restore from LocalStorage
             const storedName = localStorage.getItem('tactile_name');
             const storedRoom = localStorage.getItem('tactile_room');
             if(storedName) document.getElementById('username-input').value = storedName;
             if(storedRoom) document.getElementById('room-input').value = storedRoom;
 
-            // AutoAnimate init
             if(window.autoAnimate) window.autoAnimate(document.getElementById('messages-container'));
 
-            // Enter key
             document.getElementById('msg-input').addEventListener('keydown', (e) => {
                 if(e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -595,7 +625,6 @@
                 sendTyping();
             });
 
-            // Global Click Listeners for dismissals
             document.addEventListener('click', (e) => {
                 const menu = document.getElementById('context-menu');
                 if(!menu.classList.contains('hidden') && !menu.contains(e.target)) menu.classList.add('hidden');
@@ -607,7 +636,6 @@
                 }
             });
 
-            // Emoji Picker
             document.querySelector('emoji-picker').addEventListener('emoji-click', event => {
                 const input = document.getElementById('msg-input');
                 input.value += event.detail.unicode;
@@ -644,22 +672,26 @@
 
         // --- NEW FEATURES ---
 
-        function toggleTimedMode() {
-            isEphemeral = !isEphemeral;
+        function cycleEphemeral() {
+            ephemeralIndex = (ephemeralIndex + 1) % ephemeralTimes.length;
+            const time = ephemeralTimes[ephemeralIndex];
             const btn = document.getElementById('btn-timed');
+            const label = document.getElementById('timed-label');
             
-            if (isEphemeral) {
-                btn.classList.add('active-mode');
-                showToast("Ephemeral Mode ON: Messages vanish in 15s");
-            } else {
+            if (time === 0) {
                 btn.classList.remove('active-mode');
+                label.innerText = 'OFF';
                 showToast("Ephemeral Mode OFF");
+            } else {
+                btn.classList.add('active-mode');
+                const text = time >= 60000 ? (time/60000 + 'm') : (time/1000 + 's');
+                label.innerText = text;
+                showToast(`Messages vanish in ${text}`);
             }
         }
 
         function clearChat() {
             document.getElementById('messages-container').innerHTML = '';
-            // Add system message back
             const emptyState = `
                 <div class="flex flex-col items-center justify-center mt-20 opacity-40 select-none text-center">
                     <div class="w-16 h-16 rounded-2xl bg-gray-200 flex items-center justify-center mb-4">
@@ -695,11 +727,13 @@
                         reader.onloadend = () => {
                             const id = crypto.randomUUID();
                             const base64 = reader.result;
+                            const time = ephemeralTimes[ephemeralIndex];
+                            
                             const payload = { type: 'audio', id: id, data: base64 };
-                            if(isEphemeral) { payload.type = 'timed-audio'; payload.duration = 15000; }
+                            if(time > 0) { payload.type = 'timed-audio'; payload.duration = time; }
                             
                             sendData(payload);
-                            renderAudio(id, base64, 'me', isEphemeral);
+                            renderAudio(id, base64, 'me', time > 0);
                         };
                         stream.getTracks().forEach(t => t.stop());
                     };
@@ -724,6 +758,89 @@
             btn.addEventListener('mouseleave', stop);
             btn.addEventListener('touchstart', start);
             btn.addEventListener('touchend', stop);
+        }
+
+        // --- FILE CHUNKING LOGIC ---
+
+        document.getElementById('file-picker').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if(!file) return;
+            
+            if(!conn || !conn.open) return showToast("Not connected!", "error");
+
+            showToast("Processing file...");
+            const reader = new FileReader();
+            
+            reader.onload = async (e) => {
+                const arrayBuffer = e.target.result;
+                const totalChunks = Math.ceil(arrayBuffer.byteLength / CHUNK_SIZE);
+                const fileId = crypto.randomUUID();
+                const mime = file.type;
+                const name = file.name;
+
+                // Send Metadata
+                conn.send({
+                    type: 'file-start',
+                    id: fileId,
+                    name: name,
+                    mime: mime,
+                    totalChunks: totalChunks,
+                    size: arrayBuffer.byteLength
+                });
+
+                document.getElementById('upload-bar').classList.remove('hidden');
+                const progBar = document.getElementById('upload-progress');
+
+                // Send Chunks
+                for (let i = 0; i < totalChunks; i++) {
+                    const start = i * CHUNK_SIZE;
+                    const end = Math.min(start + CHUNK_SIZE, arrayBuffer.byteLength);
+                    const chunk = arrayBuffer.slice(start, end);
+                    
+                    // Base64 encoding chunk for reliable transport via PeerJS data channel
+                    // (Binary types can be tricky with some PeerJS serialization)
+                    const chunkBase64 = await arrayBufferToBase64(chunk);
+
+                    conn.send({
+                        type: 'file-chunk',
+                        id: fileId,
+                        index: i,
+                        data: chunkBase64
+                    });
+
+                    // Update UI roughly
+                    const percent = Math.round(((i + 1) / totalChunks) * 100);
+                    progBar.style.width = percent + '%';
+                    
+                    // Small delay to prevent flooding
+                    if(i % 10 === 0) await new Promise(r => setTimeout(r, 1));
+                }
+
+                document.getElementById('upload-bar').classList.add('hidden');
+                progBar.style.width = '0%';
+                
+                // Show local preview
+                // Convert full array buffer to Blob for local display
+                const blob = new Blob([arrayBuffer], { type: mime });
+                const localUrl = URL.createObjectURL(blob);
+                renderFile(fileId, name, localUrl, mime, 'me');
+                showToast("File sent successfully");
+            };
+            
+            reader.readAsArrayBuffer(file);
+        });
+
+        function arrayBufferToBase64(buffer) {
+            return new Promise((resolve) => {
+                const blob = new Blob([buffer]);
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const dataUrl = reader.result;
+                    const base64 = dataUrl.split(',')[1];
+                    resolve(base64);
+                };
+                reader.readAsDataURL(blob);
+            });
         }
 
         // --- SETTINGS & UI ---
@@ -794,22 +911,6 @@
             renderStickerGrid(filtered);
         }
 
-        document.getElementById('file-picker').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if(file) {
-                if(file.size > 10000000) return showToast("File limit is 10MB (Browser Limit)", "error"); // Increased to 10MB
-                showToast("Processing file...");
-                const reader = new FileReader();
-                reader.onload = (evt) => {
-                    const id = crypto.randomUUID();
-                    sendData({ type: 'file', id: id, name: file.name, data: evt.target.result, mime: file.type });
-                    renderFile(id, file.name, evt.target.result, file.type, 'me');
-                    toggleMediaDrawer();
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
         // --- PEERJS LOGIC ---
         function startSession(role) {
             const userIn = document.getElementById('username-input').value.trim();
@@ -866,19 +967,23 @@
                     stopSound('ring');
                     document.getElementById('incoming-call-modal').classList.add('hidden');
                     
-                    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                        conn.send({ type: 'call-rejected' });
-                        return showToast("WebRTC not supported.", "error");
-                    }
-                    
+                    // Try to answer with audio/video
                     navigator.mediaDevices.getUserMedia({video: true, audio: true})
                     .then(stream => {
                         handleCallStart(call, stream);
                     })
                     .catch(err => {
-                        console.error(err);
-                        showToast("Media access denied.", "error");
-                        conn.send({ type: 'call-rejected' });
+                        console.warn("Video failed, trying audio only", err);
+                        // Fallback to audio only
+                        navigator.mediaDevices.getUserMedia({audio: true})
+                        .then(stream => {
+                            handleCallStart(call, stream);
+                        })
+                        .catch(err2 => {
+                            console.error("Audio failed too", err2);
+                            showToast("Could not access microphone.", "error");
+                            conn.send({ type: 'call-rejected' });
+                        });
                     });
                 };
 
@@ -941,7 +1046,7 @@
                 case 'text':
                 case 'timed-text':
                     const isTimed = data.type === 'timed-text';
-                    renderMessage(data.id, data.content, 'other', data.replyTo, isTimed);
+                    renderMessage(data.id, data.content, 'other', data.replyTo, isTimed, data.duration);
                     ind.classList.add('hidden');
                     conn.send({type: 'read', id: data.id});
                     notifyUser(remoteName, isTimed ? "Sent an ephemeral message" : data.content);
@@ -952,11 +1057,35 @@
                     ind.classList.add('hidden');
                     playSound('msg');
                     break;
-                case 'file':
-                    renderFile(data.id, data.name, data.data, data.mime, 'other');
-                    ind.classList.add('hidden');
-                    playSound('msg');
+                
+                // Chunked File Handling
+                case 'file-start':
+                    incomingFileBuffer[data.id] = {
+                        name: data.name,
+                        mime: data.mime,
+                        chunks: new Array(data.totalChunks),
+                        count: 0,
+                        total: data.totalChunks
+                    };
                     break;
+                case 'file-chunk':
+                    const fileEntry = incomingFileBuffer[data.id];
+                    if(fileEntry) {
+                        fileEntry.chunks[data.index] = data.data; // Store base64 chunk
+                        fileEntry.count++;
+                        
+                        if(fileEntry.count === fileEntry.total) {
+                            // Reassemble
+                            const fullBase64 = fileEntry.chunks.join('');
+                            const fileUrl = `data:${fileEntry.mime};base64,${fullBase64}`;
+                            
+                            renderFile(data.id, fileEntry.name, fileUrl, fileEntry.mime, 'other');
+                            playSound('msg');
+                            delete incomingFileBuffer[data.id];
+                        }
+                    }
+                    break;
+
                 case 'audio':
                 case 'timed-audio':
                     renderAudio(data.id, data.data, 'other', data.type === 'timed-audio');
@@ -1015,14 +1144,15 @@
                 } else {
                     const id = crypto.randomUUID();
                     const payload = { type: 'text', id: id, content: text, replyTo: replyContext };
+                    const time = ephemeralTimes[ephemeralIndex];
                     
-                    if(isEphemeral) {
+                    if(time > 0) {
                         payload.type = 'timed-text';
-                        payload.duration = 15000;
+                        payload.duration = time;
                     }
 
                     conn.send(payload);
-                    renderMessage(id, text, 'me', replyContext, isEphemeral);
+                    renderMessage(id, text, 'me', replyContext, time > 0, time);
                     playSound('pop');
                 }
                 input.value = '';
@@ -1040,7 +1170,6 @@
 
         function sendData(payload) { 
             if(conn && conn.open) {
-                if(payload.type === 'file') showToast("Uploading file...", "info");
                 conn.send(payload); 
             }
         }
@@ -1067,14 +1196,16 @@
             setTimeout(() => c.scrollTop = c.scrollHeight, 100);
         }
 
-        function renderMessage(id, text, sender, replyTo, isTimed) {
+        function renderMessage(id, text, sender, replyTo, isTimed, duration) {
             const container = document.getElementById('messages-container');
             const div = document.createElement('div');
             const isMe = sender === 'me';
             
             let replyHtml = replyTo ? `<div class="mb-2 text-xs bg-white/20 p-2 rounded border-l-2 ${isMe ? 'border-white' : 'border-blue-500'} truncate font-bold">Re: ${replyTo.text}</div>` : '';
             let content = linkifyHtml(escapeHtml(text), { target: '_blank', className: 'underline font-bold' });
-            let timerHtml = isTimed ? '<div class="absolute top-1 right-2 text-[10px] font-bold opacity-70 flex items-center gap-1"><i class="ph-bold ph-timer"></i> 15s</div>' : '';
+            
+            let timeSec = duration ? duration/1000 + 's' : '15s';
+            let timerHtml = isTimed ? `<div class="absolute top-1 right-2 text-[10px] font-bold opacity-70 flex items-center gap-1"><i class="ph-bold ph-timer"></i> ${timeSec}</div>` : '';
 
             // Basic Link Preview Detection
             let previewHtml = '';
@@ -1112,7 +1243,7 @@
             container.appendChild(div);
             scrollToBottom();
 
-            if (isTimed) startTimer(div);
+            if (isTimed) startTimer(div, duration || 15000);
         }
 
         function renderAudio(id, data, sender, isTimed) {
@@ -1120,7 +1251,7 @@
             const div = document.createElement('div');
             const isMe = sender === 'me';
             const audioId = `audio-${id}`;
-            let timerHtml = isTimed ? '<div class="absolute top-1 right-2 text-[10px] font-bold opacity-70 flex items-center gap-1"><i class="ph-bold ph-timer"></i> 15s</div>' : '';
+            let timerHtml = isTimed ? '<div class="absolute top-1 right-2 text-[10px] font-bold opacity-70 flex items-center gap-1"><i class="ph-bold ph-timer"></i></div>' : '';
 
             div.className = `msg-bubble ${isMe ? 'msg-me' : 'msg-other'} ${isTimed ? 'msg-timed' : ''}`;
             div.dataset.id = id;
@@ -1143,16 +1274,16 @@
             container.appendChild(div);
             scrollToBottom();
 
-            if (isTimed) startTimer(div);
+            if (isTimed) startTimer(div, 15000);
         }
 
-        function startTimer(element) {
+        function startTimer(element, duration) {
             setTimeout(() => {
                 if(element) {
                     element.style.opacity = '0';
                     setTimeout(() => element.remove(), 500);
                 }
-            }, 15000);
+            }, duration);
         }
 
         function renderSticker(url, sender) {
@@ -1276,10 +1407,29 @@
              if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 return showToast("Browser does not support media devices.", "error");
              }
-            navigator.mediaDevices.getUserMedia({ video: isVideo, audio: true }).then(stream => {
+            
+            // Logic to handle auto-fallback if video requested but not available
+            const constraints = isVideo ? { video: true, audio: true } : { audio: true };
+
+            navigator.mediaDevices.getUserMedia(constraints)
+            .then(stream => {
                 const call = peer.call(conn.peer, stream);
                 handleCallStart(call, stream);
-            }).catch(e => showToast("Media Access Error", "error"));
+            })
+            .catch(e => {
+                if(isVideo) {
+                    console.warn("Video failed, attempting audio only...");
+                    navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(stream => {
+                        const call = peer.call(conn.peer, stream);
+                        handleCallStart(call, stream);
+                        showToast("Switched to audio-only call.");
+                    })
+                    .catch(err2 => showToast("Microphone Access Error: " + err2.message, "error"));
+                } else {
+                    showToast("Media Access Error: " + e.message, "error");
+                }
+            });
         }
 
         function handleCallStart(call, stream) {
