@@ -2,367 +2,1182 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tactile Pro Ultra | Encrypted P2P</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tactile.io - Maximalist P2P Chat</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- PeerJS -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Emoji Picker -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.18.3/index.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Linkify -->
+    <script src="https://cdn.jsdelivr.net/npm/linkifyjs@4.1.3/dist/linkify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/linkify-html@4.1.3/dist/linkify-html.min.js"></script>
+
+    <!-- Toastify JS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <!-- AutoAnimate -->
+    <script type="module">
+        import autoAnimate from 'https://cdn.jsdelivr.net/npm/@formkit/auto-animate@1.0.0/index.min.js';
+        window.autoAnimate = autoAnimate;
+    </script>
+
     <style>
         :root {
-            --bg: #0b0e14;
-            --panel: #161b22;
-            --accent: #6366f1;
-            --accent-glow: rgba(99, 102, 241, 0.3);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --tactile-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
+            --tactile-shadow-hover: 2px 2px 0px 0px rgba(0,0,0,1);
+            --accent-1: #FF9F1C;
+            --accent-2: #2EC4B6;
+            --accent-3: #E71D36;
         }
-        [data-theme="rose"] { --accent: #fb7185; --accent-glow: rgba(251, 113, 133, 0.3); }
-        [data-theme="emerald"] { --accent: #10b981; --accent-glow: rgba(16, 185, 129, 0.3); }
-        
+
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg);
-            color: #e6edf3;
-            height: 100dvh;
+            font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+            background: #f0f2f5;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            background-size: cover;
+            background-attachment: fixed;
+            height: 100vh;
             overflow: hidden;
-            transition: background 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .animate__faster { animation-duration: 300ms !important; }
-
-        .glass-blur {
-            backdrop-filter: blur(12px);
-            background: rgba(13, 17, 23, 0.8);
+        /* Tactile Elements */
+        .tactile-box {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 2px solid #000;
+            box-shadow: var(--tactile-shadow);
+            border-radius: 24px;
+            transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .tactile-btn {
+            background: #ffffff;
+            border: 2px solid #000;
+            box-shadow: var(--tactile-shadow);
+            transform: translate(0, 0);
+            transition: all 0.1s ease;
+            cursor: pointer;
+        }
+        
+        .tactile-btn:active {
+            box-shadow: 0px 0px 0px 0px rgba(0,0,0,1);
+            transform: translate(4px, 4px);
         }
 
+        .tactile-input {
+            border: 2px solid #000;
+            box-shadow: inset 2px 2px 0px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+        .tactile-input:focus {
+            background: #fff;
+            box-shadow: inset 4px 4px 0px rgba(0,0,0,0.2);
+            outline: none;
+        }
+
+        /* Message Bubbles */
         .msg-bubble {
             max-width: 85%;
-            transition: transform 0.1s ease;
+            padding: 10px 14px;
+            border-radius: 16px;
             position: relative;
+            border: 2px solid #000;
+            word-wrap: break-word;
+            user-select: none;
+            margin-bottom: 24px; /* Space for reactions */
         }
 
-        .msg-me { background: var(--accent); color: white; border-radius: 1rem 1rem 0.1rem 1rem; }
-        .msg-peer { background: #1c2128; border: 1px solid #30363d; border-radius: 1rem 1rem 1rem 0.1rem; }
-
-        .code-block {
-            background: #0d1117 !important;
-            border-radius: 0.5rem;
-            font-size: 0.75rem !important;
+        .msg-me {
+            background: var(--accent-2);
+            color: #000;
+            border-bottom-right-radius: 4px;
+            box-shadow: 3px 3px 0px #000;
+            margin-left: auto;
         }
 
-        .chat-scroll::-webkit-scrollbar { width: 3px; }
-        .chat-scroll::-webkit-scrollbar-thumb { background: #30363d; border-radius: 10px; }
+        .msg-other {
+            background: #fff;
+            color: #000;
+            border-bottom-left-radius: 4px;
+            box-shadow: -3px 3px 0px #000;
+            margin-right: auto;
+        }
         
-        .reaction-chip {
-            font-size: 10px;
-            background: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 99px;
-            padding: 1px 6px;
-            margin-top: -8px;
+        /* Reactions */
+        .reactions-container {
+            position: absolute;
+            bottom: -20px;
+            display: flex;
+            gap: 4px;
             z-index: 10;
         }
+        .msg-me .reactions-container { right: 0; }
+        .msg-other .reactions-container { left: 0; }
 
-        #gateway-screen {
-            background: radial-gradient(circle at center, #1e293b 0%, #0b0e14 100%);
+        .reaction-pill {
+            background: #fff;
+            border: 1px solid #000;
+            border-radius: 12px;
+            padding: 2px 6px;
+            font-size: 10px;
+            box-shadow: 1px 1px 0px #000;
+            display: flex;
+            align-items: center;
+            animation: popIn 0.2s;
         }
 
-        .input-container { max-width: 1000px; margin: 0 auto; width: 100%; }
+        /* Audio Message */
+        .audio-player {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 200px;
+        }
 
-        /* Self-destruct timer bar */
-        .burn-bar {
-            height: 2px;
-            background: #fb7185;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            transition: width linear;
+        /* Context Menu */
+        #context-menu {
+            position: fixed;
+            z-index: 1000;
+            width: 200px;
+            background: white;
+            border: 2px solid black;
+            box-shadow: 4px 4px 0px black;
+            border-radius: 12px;
+            overflow: hidden;
+            animation: fadeIn 0.1s ease-out;
+        }
+        .ctx-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: background 0.1s;
+        }
+        .ctx-item:hover { background: #f0f0f0; }
+        .ctx-item.delete:hover { background: #fee2e2; color: red; }
+        
+        .reaction-bar {
+            display: flex;
+            justify-content: space-around;
+            padding: 8px;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .reaction-opt {
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .reaction-opt:hover { transform: scale(1.2); }
+
+        /* Ticks */
+        .status-tick { font-size: 12px; margin-left: 4px; }
+        .tick-sent { color: #666; }
+        .tick-read { color: #007aff; }
+
+        /* Images in chat */
+        .chat-image {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 4px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .sticker-img {
+            max-width: 140px;
+            border-radius: 12px;
+            transition: transform 0.2s;
+        }
+        .sticker-img:hover { transform: scale(1.05); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.4); }
+
+        /* Animations */
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.9) translateY(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes pulse-record {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 29, 54, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(231, 29, 54, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 29, 54, 0); }
+        }
+
+        /* Utility */
+        .hidden-visually { display: none; }
+        
+        emoji-picker {
+            width: 100%;
+            height: 300px;
+            --background: #fff;
+            --border-color: #000;
+            --indicator-color: var(--accent-2);
+            --button-hover-background: #f3f4f6;
+        }
+
+        .recording-active {
+            animation: pulse-record 1.5s infinite;
+            background-color: #E71D36 !important;
+            color: white !important;
+            border-color: #E71D36 !important;
+        }
+        
+        /* Toastify Custom Override */
+        .toastify {
+            background: white;
+            color: black;
+            border: 2px solid black;
+            box-shadow: 4px 4px 0px black;
+            border-radius: 12px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
         }
     </style>
 </head>
-<body data-theme="default">
+<body class="text-gray-900 selection:bg-black selection:text-white">
 
-    <!-- Gateway Screen (Auth/Connection First) -->
-    <div id="gateway-screen" class="fixed inset-0 z-[500] flex flex-col items-center justify-center p-6 transition-all duration-500">
-        <div class="w-full max-w-sm space-y-8 animate__animated animate__fadeIn">
-            <div class="text-center space-y-2">
-                <div class="inline-flex p-3 rounded-2xl bg-indigo-600/20 mb-4">
-                    <i data-lucide="zap" class="w-8 h-8 text-indigo-500"></i>
-                </div>
-                <h1 class="text-3xl font-black tracking-tighter">TACTILE PRO</h1>
-                <p class="text-gray-500 text-sm font-medium">Decentralized P2P Tunnel</p>
-            </div>
-
-            <div class="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 shadow-2xl space-y-6">
-                <div class="space-y-2 text-center">
-                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Your Private Node ID</label>
-                    <div class="flex items-center justify-center gap-3">
-                        <span id="gateway-id" class="font-mono text-2xl font-black tracking-widest text-white">------</span>
-                        <button onclick="copyId()" class="p-2 hover:bg-white/5 rounded-lg text-gray-400 hover:text-white"><i data-lucide="copy" class="w-4 h-4"></i></button>
-                    </div>
-                </div>
-
-                <div class="space-y-4">
-                    <div class="relative">
-                        <input type="text" id="peer-id-gateway" placeholder="Enter Peer Node ID" class="w-full bg-black/40 border border-[#30363d] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 uppercase font-mono tracking-widest text-center transition-all">
-                    </div>
-                    <button onclick="connectAndEnter()" id="connect-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-xl font-bold text-sm shadow-lg shadow-indigo-600/20 active:scale-95 transition-all">
-                        INITIALIZE LINK
-                    </button>
-                </div>
-            </div>
-            
-            <p class="text-center text-[10px] text-gray-600 uppercase tracking-widest font-bold">Encrypted via WebRTC • No Servers</p>
-        </div>
-    </div>
-
-    <!-- Main Workspace (Hidden until connection) -->
-    <div id="main-app" class="hidden h-full flex flex-col md:flex-row overflow-hidden">
+    <!-- APP CONTAINER -->
+    <div id="app" class="relative w-full h-full max-w-7xl mx-auto flex flex-col overflow-hidden sm:p-4">
         
-        <!-- Collapsible Mini Sidebar (Discord Style) -->
-        <aside class="hidden md:flex w-16 border-r border-[#30363d] flex-col items-center py-4 gap-4 bg-[#0d1117] shrink-0">
-            <div class="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center cursor-pointer shadow-lg shadow-indigo-600/20">
-                <i data-lucide="message-square" class="w-5 h-5 text-white"></i>
-            </div>
-            <div class="w-8 h-[1px] bg-[#30363d]"></div>
-            <button onclick="setTheme('rose')" class="w-10 h-10 rounded-full bg-rose-500/20 border border-rose-500/40 hover:scale-110 transition"></button>
-            <button onclick="setTheme('emerald')" class="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500/40 hover:scale-110 transition"></button>
-            <button onclick="setTheme('default')" class="w-10 h-10 rounded-full bg-indigo-500/20 border border-indigo-500/40 hover:scale-110 transition"></button>
-        </aside>
+        <!-- 1. LANDING PAGE -->
+        <div id="landing-page" class="flex-1 w-full h-full flex flex-col items-center justify-center p-4 z-10 transition-all duration-300">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
+                
+                <!-- Hero Box -->
+                <div class="tactile-box p-8 md:col-span-2 flex flex-col items-center text-center bg-yellow-300">
+                    <h1 class="text-6xl font-bold mb-2 tracking-tighter">TACTILE.IO</h1>
+                    <p class="text-lg font-medium opacity-80">Maximalist P2P Chat. Screen Share. Reactions.</p>
+                </div>
 
-        <main class="flex-1 flex flex-col relative bg-[#0b0e14]">
-            <!-- Responsive Header -->
-            <header class="h-14 border-b border-[#30363d] px-4 md:px-8 flex items-center justify-between glass-blur z-20">
-                <div class="flex items-center gap-3">
-                    <div id="active-indicator" class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
-                    <div>
-                        <h2 id="active-peer-name" class="font-bold text-xs">NODE: ------</h2>
-                        <p class="text-[9px] text-indigo-400 font-bold uppercase tracking-widest">Live Tunnel</p>
+                <!-- Input Box -->
+                <div class="tactile-box p-8 bg-white flex flex-col justify-center gap-4">
+                    <label class="font-bold text-sm uppercase tracking-wide">Identity</label>
+                    <input type="text" id="username-input" placeholder="Your Display Name" class="tactile-input w-full p-4 rounded-xl text-lg bg-gray-50" maxlength="15">
+                    
+                    <label class="font-bold text-sm uppercase tracking-wide mt-2">Frequency Code</label>
+                    <div class="relative">
+                        <i class="ph ph-hash absolute left-4 top-1/2 -translate-y-1/2 text-xl opacity-50"></i>
+                        <input type="text" id="room-input" placeholder="secret-room" class="tactile-input w-full p-4 pl-12 rounded-xl text-lg bg-gray-50 font-mono tracking-tight">
                     </div>
                 </div>
-                <div class="flex items-center gap-1">
-                    <button onclick="initiateCall()" class="p-2 hover:bg-white/5 rounded-lg text-gray-400 hover:text-white transition"><i data-lucide="phone" class="w-4 h-4"></i></button>
-                    <button onclick="toggleBurnMode()" id="burn-toggle" class="p-2 hover:bg-rose-500/10 rounded-lg text-gray-400 hover:text-rose-400 transition" title="Self Destruct Mode"><i data-lucide="flame" class="w-4 h-4"></i></button>
-                    <button onclick="window.location.reload()" class="p-2 hover:bg-white/5 rounded-lg text-gray-400 transition"><i data-lucide="log-out" class="w-4 h-4"></i></button>
+
+                <!-- Action Box -->
+                <div class="tactile-box p-8 bg-[#FF9F1C] flex flex-col justify-center gap-4">
+                    <p class="text-sm font-bold text-center mb-2">Start Transmission</p>
+                    <div class="grid grid-cols-2 gap-4 h-full">
+                        <button onclick="startSession('create')" class="tactile-btn bg-white rounded-xl flex flex-col items-center justify-center p-4 hover:bg-green-50 active:scale-95 transition-transform">
+                            <i class="ph-fill ph-broadcast text-3xl mb-2 text-green-600"></i>
+                            <span class="font-bold">Host</span>
+                        </button>
+                        <button onclick="startSession('join')" class="tactile-btn bg-white rounded-xl flex flex-col items-center justify-center p-4 hover:bg-blue-50 active:scale-95 transition-transform">
+                            <i class="ph-fill ph-plugs-connected text-3xl mb-2 text-blue-600"></i>
+                            <span class="font-bold">Join</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. CHAT INTERFACE -->
+        <div id="chat-interface" class="hidden absolute inset-0 sm:static sm:h-full sm:rounded-[32px] tactile-box overflow-hidden flex-col bg-white/95 backdrop-blur-xl">
+            
+            <!-- Header -->
+            <header class="h-16 border-b-2 border-black bg-white flex items-center justify-between px-4 z-20 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="relative cursor-pointer hover:opacity-80 transition" onclick="toggleSettings()">
+                        <div class="w-10 h-10 rounded-full border-2 border-black bg-gradient-to-br from-pink-400 to-purple-400 overflow-hidden">
+                             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" id="remote-avatar" class="w-full h-full object-cover">
+                        </div>
+                        <div id="status-dot" class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-black bg-gray-400 transition-colors duration-300"></div>
+                    </div>
+                    <div>
+                        <h2 id="chat-title" class="font-bold text-lg leading-tight truncate max-w-[120px] sm:max-w-xs">Waiting...</h2>
+                        <p id="chat-status" class="text-xs font-mono opacity-60">Disconnected</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-2">
+                    <button onclick="startCall(false)" class="tactile-btn w-10 h-10 rounded-full flex items-center justify-center bg-blue-100" title="Voice Call">
+                        <i class="ph-bold ph-phone"></i>
+                    </button>
+                    <button onclick="startCall(true)" class="tactile-btn w-10 h-10 rounded-full flex items-center justify-center bg-green-100" title="Video Call">
+                        <i class="ph-bold ph-video"></i>
+                    </button>
+                    <button onclick="toggleSettings()" class="tactile-btn w-10 h-10 rounded-full flex items-center justify-center bg-gray-100" title="Settings">
+                        <i class="ph-bold ph-gear"></i>
+                    </button>
+                    <button onclick="disconnect()" class="tactile-btn w-10 h-10 rounded-full flex items-center justify-center bg-red-100 text-red-600" title="Disconnect">
+                        <i class="ph-bold ph-power"></i>
+                    </button>
                 </div>
             </header>
 
-            <div id="message-container" class="flex-1 overflow-y-auto p-4 md:p-10 space-y-6 chat-scroll"></div>
-
-            <div id="typing-indicator" class="px-10 py-1 h-4 invisible flex items-center gap-1">
-                <span class="w-1 h-1 bg-indigo-500 rounded-full animate-bounce"></span>
-                <span class="w-1 h-1 bg-indigo-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></span>
-                <span class="w-1 h-1 bg-indigo-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+            <!-- Messages Area -->
+            <div id="messages-container" class="flex-1 overflow-y-auto p-4 bg-white/50 relative scroll-smooth">
+                <div class="flex flex-col items-center justify-center mt-10 opacity-50 select-none text-center">
+                    <i class="ph-duotone ph-lock-key text-4xl mb-2"></i>
+                    <p class="text-sm font-bold">End-to-End Encrypted</p>
+                    <p class="text-xs mt-1">Right-click for Reactions & Options</p>
+                </div>
             </div>
 
-            <footer class="p-4 md:p-6 bg-[#0b0e14]">
-                <div class="input-container">
-                    <div class="flex items-end gap-3 bg-[#161b22] border border-[#30363d] rounded-2xl p-1.5 focus-within:border-indigo-500 transition-all">
-                        <button onclick="toggleGiphy()" class="w-10 h-10 rounded-xl hover:bg-white/5 flex items-center justify-center text-[10px] font-black shrink-0">GIF</button>
-                        <textarea id="chat-input" rows="1" placeholder="Message..." class="flex-1 bg-transparent border-none py-2.5 px-2 text-sm outline-none resize-none max-h-32"></textarea>
-                        <div class="flex items-center gap-1 pr-1">
-                            <button onclick="sendCodePrompt()" class="w-10 h-10 rounded-xl hover:bg-white/5 flex items-center justify-center text-gray-400 shrink-0"><i data-lucide="code" class="w-4 h-4"></i></button>
-                            <button onclick="sendMessage()" class="w-10 h-10 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl flex items-center justify-center shadow-lg active:scale-95 transition-all shrink-0"><i data-lucide="send" class="w-4 h-4"></i></button>
-                        </div>
+            <!-- Typing/Recording Indicator -->
+            <div id="activity-indicator" class="hidden absolute bottom-20 left-6 bg-black text-white px-4 py-2 rounded-full text-xs font-bold animate-pulse z-10 shadow-lg flex items-center gap-2">
+                <div class="w-2 h-2 bg-white rounded-full animate-bounce"></div>
+                <span id="activity-text">Typing...</span>
+            </div>
+
+            <!-- Reply Context -->
+            <div id="reply-preview" class="hidden bg-gray-100 border-t-2 border-black p-2 flex justify-between items-center text-sm animate-[fadeIn_0.1s]">
+                <div class="border-l-4 border-accent-2 pl-2">
+                    <span class="font-bold text-xs text-gray-500">Replying to</span>
+                    <p class="truncate max-w-[200px]" id="reply-text">...</p>
+                </div>
+                <button onclick="cancelReply()" class="p-1 hover:bg-gray-200 rounded"><i class="ph ph-x"></i></button>
+            </div>
+
+            <!-- Input Area -->
+            <footer class="p-3 bg-white border-t-2 border-black shrink-0 relative">
+                
+                <!-- Expanded Tools (Media Drawer) -->
+                <div id="media-drawer" class="hidden absolute bottom-full left-0 right-0 bg-white border-t-2 border-black h-72 flex flex-col shadow-xl z-20">
+                    <div class="p-2 border-b-2 border-black bg-gray-50 flex gap-2">
+                         <input type="text" id="sticker-search" placeholder="Search GIFs & Stickers..." class="flex-1 p-2 border-2 border-black rounded-lg text-sm" oninput="filterStickers()">
+                         <button onclick="document.getElementById('file-picker').click()" class="tactile-btn px-4 py-2 rounded-lg bg-blue-100 text-sm font-bold flex items-center gap-2">
+                            <i class="ph-bold ph-file-arrow-up"></i> File
+                         </button>
+                    </div>
+                    <div id="sticker-grid" class="flex-1 overflow-y-auto p-2 grid grid-cols-4 sm:grid-cols-5 gap-2">
+                        <!-- Populated via JS -->
                     </div>
                 </div>
+
+                <div class="flex gap-2 items-end">
+                    <button onclick="toggleMediaDrawer()" class="tactile-btn w-10 h-10 mb-1 rounded-xl flex items-center justify-center bg-yellow-100 shrink-0" title="Media Library">
+                        <i class="ph-bold ph-plus"></i>
+                    </button>
+
+                    <div class="flex-1 relative">
+                        <textarea id="msg-input" rows="1" class="w-full tactile-input p-3 pr-10 rounded-xl resize-none max-h-32 min-h-[46px]" placeholder="Type a message..."></textarea>
+                        <button onclick="toggleEmojiPicker()" class="absolute right-2 bottom-2 text-gray-500 hover:text-black transition-colors">
+                            <i class="ph-fill ph-smiley text-xl"></i>
+                        </button>
+                        
+                        <!-- Emoji Picker Popover -->
+                        <div id="emoji-popover" class="hidden absolute bottom-14 right-0 w-72 shadow-2xl border-2 border-black rounded-xl z-50 overflow-hidden animate-[popIn_0.1s]">
+                            <emoji-picker></emoji-picker>
+                        </div>
+                    </div>
+
+                    <!-- Voice Record Button -->
+                    <button id="btn-record" class="tactile-btn w-12 h-12 mb-1 rounded-xl flex items-center justify-center bg-gray-100 shrink-0 transition-colors" title="Hold to Record">
+                        <i class="ph-bold ph-microphone text-xl"></i>
+                    </button>
+
+                    <button onclick="sendMessage()" class="tactile-btn w-12 h-12 mb-1 rounded-xl flex items-center justify-center bg-black text-white shrink-0 hover:bg-gray-800 active:scale-95 transition-transform">
+                        <i class="ph-bold ph-paper-plane-right text-xl"></i>
+                    </button>
+                </div>
             </footer>
-        </main>
+        </div>
+
+        <!-- SETTINGS MODAL -->
+        <div id="settings-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+            <div class="tactile-box bg-white p-6 max-w-sm w-full animate-[popIn_0.2s]">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold">Settings</h3>
+                    <button onclick="toggleSettings()"><i class="ph-bold ph-x text-xl"></i></button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center p-3 border-2 border-gray-100 rounded-xl">
+                        <div class="flex items-center gap-3">
+                            <i class="ph-duotone ph-bell text-2xl"></i>
+                            <span class="font-bold">Notifications</span>
+                        </div>
+                        <button onclick="toggleNotifs()" id="btn-notif" class="w-12 h-6 bg-gray-300 rounded-full relative transition-colors duration-200">
+                            <div class="w-4 h-4 bg-white rounded-full absolute top-1 left-1 transition-transform duration-200"></div>
+                        </button>
+                    </div>
+
+                    <div class="flex justify-between items-center p-3 border-2 border-gray-100 rounded-xl">
+                        <div class="flex items-center gap-3">
+                            <i class="ph-duotone ph-speaker-high text-2xl"></i>
+                            <span class="font-bold">Sounds</span>
+                        </div>
+                        <button onclick="toggleSound()" id="btn-sound" class="w-12 h-6 bg-black rounded-full relative transition-colors duration-200">
+                            <div class="w-4 h-4 bg-white rounded-full absolute top-1 left-1 translate-x-6 transition-transform duration-200"></div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CALL OVERLAY -->
+        <div id="call-overlay" class="hidden fixed inset-0 z-50 bg-black flex flex-col">
+            <div class="flex-1 relative group">
+                <video id="remote-video" autoplay playsinline class="w-full h-full object-cover"></video>
+                <div class="absolute top-4 right-4 w-32 h-48 bg-gray-900 rounded-xl border-2 border-white overflow-hidden shadow-xl draggable transition-all hover:scale-105">
+                    <video id="local-video" autoplay playsinline muted class="w-full h-full object-cover transform scale-x-[-1]"></video>
+                </div>
+                <div class="absolute top-8 left-0 right-0 text-center">
+                    <div class="inline-block bg-black/50 backdrop-blur px-4 py-2 rounded-full text-white font-bold border border-white/20">
+                        <span id="call-status-text">Connected</span> <span id="call-timer">00:00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="h-24 bg-gray-900 flex items-center justify-center gap-6 pb-4">
+                <button onclick="toggleMute()" id="btn-mute" class="w-14 h-14 rounded-full bg-gray-700 text-white flex items-center justify-center hover:bg-gray-600 transition" title="Toggle Mic"><i class="ph-fill ph-microphone"></i></button>
+                <button onclick="endCall()" class="w-16 h-16 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg hover:bg-red-700 transform hover:scale-105 transition" title="End Call"><i class="ph-fill ph-phone-slash text-2xl"></i></button>
+                <button onclick="toggleCamera()" id="btn-cam" class="w-14 h-14 rounded-full bg-gray-700 text-white flex items-center justify-center hover:bg-gray-600 transition" title="Toggle Cam"><i class="ph-fill ph-video-camera"></i></button>
+                <button onclick="toggleScreenShare()" id="btn-screen" class="w-14 h-14 rounded-full bg-gray-700 text-white flex items-center justify-center hover:bg-gray-600 transition" title="Share Screen"><i class="ph-fill ph-monitor-play"></i></button>
+            </div>
+        </div>
+
+        <!-- INCOMING CALL MODAL -->
+        <div id="incoming-call-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+            <div class="tactile-box bg-white p-6 max-w-sm w-full text-center animate-[popIn_0.3s]">
+                <div class="w-20 h-20 rounded-full overflow-hidden mx-auto border-2 border-black mb-4 bg-purple-100">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" id="incoming-avatar" class="w-full h-full">
+                </div>
+                <h3 class="text-xl font-bold">Incoming Call...</h3>
+                <div class="flex justify-center gap-4 mt-6">
+                    <button onclick="rejectCall()" class="tactile-btn bg-red-100 text-red-600 w-12 h-12 rounded-full flex items-center justify-center"><i class="ph-bold ph-phone-slash text-xl"></i></button>
+                    <button onclick="answerCall()" class="tactile-btn bg-green-500 text-white w-14 h-14 rounded-full flex items-center justify-center animate-bounce"><i class="ph-bold ph-phone text-2xl"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTEXT MENU -->
+        <div id="context-menu" class="hidden">
+            <div class="reaction-bar">
+                <span class="reaction-opt" onclick="sendReaction('👍')">👍</span>
+                <span class="reaction-opt" onclick="sendReaction('❤️')">❤️</span>
+                <span class="reaction-opt" onclick="sendReaction('😂')">😂</span>
+                <span class="reaction-opt" onclick="sendReaction('😮')">😮</span>
+                <span class="reaction-opt" onclick="sendReaction('😢')">😢</span>
+                <span class="reaction-opt" onclick="sendReaction('🔥')">🔥</span>
+            </div>
+            <div class="ctx-item" onclick="handleCtxAction('reply')"><i class="ph-bold ph-arrow-u-up-left"></i> Reply</div>
+            <div class="ctx-item" onclick="handleCtxAction('copy')"><i class="ph-bold ph-copy"></i> Copy</div>
+            <div class="ctx-item hidden" id="ctx-edit" onclick="handleCtxAction('edit')"><i class="ph-bold ph-pencil"></i> Edit</div>
+            <div class="ctx-item delete hidden" id="ctx-delete" onclick="handleCtxAction('delete')"><i class="ph-bold ph-trash"></i> Delete</div>
+        </div>
     </div>
 
-    <!-- Modals & Overlays -->
-    <div id="giphy-panel" class="hidden absolute bottom-24 right-4 md:right-8 w-72 h-80 bg-[#161b22] border border-[#30363d] rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden animate__animated animate__fadeInUp animate__faster">
-        <div class="p-2 bg-black/20"><input type="text" id="giphy-search" placeholder="Search..." class="w-full bg-white/5 rounded-lg px-3 py-1.5 text-xs outline-none"></div>
-        <div id="giphy-results" class="flex-1 overflow-y-auto grid grid-cols-2 gap-1 p-2 chat-scroll"></div>
-    </div>
+    <input type="file" id="file-picker" class="hidden">
 
     <script>
-        const GIPHY_KEY = 'dc6zaTOxFJmzC';
-        let peer, conn, burnMode = false;
-        
-        function init() {
-            const shortId = Math.random().toString(36).substring(2, 8).toUpperCase();
-            peer = new Peer(shortId, { config: { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] } });
+        // --- CONFIG & STATE ---
+        const initialStickers = [
+            { url: 'https://media.tenor.com/2s_01J_1l6kAAAAi/cat-jam-vibe.gif', tags: 'cat vibe dance' },
+            { url: 'https://media.tenor.com/On7kvXy7QdkAAAAi/loading-cat.gif', tags: 'cat loading' },
+            { url: 'https://media.tenor.com/7100_lDpE8IAAAAi/cat-meme.gif', tags: 'cat meme huh' },
+            { url: 'https://media.tenor.com/hK3D38996yEAAAAi/happy-cat.gif', tags: 'cat happy' },
+            { url: 'https://media.tenor.com/gK1fsZc9FfUAAAAi/capoo-bugcat.gif', tags: 'capoo bugcat love' },
+            { url: 'https://media.tenor.com/1E6H4KaF85QAAAAi/sad-cat.gif', tags: 'cat sad crying' },
+            { url: 'https://media.tenor.com/N24M4b5mH58AAAAi/excited.gif', tags: 'cat excited' },
+            { url: 'https://media.tenor.com/0l_JmL2jMuwAAAAi/pepe-frog.gif', tags: 'pepe frog' },
+            { url: 'https://media.tenor.com/k9y3l7-rK44AAAAi/dog-cool.gif', tags: 'dog cool sunglasses' },
+            { url: 'https://media.tenor.com/q7SjG0G4pQAAAAAi/thumbs-up.gif', tags: 'thumbs up ok' }
+        ];
 
-            peer.on('open', id => {
-                document.getElementById('gateway-id').innerText = id;
-                const params = new URLSearchParams(window.location.search);
-                if (params.get('connect')) document.getElementById('peer-id-gateway').value = params.get('connect');
+        let peer = null;
+        let conn = null;
+        let myId = '';
+        let myName = '';
+        let remoteName = 'Peer';
+        let currentCall = null;
+        let localStream = null;
+        let screenStream = null;
+        let typingTimeout = null;
+        let replyContext = null; 
+        let settings = { sound: true, notifs: false };
+        let ctxTarget = null; 
+        let isEditing = null; 
+        let mediaRecorder = null;
+        let audioChunks = [];
+
+        // Sounds
+        const sounds = {
+            pop: new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.m4a'),
+            msg: new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.m4a')
+        };
+        sounds.pop.volume = 0.5;
+        sounds.msg.volume = 0.4;
+
+        // --- INIT & UI LOGIC ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderStickerGrid(initialStickers);
+            
+            // AutoAnimate init
+            if(window.autoAnimate) window.autoAnimate(document.getElementById('messages-container'));
+
+            // Enter key
+            document.getElementById('msg-input').addEventListener('keydown', (e) => {
+                if(e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+                sendTyping();
             });
 
-            peer.on('connection', c => {
-                conn = c;
-                setupConnection();
-                enterApp();
+            // Context Menu Dismiss
+            document.addEventListener('click', (e) => {
+                const menu = document.getElementById('context-menu');
+                if(!menu.contains(e.target)) menu.classList.add('hidden');
+                
+                // Emoji Popover Dismiss
+                const popover = document.getElementById('emoji-popover');
+                const trigger = document.querySelector('button[onclick="toggleEmojiPicker()"]');
+                if (!popover.classList.contains('hidden') && 
+                    !popover.contains(e.target) && 
+                    !trigger.contains(e.target)) {
+                    popover.classList.add('hidden');
+                }
             });
 
-            lucide.createIcons();
-        }
-
-        function connectAndEnter() {
-            const id = document.getElementById('peer-id-gateway').value.trim().toUpperCase();
-            if (!id || id === peer.id) return alert("Invalid Node ID");
-            conn = peer.connect(id);
-            setupConnection();
-            enterApp();
-        }
-
-        function enterApp() {
-            document.getElementById('gateway-screen').classList.add('opacity-0', 'pointer-events-none', 'scale-110');
-            setTimeout(() => {
-                document.getElementById('gateway-screen').remove();
-                document.getElementById('main-app').classList.remove('hidden');
-                document.getElementById('active-peer-name').innerText = `NODE: ${conn.peer}`;
-            }, 500);
-        }
-
-        function setupConnection() {
-            conn.on('open', () => {
-                confetti({ particleCount: 40, spread: 60, colors: ['#6366f1', '#fb7185'] });
+            // Emoji Picker
+            document.querySelector('emoji-picker').addEventListener('emoji-click', event => {
+                const input = document.getElementById('msg-input');
+                input.value += event.detail.unicode;
+                // Removed auto-close to allow multiple emojis
+                input.focus();
             });
-            conn.on('data', data => {
-                if (data.type === 'typing') toggleTyping(data.state);
-                else if (data.type === 'reaction') applyReaction(data);
-                else renderMessage('peer', data);
-            });
+            
+            // Audio Recording Setup
+            setupVoiceRecording();
+
+            if(Notification.permission === 'granted') {
+                settings.notifs = true;
+                updateSettingsUI();
+            }
+        });
+
+        function showToast(msg, type = 'info') {
+            const bg = type === 'error' ? '#fee2e2' : '#ffffff';
+            const color = type === 'error' ? '#ef4444' : '#000000';
+            
+            Toastify({
+                text: msg,
+                duration: 3000,
+                gravity: "top",
+                position: "center",
+                style: {
+                    background: bg,
+                    color: color,
+                },
+                offset: { y: 20 }
+            }).showToast();
         }
 
-        function sendMessage(custom = null) {
-            const input = document.getElementById('chat-input');
-            const content = custom ? custom.content : input.value.trim();
-            if (!content) return;
-
-            const payload = {
-                id: Math.random().toString(36).substr(2, 9),
-                type: custom ? custom.type : 'text',
-                content: DOMPurify.sanitize(content),
-                burn: burnMode,
-                timestamp: Date.now()
+        function setupVoiceRecording() {
+            const btn = document.getElementById('btn-record');
+            
+            const start = async (e) => {
+                e.preventDefault();
+                if(!conn || !conn.open) return showToast("Connect first!", "error");
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                    mediaRecorder.onstop = () => {
+                        const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                        const reader = new FileReader();
+                        reader.readAsDataURL(blob);
+                        reader.onloadend = () => {
+                            const id = crypto.randomUUID();
+                            const base64 = reader.result;
+                            sendData({ type: 'audio', id: id, data: base64 });
+                            renderAudio(id, base64, 'me');
+                        };
+                        stream.getTracks().forEach(t => t.stop());
+                    };
+                    mediaRecorder.start();
+                    btn.classList.add('recording-active');
+                    sendActivity('Recording Audio...');
+                } catch(err) {
+                    console.error("Mic error:", err);
+                    showToast("Microphone access needed.", "error");
+                }
             };
 
-            conn.send(payload);
-            renderMessage('me', payload);
-            input.value = '';
-            input.style.height = 'auto';
+            const stop = (e) => {
+                if(mediaRecorder && mediaRecorder.state === 'recording') {
+                    mediaRecorder.stop();
+                    btn.classList.remove('recording-active');
+                }
+            };
+
+            // Touch events for mobile, Mouse for desktop
+            btn.addEventListener('mousedown', start);
+            btn.addEventListener('mouseup', stop);
+            btn.addEventListener('mouseleave', stop);
+            btn.addEventListener('touchstart', start);
+            btn.addEventListener('touchend', stop);
         }
 
-        function renderMessage(sender, data) {
-            const container = document.getElementById('message-container');
-            const div = document.createElement('div');
-            div.id = `msg-${data.id}`;
-            div.className = `flex flex-col ${sender === 'me' ? 'items-end' : 'items-start'} animate__animated animate__fadeInUp animate__faster relative`;
-
-            let body = '';
-            if (data.type === 'gif') body = `<img src="${data.content}" class="rounded-lg max-w-[180px]">`;
-            else if (data.type === 'code') body = `<pre class="code-block"><code class="language-js">${data.content}</code></pre>`;
-            else body = `<p class="text-[13px]">${data.content}</p>`;
-
-            div.innerHTML = `
-                <div class="msg-bubble ${sender === 'me' ? 'msg-me' : 'msg-peer'} p-3 px-4 shadow-sm group" onclick="showReactions('${data.id}')">
-                    ${body}
-                    ${data.burn ? `<div class="burn-bar" id="burn-${data.id}"></div>` : ''}
-                </div>
-                <div id="reactions-${data.id}" class="flex gap-1"></div>
-            `;
-
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-            if (data.type === 'code') Prism.highlightAll();
-
-            if (data.burn) {
-                const bar = document.getElementById(`burn-${data.id}`);
-                bar.style.width = '100%';
-                setTimeout(() => {
-                    bar.style.width = '0%';
-                    setTimeout(() => div.classList.add('animate__fadeOut'), 4500);
-                    setTimeout(() => div.remove(), 5000);
-                }, 100);
+        function playSound(type) {
+            if(settings.sound && sounds[type]) {
+                sounds[type].currentTime = 0;
+                sounds[type].play().catch(e => {});
             }
         }
 
-        function showReactions(msgId) {
-            const emojis = ['👍', '❤️', '🔥', '😂'];
-            const existing = document.getElementById(`reactions-${msgId}`);
-            if (existing.innerHTML !== '') return; 
-            
-            emojis.forEach(e => {
-                const btn = document.createElement('button');
-                btn.className = "text-xs hover:scale-125 transition active:scale-90";
-                btn.innerText = e;
-                btn.onclick = () => {
-                    const reaction = { type: 'reaction', msgId, emoji: e };
-                    conn.send(reaction);
-                    applyReaction(reaction);
-                };
-                existing.appendChild(btn);
-            });
-            setTimeout(() => { if(existing) existing.innerHTML = ''; }, 3000);
+        function toggleEmojiPicker() { document.getElementById('emoji-popover').classList.toggle('hidden'); }
+        function toggleSettings() { document.getElementById('settings-modal').classList.toggle('hidden'); }
+
+        function toggleNotifs() {
+            if(settings.notifs) {
+                settings.notifs = false;
+            } else {
+                Notification.requestPermission().then(perm => {
+                    if(perm === 'granted') settings.notifs = true;
+                    updateSettingsUI();
+                });
+            }
+            updateSettingsUI();
         }
 
-        function applyReaction(data) {
-            const msg = document.getElementById(`msg-${data.msgId}`);
-            if (!msg) return;
-            const chip = document.createElement('div');
-            chip.className = "reaction-chip animate__animated animate__bounceIn";
-            chip.innerText = data.emoji;
-            msg.appendChild(chip);
+        function toggleSound() { settings.sound = !settings.sound; updateSettingsUI(); }
+
+        function updateSettingsUI() {
+            const btnNotif = document.getElementById('btn-notif');
+            btnNotif.classList.toggle('bg-black', settings.notifs);
+            btnNotif.classList.toggle('bg-gray-300', !settings.notifs);
+            btnNotif.querySelector('div').style.transform = settings.notifs ? 'translateX(24px)' : 'translateX(0)';
+
+            const btnSound = document.getElementById('btn-sound');
+            btnSound.classList.toggle('bg-black', settings.sound);
+            btnSound.classList.toggle('bg-gray-300', !settings.sound);
+            btnSound.querySelector('div').style.transform = settings.sound ? 'translateX(24px)' : 'translateX(0)';
         }
 
-        function toggleBurnMode() {
-            burnMode = !burnMode;
-            document.getElementById('burn-toggle').classList.toggle('text-rose-400', burnMode);
-            if(burnMode) confetti({ colors: ['#fb7185'], particleCount: 20 });
+        function toggleMediaDrawer() {
+            const drawer = document.getElementById('media-drawer');
+            drawer.classList.toggle('hidden');
         }
 
-        function setTheme(t) {
-            document.body.setAttribute('data-theme', t);
-            localStorage.setItem('tactile-theme', t);
-        }
-
-        function copyId() {
-            navigator.clipboard.writeText(document.getElementById('gateway-id').innerText);
-        }
-
-        function toggleGiphy() { document.getElementById('giphy-panel').classList.toggle('hidden'); }
-        async function searchGiphy() {
-            const q = document.getElementById('giphy-search').value;
-            if (q.length < 2) return;
-            const res = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_KEY}&q=${q}&limit=8`);
-            const { data } = await res.json();
-            const results = document.getElementById('giphy-results');
-            results.innerHTML = '';
-            data.forEach(gif => {
+        function renderStickerGrid(list) {
+            const grid = document.getElementById('sticker-grid');
+            grid.innerHTML = '';
+            list.forEach(item => {
                 const img = document.createElement('img');
-                img.src = gif.images.fixed_height_small.url;
-                img.className = "w-full rounded-lg cursor-pointer hover:opacity-80 transition";
-                img.onclick = () => { sendMessage({ type: 'gif', content: gif.images.fixed_height.url }); toggleGiphy(); };
-                results.appendChild(img);
+                img.src = item.url;
+                img.className = 'sticker-img cursor-pointer object-contain h-20 w-full bg-gray-50 rounded-lg border border-gray-200 hover:border-black';
+                img.onclick = () => {
+                    sendSticker(item.url);
+                    toggleMediaDrawer();
+                };
+                grid.appendChild(img);
             });
         }
 
-        function sendCodePrompt() {
-            const code = prompt("Paste code snippet:");
-            if (code) sendMessage({ type: 'code', content: code });
+        function filterStickers() {
+            const query = document.getElementById('sticker-search').value.toLowerCase();
+            const filtered = initialStickers.filter(s => s.tags.includes(query));
+            renderStickerGrid(filtered);
         }
 
-        function toggleTyping(state) { document.getElementById('typing-indicator').style.visibility = state ? 'visible' : 'hidden'; }
-
-        // Input Auto-resize
-        document.getElementById('chat-input').addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-            if(conn) conn.send({ type: 'typing', state: true });
+        document.getElementById('file-picker').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if(file) {
+                if(file.size > 2500000) return showToast("File max size 2.5MB", "error");
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    const id = crypto.randomUUID();
+                    sendData({ type: 'file', id: id, name: file.name, data: evt.target.result, mime: file.type });
+                    renderFile(id, file.name, evt.target.result, file.type, 'me');
+                    toggleMediaDrawer();
+                };
+                reader.readAsDataURL(file);
+            }
         });
 
-        document.getElementById('chat-input').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
-        document.getElementById('giphy-search').oninput = searchGiphy;
+        // --- CONTEXT MENU & REACTIONS ---
+        function showContextMenu(e, element, isMe) {
+            e.preventDefault();
+            ctxTarget = element;
+            const menu = document.getElementById('context-menu');
+            document.getElementById('ctx-edit').classList.toggle('hidden', !isMe || element.dataset.type === 'media');
+            document.getElementById('ctx-delete').classList.toggle('hidden', !isMe);
 
-        window.onload = init;
+            const x = e.clientX;
+            const y = e.clientY;
+            const menuW = 200;
+            const menuH = 160;
+            
+            menu.style.left = (x + menuW > window.innerWidth ? x - menuW : x) + 'px';
+            menu.style.top = (y + menuH > window.innerHeight ? y - menuH : y) + 'px';
+            menu.classList.remove('hidden');
+        }
+
+        function sendReaction(emoji) {
+            if(!ctxTarget) return;
+            const id = ctxTarget.dataset.id;
+            // Render locally
+            renderReaction(id, emoji, true);
+            // Send network
+            if(conn && conn.open) conn.send({ type: 'reaction', id: id, emoji: emoji });
+            document.getElementById('context-menu').classList.add('hidden');
+        }
+
+        function renderReaction(msgId, emoji, isMe) {
+            const msgEl = document.querySelector(`[data-id="${msgId}"]`);
+            if(!msgEl) return;
+            
+            let container = msgEl.querySelector('.reactions-container');
+            if(!container) {
+                container = document.createElement('div');
+                container.className = 'reactions-container';
+                msgEl.appendChild(container);
+            }
+            
+            // Simple approach: Just append
+            const pill = document.createElement('div');
+            pill.className = 'reaction-pill';
+            pill.innerHTML = emoji;
+            container.appendChild(pill);
+        }
+
+        function handleCtxAction(action) {
+            document.getElementById('context-menu').classList.add('hidden');
+            if(!ctxTarget) return;
+
+            const id = ctxTarget.dataset.id;
+            const text = ctxTarget.querySelector('.msg-text')?.innerText || "";
+
+            if(action === 'copy') navigator.clipboard.writeText(text);
+            else if(action === 'reply') setReply(id, text || '[Media]');
+            else if(action === 'delete') {
+                ctxTarget.remove();
+                if(conn && conn.open) conn.send({type: 'delete', id: id});
+            } else if(action === 'edit') {
+                isEditing = id;
+                document.getElementById('msg-input').value = text;
+                document.getElementById('msg-input').focus();
+                document.getElementById('msg-input').style.borderColor = '#E71D36';
+            }
+        }
+
+        // --- PEERJS LOGIC ---
+        function startSession(role) {
+            const userIn = document.getElementById('username-input').value.trim();
+            const roomIn = document.getElementById('room-input').value.trim().toLowerCase().replace(/[^a-z0-9]/g, '-');
+            if(!userIn || !roomIn) return showToast("Enter Name and Room Code.", "error");
+            myName = userIn;
+            
+            const hostId = `tactile-chat-${roomIn}-host`;
+            const joinId = `tactile-chat-${roomIn}-guest`;
+            myId = (role === 'create') ? hostId : joinId;
+            const targetId = (role === 'create') ? joinId : hostId;
+
+            document.getElementById('landing-page').classList.add('hidden');
+            document.getElementById('chat-interface').classList.remove('hidden');
+            document.getElementById('chat-title').innerText = `${roomIn}`;
+
+            initPeer(myId, targetId, role);
+        }
+
+        function initPeer(id, targetId, role) {
+            peer = new Peer(id);
+            peer.on('open', () => {
+                role === 'join' ? connectToPeer(targetId) : showToast("Waiting for peer...", "info");
+            });
+            peer.on('connection', c => { if(conn) c.close(); else setupConnection(c); });
+            peer.on('call', call => {
+                document.getElementById('incoming-call-modal').classList.remove('hidden');
+                document.getElementById('incoming-avatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${remoteName}`;
+                playSound('msg');
+                window.answerCall = () => {
+                    document.getElementById('incoming-call-modal').classList.add('hidden');
+                    document.getElementById('call-overlay').classList.remove('hidden');
+                    navigator.mediaDevices.getUserMedia({video: true, audio: true}).then(stream => {
+                        localStream = stream;
+                        document.getElementById('local-video').srcObject = stream;
+                        call.answer(stream);
+                        currentCall = call;
+                        handleStream(call);
+                    });
+                };
+                window.rejectCall = () => {
+                    document.getElementById('incoming-call-modal').classList.add('hidden');
+                    call.close();
+                    conn.send({ type: 'call-rejected' });
+                };
+            });
+            peer.on('error', err => {
+                if(err.type === 'unavailable-id') showToast("Room occupied!", "error");
+                else showToast(`Error: ${err.type}`, "error");
+            });
+        }
+
+        function connectToPeer(targetId) {
+            setupConnection(peer.connect(targetId));
+        }
+
+        function setupConnection(connection) {
+            conn = connection;
+            conn.on('open', () => {
+                document.getElementById('chat-status').innerText = "Connected";
+                document.getElementById('chat-status').className = "text-xs font-bold text-green-600";
+                document.getElementById('status-dot').className = "absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-black bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.6)]";
+                conn.send({ type: 'info', name: myName });
+                playSound('pop');
+                showToast("Connected securely.");
+            });
+            conn.on('data', handleData);
+            conn.on('close', () => {
+                document.getElementById('chat-status').innerText = "Disconnected";
+                document.getElementById('status-dot').className = "absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-black bg-red-500";
+                showToast("Peer disconnected", "error");
+                conn = null;
+            });
+        }
+
+        function handleData(data) {
+            const ind = document.getElementById('activity-indicator');
+            const indText = document.getElementById('activity-text');
+
+            switch(data.type) {
+                case 'info':
+                    remoteName = data.name;
+                    document.getElementById('chat-title').innerText = remoteName;
+                    document.getElementById('remote-avatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${remoteName}`;
+                    break;
+                case 'text':
+                    renderMessage(data.id, data.content, 'other', data.replyTo);
+                    ind.classList.add('hidden');
+                    conn.send({type: 'read', id: data.id});
+                    notifyUser(remoteName, data.content);
+                    playSound('msg');
+                    break;
+                case 'sticker':
+                    renderSticker(data.url, 'other');
+                    ind.classList.add('hidden');
+                    playSound('msg');
+                    break;
+                case 'file':
+                    renderFile(data.id, data.name, data.data, data.mime, 'other');
+                    ind.classList.add('hidden');
+                    playSound('msg');
+                    break;
+                case 'audio':
+                    renderAudio(data.id, data.data, 'other');
+                    ind.classList.add('hidden');
+                    playSound('msg');
+                    break;
+                case 'reaction':
+                    renderReaction(data.id, data.emoji, false);
+                    playSound('pop');
+                    break;
+                case 'typing':
+                    ind.classList.remove('hidden');
+                    indText.innerText = data.text || "Typing...";
+                    clearTimeout(typingTimeout);
+                    typingTimeout = setTimeout(() => ind.classList.add('hidden'), 3000);
+                    break;
+                case 'read': updateStatus(data.id, 'read'); break;
+                case 'delete': 
+                    const el = document.querySelector(`[data-id="${data.id}"]`);
+                    if(el) el.remove(); 
+                    break;
+                case 'edit':
+                    const editEl = document.querySelector(`[data-id="${data.id}"]`);
+                    if(editEl) editEl.querySelector('.msg-text').innerText = data.content + " (edited)";
+                    break;
+                case 'call-rejected':
+                    document.getElementById('call-overlay').classList.add('hidden');
+                    if(localStream) localStream.getTracks().forEach(t => t.stop());
+                    showToast("Call Declined");
+                    break;
+            }
+        }
+
+        function notifyUser(title, body) {
+            if(settings.notifs && document.hidden) new Notification(title, { body });
+        }
+
+        function sendTyping() { if(conn && conn.open) conn.send({ type: 'typing', text: 'Typing...' }); }
+        function sendActivity(txt) { if(conn && conn.open) conn.send({ type: 'typing', text: txt }); }
+
+        function sendMessage() {
+            const input = document.getElementById('msg-input');
+            const text = input.value.trim();
+            if(!text) return;
+
+            if(conn && conn.open) {
+                if(isEditing) {
+                    conn.send({ type: 'edit', id: isEditing, content: text });
+                    document.querySelector(`[data-id="${isEditing}"] .msg-text`).innerText = text + " (edited)";
+                    isEditing = null;
+                    input.style.borderColor = '#000';
+                } else {
+                    const id = crypto.randomUUID();
+                    conn.send({ type: 'text', id: id, content: text, replyTo: replyContext });
+                    renderMessage(id, text, 'me', replyContext);
+                    playSound('pop');
+                }
+                input.value = '';
+                cancelReply();
+            } else showToast("Not connected!", "error");
+        }
+
+        function sendSticker(url) {
+            if(conn && conn.open) {
+                const id = crypto.randomUUID();
+                conn.send({ type: 'sticker', id: id, url: url });
+                renderSticker(url, 'me');
+            }
+        }
+
+        function sendData(payload) { if(conn && conn.open) conn.send(payload); }
+
+        function setReply(id, text) {
+            replyContext = { id, text };
+            document.getElementById('reply-preview').classList.remove('hidden');
+            document.getElementById('reply-text').innerText = text;
+            document.getElementById('msg-input').focus();
+        }
+
+        function cancelReply() {
+            replyContext = null;
+            document.getElementById('reply-preview').classList.add('hidden');
+        }
+
+        function updateStatus(id, status) {
+            const el = document.querySelector(`[data-id="${id}"] .status-tick`);
+            if(el && status === 'read') {
+                el.innerHTML = '<i class="ph-bold ph-checks"></i>';
+                el.classList.add('tick-read');
+            }
+        }
+
+        // --- RENDERERS ---
+
+        function scrollToBottom() {
+            const c = document.getElementById('messages-container');
+            // AutoAnimate handles smooth addition, we just scroll
+            setTimeout(() => c.scrollTop = c.scrollHeight, 100);
+        }
+
+        function renderMessage(id, text, sender, replyTo) {
+            const container = document.getElementById('messages-container');
+            const div = document.createElement('div');
+            const isMe = sender === 'me';
+            let replyHtml = replyTo ? `<div class="mb-1 text-xs opacity-70 border-l-2 ${isMe ? 'border-black' : 'border-accent-2'} pl-2 truncate font-bold">Re: ${replyTo.text}</div>` : '';
+            let content = linkifyHtml(escapeHtml(text), { target: '_blank', className: 'underline font-bold' });
+
+            div.className = `msg-bubble ${isMe ? 'msg-me' : 'msg-other'}`;
+            div.dataset.id = id;
+            div.innerHTML = `${replyHtml}<div class="msg-content text-sm font-medium"><span class="msg-text">${content}</span></div><div class="flex justify-end items-center mt-1"><span class="text-[10px] opacity-60">${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span>${isMe ? '<i class="ph-bold ph-check status-tick"></i>' : ''}</div>`;
+            
+            div.oncontextmenu = (e) => showContextMenu(e, div, isMe);
+            let t;
+            div.addEventListener('touchstart', (e) => { t = setTimeout(() => showContextMenu(e.touches[0], div, isMe), 500); });
+            div.addEventListener('touchend', () => clearTimeout(t));
+
+            container.appendChild(div);
+            scrollToBottom();
+        }
+
+        function renderSticker(url, sender) {
+            const container = document.getElementById('messages-container');
+            const div = document.createElement('div');
+            const isMe = sender === 'me';
+            div.className = `flex ${isMe ? 'justify-end' : 'justify-start'}`;
+            div.dataset.type = 'media';
+            div.innerHTML = `<img src="${url}" class="sticker-img border-2 border-black bg-white shadow-tactile mb-6">`;
+            container.appendChild(div);
+            scrollToBottom();
+        }
+
+        function renderFile(id, name, data, mime, sender) {
+            const container = document.getElementById('messages-container');
+            const div = document.createElement('div');
+            const isMe = sender === 'me';
+            div.className = `msg-bubble ${isMe ? 'msg-me' : 'msg-other'} cursor-pointer hover:bg-opacity-90`;
+            div.dataset.id = id;
+            div.dataset.type = 'media';
+
+            let preview = '';
+            if(mime && mime.startsWith('image/')) {
+                preview = `<img src="${data}" class="chat-image block">`;
+            }
+
+            div.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-black/10 rounded flex items-center justify-center shrink-0"><i class="ph-bold ph-file text-xl"></i></div>
+                    <div class="overflow-hidden"><p class="text-sm font-bold truncate w-40">${name}</p><p class="text-xs opacity-70">Download</p></div>
+                </div>
+                ${preview}
+            `;
+            div.onclick = (e) => {
+                if(e.target.tagName !== 'IMG') {
+                    const a = document.createElement('a');
+                    a.href = data; a.download = name; a.click();
+                }
+            };
+            div.oncontextmenu = (e) => showContextMenu(e, div, isMe);
+            container.appendChild(div);
+            scrollToBottom();
+        }
+
+        function renderAudio(id, data, sender) {
+            const container = document.getElementById('messages-container');
+            const div = document.createElement('div');
+            const isMe = sender === 'me';
+            div.className = `msg-bubble ${isMe ? 'msg-me' : 'msg-other'}`;
+            div.dataset.id = id;
+            div.dataset.type = 'media';
+
+            const audioId = `audio-${id}`;
+            div.innerHTML = `
+                <div class="flex items-center gap-2 min-w-[180px]">
+                    <button onclick="document.getElementById('${audioId}').play()" class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center"><i class="ph-fill ph-play"></i></button>
+                    <div class="text-xs font-bold opacity-70">Voice Note</div>
+                </div>
+                <audio id="${audioId}" src="${data}" class="hidden"></audio>
+            `;
+            div.oncontextmenu = (e) => showContextMenu(e, div, isMe);
+            container.appendChild(div);
+            scrollToBottom();
+        }
+
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        // --- CALLING LOGIC ---
+        function startCall(isVideo) {
+            if(!conn || !conn.open) return showToast("Connect first!", "error");
+            navigator.mediaDevices.getUserMedia({ video: isVideo, audio: true }).then(stream => {
+                localStream = stream;
+                document.getElementById('call-overlay').classList.remove('hidden');
+                document.getElementById('local-video').srcObject = stream;
+                if(!isVideo) stream.getVideoTracks().forEach(t => t.enabled = false);
+                const call = peer.call(conn.peer, stream);
+                currentCall = call;
+                handleStream(call);
+            }).catch(e => showToast("Media Error: " + e, "error"));
+        }
+
+        function handleStream(call) {
+            call.on('stream', remoteStream => {
+                document.getElementById('remote-video').srcObject = remoteStream;
+                startCallTimer();
+                document.getElementById('call-status-text').innerText = "Connected";
+            });
+            call.on('close', () => { document.getElementById('call-overlay').classList.add('hidden'); stopCallTimer(); });
+        }
+
+        function endCall() {
+            if(currentCall) currentCall.close();
+            if(conn) conn.send({type: 'call-rejected'});
+            document.getElementById('call-overlay').classList.add('hidden');
+            if(localStream) localStream.getTracks().forEach(t => t.stop());
+            if(screenStream) screenStream.getTracks().forEach(t => t.stop());
+            stopCallTimer();
+        }
+
+        function toggleMute() {
+            if(localStream) {
+                const t = localStream.getAudioTracks()[0];
+                t.enabled = !t.enabled;
+                document.getElementById('btn-mute').classList.toggle('bg-red-500', !t.enabled);
+            }
+        }
+
+        function toggleCamera() {
+             if(localStream) {
+                const t = localStream.getVideoTracks()[0];
+                if(t) {
+                    t.enabled = !t.enabled;
+                    document.getElementById('btn-cam').classList.toggle('bg-red-500', !t.enabled);
+                }
+            }
+        }
+
+        function toggleScreenShare() {
+            if (!currentCall) return;
+            
+            if (screenStream) {
+                // Stop screen share, switch back to camera
+                const videoTrack = localStream.getVideoTracks()[0];
+                const sender = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'video');
+                if (sender) sender.replaceTrack(videoTrack);
+                
+                screenStream.getTracks().forEach(t => t.stop());
+                screenStream = null;
+                document.getElementById('btn-screen').classList.remove('bg-green-500');
+            } else {
+                navigator.mediaDevices.getDisplayMedia({ video: true }).then(stream => {
+                    screenStream = stream;
+                    const videoTrack = stream.getVideoTracks()[0];
+                    
+                    // Handle user stopping share via browser UI
+                    videoTrack.onended = () => {
+                         const camTrack = localStream.getVideoTracks()[0];
+                         const sender = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'video');
+                         if(sender) sender.replaceTrack(camTrack);
+                         screenStream = null;
+                         document.getElementById('btn-screen').classList.remove('bg-green-500');
+                    };
+
+                    const sender = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'video');
+                    if(sender) sender.replaceTrack(videoTrack);
+                    
+                    document.getElementById('btn-screen').classList.add('bg-green-500');
+                }).catch(err => console.log("Screen share cancelled", err));
+            }
+        }
+
+        let callInterval;
+        function startCallTimer() {
+            let sec = 0;
+            const el = document.getElementById('call-timer');
+            clearInterval(callInterval);
+            callInterval = setInterval(() => {
+                sec++;
+                el.innerText = `${Math.floor(sec/60).toString().padStart(2,'0')}:${(sec%60).toString().padStart(2,'0')}`;
+            }, 1000);
+        }
+        function stopCallTimer() { clearInterval(callInterval); document.getElementById('call-timer').innerText = "00:00"; }
+        function disconnect() { if(conn) conn.close(); if(peer) peer.destroy(); location.reload(); }
+
     </script>
 </body>
 </html>
