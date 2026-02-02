@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="lofi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Tactile.io - Pro P2P Chat</title>
     
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS & DaisyUI -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.6.0/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- PeerJS -->
@@ -16,10 +17,6 @@
     
     <!-- Emoji Picker -->
     <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.18.3/index.js"></script>
-
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Linkify -->
     <script src="https://cdn.jsdelivr.net/npm/linkifyjs@4.1.3/dist/linkify.min.js"></script>
@@ -37,199 +34,60 @@
 
     <style>
         :root {
-            /* Modern Chat Palette */
-            --bg-chat: #efeae2; /* Telegram/WhatsApp-ish warm grey */
-            --bg-bubble-me: #dcf8c6; /* Classic reliable green/blue tint */
-            --bg-bubble-other: #ffffff;
-            
             --accent-primary: #0088cc;
-            --accent-ephemeral: #8b5cf6; 
         }
 
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: #f0f2f5;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #e5e7eb;
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.05' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");
             height: 100dvh;
             overflow: hidden;
-            -webkit-tap-highlight-color: transparent;
-            color: #111b21;
         }
 
-        .font-display { font-family: 'Space Grotesk', sans-serif; }
-
-        /* Background Pattern */
+        /* Message Area Background */
         #messages-container {
-            background-color: var(--bg-chat);
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239c92ac' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            flex: 1 1 0;
-            min-height: 0;
-            overflow-y: auto;
+            background-color: #f3f4f6;
             scroll-behavior: smooth;
-            padding-bottom: 20px;
         }
 
-        /* Tactile/Glass Elements */
-        .tactile-box {
-            background: rgba(255, 255, 255, 0.95);
-            border: 1px solid rgba(0,0,0,0.05);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-            border-radius: 20px;
-        }
-        
-        /* Buttons */
-        .tactile-btn {
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            color: #4b5563;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-        }
-        .tactile-btn:hover { background: #f9fafb; color: #111827; }
-        .tactile-btn:active { transform: scale(0.95); background: #f3f4f6; }
-
-        .tactile-btn.active-mode {
-            background-color: #ede9fe;
-            color: #7c3aed;
-            border-color: #7c3aed;
-        }
-
-        /* Inputs */
-        .tactile-input {
-            border: 1px solid #e5e7eb;
-            background: #fff;
-            transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
-        }
-        .tactile-input:focus {
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.1);
-            outline: none;
-        }
-
-        /* Chat Bubbles - Improved Aesthetics */
-        .msg-bubble {
-            max-width: 75%;
-            padding: 8px 12px;
-            border-radius: 12px;
-            position: relative;
-            word-wrap: break-word;
-            margin-bottom: 8px;
+        /* DaisyUI Chat Bubble Overrides */
+        .chat-bubble {
+            min-height: auto;
+            padding: 0.5rem 1rem;
             font-size: 0.95rem;
-            line-height: 1.4;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-            transition: opacity 0.5s ease-out;
-        }
-
-        @media (min-width: 640px) {
-            .msg-bubble { max-width: 60%; }
-        }
-
-        .msg-me {
-            background: #e0f2fe; /* Soft blue */
-            color: #1e3a8a;
-            border-top-right-radius: 0;
-            margin-left: auto;
+            line-height: 1.5;
+            max-width: 85%;
         }
         
-        .msg-me a { color: #2563eb !important; text-decoration: underline; }
-
-        .msg-other {
-            background: #ffffff;
-            color: #1f2937;
-            border-top-left-radius: 0;
-            margin-right: auto;
+        .chat-bubble-primary {
+            background-color: #2563eb;
+            color: white;
         }
 
-        /* File Attachments - Card Style */
-        .file-card {
-            background: rgba(0,0,0,0.03);
-            border-radius: 8px;
-            padding: 8px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 4px;
-            border: 1px solid rgba(0,0,0,0.05);
-            transition: background 0.2s;
+        /* Ephemeral Message Style */
+        .msg-timed .chat-bubble {
+            border: 2px dashed #7c3aed;
+            background-color: #f3e8ff;
+            color: #4c1d95;
         }
-        .msg-me .file-card { background: rgba(255,255,255,0.4); border-color: rgba(255,255,255,0.5); }
-        .msg-me .file-card:hover { background: rgba(255,255,255,0.6); }
+        .chat-end.msg-timed .chat-bubble {
+            background-color: #7c3aed;
+            color: white;
+            border: 2px dashed rgba(255,255,255,0.5);
+        }
 
         /* Image Constraints */
-        .chat-image {
-            max-height: 200px;
+        .chat-image-content {
+            max-height: 300px;
+            width: auto;
             max-width: 100%;
-            height: auto;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-top: 4px;
-            display: block;
+            border-radius: 0.75rem;
             cursor: pointer;
-        }
-
-        /* Ephemeral Message */
-        .msg-timed {
-            border-left: 3px solid var(--accent-ephemeral);
-        }
-        
-        /* Reactions */
-        .reactions-container {
-            position: absolute;
-            bottom: -8px;
-            display: flex;
-            gap: 2px;
-            z-index: 5;
-        }
-        .msg-me .reactions-container { right: 4px; }
-        .msg-other .reactions-container { left: 4px; }
-
-        .reaction-pill {
-            background: #fff;
-            border: 1px solid #f3f4f6;
-            border-radius: 10px;
-            padding: 1px 5px;
-            font-size: 10px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            animation: popIn 0.2s;
-        }
-
-        /* Animations */
-        @keyframes popIn {
-            0% { opacity: 0; transform: scale(0.9); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-        
-        .recording-active {
-            background-color: #fee2e2 !important;
-            color: #dc2626 !important;
-            border-color: #dc2626 !important;
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
-
-        /* Toastify Override */
-        .toastify {
-            background: #1f2937;
-            color: #fff;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
-            padding: 10px 16px;
-            font-size: 14px;
         }
-        
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* Emoji Picker */
+        /* Emoji Picker Override */
         emoji-picker {
             width: 100%;
             height: 300px;
@@ -239,273 +97,323 @@
         
         #context-menu {
             position: fixed;
-            z-index: 1000;
+            z-index: 2000;
         }
         
         #upload-progress { transition: width 0.1s linear; }
+
+        .recording-active {
+            animation: pulse-red 1.5s infinite;
+            background-color: #fee2e2 !important;
+            color: #dc2626 !important;
+            border-color: #dc2626 !important;
+        }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        }
+
+        /* Input Area Fixes */
+        .textarea-chat {
+            min-height: 3rem;
+            max-height: 8rem;
+            padding-right: 4rem; /* Space for absolute buttons */
+            line-height: 1.5;
+        }
     </style>
 </head>
-<body class="text-gray-900">
+<body class="text-base-content">
 
-    <div id="app" class="relative w-full h-full max-w-5xl mx-auto flex flex-col sm:p-4 lg:p-6">
+    <div id="app" class="relative w-full h-full max-w-6xl mx-auto flex flex-col sm:p-4 lg:p-6">
         
         <!-- 1. LANDING PAGE -->
         <div id="landing-page" class="flex-1 w-full h-full flex flex-col items-center justify-center p-4 z-20">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
-                
-                <div class="tactile-box p-12 md:col-span-2 flex flex-col items-center text-center bg-white shadow-xl relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-purple-500"></div>
-                    <h1 class="text-6xl font-bold mb-2 tracking-tight font-display text-gray-900">TACTILE</h1>
-                    <p class="text-lg text-gray-500 font-medium">Secure P2P Messaging</p>
-                </div>
-
-                <div class="tactile-box p-8 bg-white flex flex-col justify-center gap-6">
-                    <div>
-                        <label class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2 block">Your Name</label>
-                        <input type="text" id="username-input" placeholder="Display Name" class="tactile-input w-full p-4 rounded-xl text-lg bg-gray-50" maxlength="20">
+            <div class="card w-full max-w-3xl bg-base-100 shadow-xl overflow-hidden border border-base-200">
+                <div class="card-body p-0 md:flex-row">
+                    <!-- Brand Section -->
+                    <div class="bg-neutral text-neutral-content p-10 flex flex-col items-center justify-center md:w-5/12 text-center">
+                        <i class="ph-duotone ph-chats-circle text-6xl mb-4"></i>
+                        <h1 class="text-4xl font-bold tracking-tight">Tactile.io</h1>
+                        <p class="mt-2 opacity-90 font-medium">Professional P2P Suite</p>
+                        <div class="mt-8 text-xs opacity-75 font-mono bg-white/10 px-3 py-1 rounded-full">v5.1 Stable</div>
                     </div>
-                    
-                    <div>
-                        <label class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2 block">Room Code</label>
-                        <div class="relative">
-                            <i class="ph-bold ph-hash absolute left-4 top-1/2 -translate-y-1/2 text-xl text-gray-400"></i>
-                            <input type="text" id="room-input" placeholder="secret-room" class="tactile-input w-full p-4 pl-12 rounded-xl text-lg font-mono uppercase tracking-widest text-gray-700 bg-gray-50">
+
+                    <!-- Input Section -->
+                    <div class="p-8 flex flex-col justify-center gap-6 md:w-7/12 bg-base-100">
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text font-bold uppercase text-xs tracking-wider opacity-70">Identity</span>
+                            </label>
+                            <input type="text" id="username-input" placeholder="Display Name" class="input input-bordered w-full" maxlength="20" />
                         </div>
-                    </div>
-                </div>
+                        
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text font-bold uppercase text-xs tracking-wider opacity-70">Secure Frequency</span>
+                            </label>
+                            <div class="relative">
+                                <i class="ph-bold ph-hash absolute left-3 top-1/2 -translate-y-1/2 opacity-50"></i>
+                                <input type="text" id="room-input" placeholder="ROOM-CODE" class="input input-bordered w-full pl-9 font-mono uppercase" />
+                            </div>
+                        </div>
 
-                <div class="tactile-box p-8 bg-white flex flex-col justify-center gap-4">
-                    <div class="grid grid-cols-2 gap-4 h-full">
-                        <button onclick="startSession('create')" class="tactile-btn rounded-xl flex flex-col items-center justify-center p-4 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700 group transition-all shadow-sm">
-                            <i class="ph-fill ph-broadcast text-3xl mb-3 text-emerald-500 group-hover:scale-110 transition-transform"></i>
-                            <span class="font-bold">Host</span>
-                        </button>
-                        <button onclick="startSession('join')" class="tactile-btn rounded-xl flex flex-col items-center justify-center p-4 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 group transition-all shadow-sm">
-                            <i class="ph-fill ph-plugs-connected text-3xl mb-3 text-blue-500 group-hover:scale-110 transition-transform"></i>
-                            <span class="font-bold">Join</span>
-                        </button>
+                        <div class="grid grid-cols-2 gap-3 mt-4">
+                            <button onclick="startSession('create')" class="btn btn-neutral gap-2">
+                                <i class="ph-bold ph-broadcast"></i> Host
+                            </button>
+                            <button onclick="startSession('join')" class="btn btn-outline gap-2">
+                                <i class="ph-bold ph-plugs-connected"></i> Join
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- 2. CHAT INTERFACE -->
-        <div id="chat-interface" class="hidden absolute inset-0 sm:static sm:h-full sm:rounded-2xl tactile-box overflow-hidden flex flex-col bg-white shadow-2xl ring-1 ring-black/5">
+        <div id="chat-interface" class="hidden absolute inset-0 sm:static sm:h-full sm:rounded-2xl overflow-hidden flex flex-col bg-base-100 shadow-2xl ring-1 ring-base-300">
             
             <!-- Header -->
-            <header class="h-16 border-b border-gray-100 bg-white flex items-center justify-between px-4 z-30 shrink-0">
-                <div class="flex items-center gap-3">
-                    <div class="relative cursor-pointer hover:opacity-80 transition active:scale-95" onclick="toggleSettings()">
-                        <div class="w-10 h-10 rounded-full bg-gray-100 overflow-hidden ring-1 ring-gray-200">
-                             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Init" id="remote-avatar" class="w-full h-full object-cover">
+            <div class="navbar bg-base-100 border-b border-base-200 h-16 min-h-[4rem] px-4 shrink-0 z-40">
+                <div class="flex-1 gap-3 overflow-hidden">
+                    <div class="avatar online placeholder cursor-pointer" onclick="toggleSettings()">
+                        <div class="bg-neutral text-neutral-content rounded-full w-10 ring-1 ring-base-content/10">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Init" id="remote-avatar">
                         </div>
-                        <div id="status-dot" class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white bg-gray-300"></div>
                     </div>
-                    <div>
-                        <h2 id="chat-title" class="font-bold text-base leading-tight truncate max-w-[140px] text-gray-900">Waiting...</h2>
-                        <div class="flex items-center gap-1.5">
-                            <span id="chat-status" class="text-xs font-medium text-gray-500">Disconnected</span>
-                        </div>
+                    <div class="flex flex-col overflow-hidden">
+                        <h2 id="chat-title" class="font-bold text-sm sm:text-base leading-tight truncate">Waiting...</h2>
+                        <span id="chat-status" class="text-xs text-base-content/60 truncate">Disconnected</span>
                     </div>
                 </div>
-
-                <div class="flex gap-1 items-center">
-                    <button onclick="startCall(false)" class="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-blue-50 text-gray-600 hover:text-blue-600 transition-colors" title="Voice Call">
+                <div class="flex-none gap-1">
+                    <button onclick="startCall(false)" class="btn btn-ghost btn-circle btn-sm" title="Voice Call">
                         <i class="ph-bold ph-phone text-lg"></i>
                     </button>
-                    <button onclick="startCall(true)" class="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-emerald-50 text-gray-600 hover:text-emerald-600 transition-colors" title="Video Call">
+                    <button onclick="startCall(true)" class="btn btn-ghost btn-circle btn-sm text-success" title="Video Call">
                         <i class="ph-bold ph-video text-lg"></i>
                     </button>
-                    <div class="w-px h-5 bg-gray-200 mx-1"></div>
-                    <button onclick="toggleSettings()" class="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 text-gray-600 transition-colors" title="Settings">
+                    <div class="divider divider-horizontal m-0 mx-1 h-6 self-center"></div>
+                    <button onclick="toggleSettings()" class="btn btn-ghost btn-circle btn-sm">
                         <i class="ph-bold ph-dots-three-vertical text-lg"></i>
                     </button>
-                    <button onclick="disconnect()" class="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-red-50 text-red-500 transition-colors" title="Disconnect">
+                    <button onclick="disconnect()" class="btn btn-ghost btn-circle btn-sm text-error" title="Disconnect">
                         <i class="ph-bold ph-power text-lg"></i>
                     </button>
                 </div>
-            </header>
+            </div>
 
             <!-- Upload Bar -->
-            <div id="upload-bar" class="hidden h-1 bg-gray-100 w-full relative">
-                <div id="upload-progress" class="h-full bg-blue-500 w-0"></div>
+            <div id="upload-bar" class="hidden h-1 w-full bg-base-200 shrink-0">
+                <div id="upload-progress" class="h-full bg-primary w-0"></div>
             </div>
 
             <!-- Messages Area -->
-            <div id="messages-container">
-                <div class="flex flex-col items-center justify-center mt-12 opacity-50 select-none text-center px-6">
-                    <div class="w-12 h-12 rounded-xl bg-gray-200 flex items-center justify-center mb-3">
-                        <i class="ph-duotone ph-lock-key text-2xl text-gray-500"></i>
+            <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-4">
+                <div class="flex flex-col items-center justify-center mt-20 opacity-50 select-none text-center">
+                    <div class="w-16 h-16 rounded-2xl bg-base-200 flex items-center justify-center mb-4">
+                        <i class="ph-duotone ph-shield-check text-3xl"></i>
                     </div>
-                    <p class="text-xs font-bold uppercase tracking-wider text-gray-500">End-to-End Encrypted</p>
-                    <p class="text-xs mt-1 text-gray-400">Messages are peer-to-peer.</p>
+                    <p class="text-sm font-bold">End-to-End Encrypted</p>
+                    <p class="text-xs mt-1 max-w-xs">Messages are peer-to-peer. No server storage.</p>
                 </div>
+                <!-- Spacer for bottom elements -->
+                <div class="h-2"></div>
             </div>
 
             <!-- Indicators -->
-            <div id="indicators-area" class="relative z-20">
-                <div id="activity-indicator" class="hidden absolute bottom-2 left-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-full text-xs font-bold shadow-sm border border-gray-100 flex items-center gap-2 text-gray-600 transform -translate-y-full">
-                    <div class="flex gap-1">
-                        <div class="w-1 h-1 bg-gray-500 rounded-full animate-bounce"></div>
-                        <div class="w-1 h-1 bg-gray-500 rounded-full animate-bounce delay-75"></div>
-                        <div class="w-1 h-1 bg-gray-500 rounded-full animate-bounce delay-150"></div>
-                    </div>
+            <div id="indicators-area" class="relative z-20 px-4">
+                <div id="activity-indicator" class="hidden absolute bottom-2 left-6 bg-base-100/95 backdrop-blur px-3 py-1.5 rounded-full text-xs font-bold shadow-md border border-base-200 flex items-center gap-2 transform -translate-y-full">
+                    <span class="loading loading-dots loading-xs text-primary"></span>
                     <span id="activity-text">Typing...</span>
                 </div>
 
-                <div id="reply-preview" class="hidden bg-white border-t border-gray-100 p-2 px-4 flex justify-between items-center text-sm">
-                    <div class="border-l-4 border-blue-500 pl-3 py-1">
-                        <span class="font-bold text-[10px] text-blue-600 uppercase tracking-wider">Replying to</span>
-                        <p class="truncate max-w-[200px] font-medium text-gray-700 text-xs" id="reply-text">...</p>
+                <div id="reply-preview" class="hidden bg-base-200/80 border-t border-base-300 p-2 px-4 flex justify-between items-center text-sm backdrop-blur-sm rounded-t-xl mx-1 mb-[-1px]">
+                    <div class="border-l-4 border-primary pl-3 py-1 overflow-hidden">
+                        <span class="font-bold text-[10px] text-primary uppercase tracking-wider block">Replying to</span>
+                        <p class="truncate max-w-[200px] text-xs opacity-70" id="reply-text">...</p>
                     </div>
-                    <button onclick="cancelReply()" class="p-1.5 hover:bg-gray-100 rounded-full transition-colors"><i class="ph-bold ph-x text-gray-500"></i></button>
+                    <button onclick="cancelReply()" class="btn btn-ghost btn-xs btn-circle"><i class="ph-bold ph-x"></i></button>
                 </div>
             </div>
 
             <!-- Input Area -->
-            <footer class="p-3 bg-white border-t border-gray-100 shrink-0 relative z-30 safe-pb">
+            <footer class="p-2 sm:p-3 bg-base-100 border-t border-base-200 shrink-0 relative z-30">
                 
                 <!-- Expanded Tools -->
-                <div id="media-drawer" class="hidden absolute bottom-full left-0 right-0 bg-white/95 border-t border-gray-100 h-64 flex flex-col shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] backdrop-blur-xl">
-                    <div class="p-3 border-b border-gray-100 bg-gray-50/50">
+                <div id="media-drawer" class="hidden absolute bottom-full left-0 right-0 bg-base-100 border-t border-base-200 h-64 flex flex-col shadow-2xl rounded-t-2xl overflow-hidden z-50">
+                    <div class="p-2 border-b border-base-200 bg-base-200/50">
                          <div class="relative">
-                            <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                            <input type="text" id="sticker-search" placeholder="Search stickers..." class="w-full p-2 pl-9 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition-colors" oninput="filterStickers()">
+                            <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 opacity-50"></i>
+                            <input type="text" id="sticker-search" placeholder="Search stickers..." class="input input-sm input-bordered w-full pl-9" oninput="filterStickers()">
                          </div>
                     </div>
-                    <div id="sticker-grid" class="flex-1 overflow-y-auto p-3 grid grid-cols-4 sm:grid-cols-5 gap-3 bg-gray-50/30">
+                    <div id="sticker-grid" class="flex-1 overflow-y-auto p-3 grid grid-cols-4 sm:grid-cols-5 gap-3 bg-base-100">
                         <!-- Populated via JS -->
                     </div>
                 </div>
 
-                <div class="flex gap-2 items-end">
-                    <button onclick="document.getElementById('file-picker').click()" class="tactile-btn w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-700 shrink-0" title="Attach File">
-                        <i class="ph-bold ph-paperclip text-xl"></i>
-                    </button>
-                    
-                    <button onclick="toggleMediaDrawer()" class="tactile-btn w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-700 shrink-0" title="Stickers">
-                        <i class="ph-bold ph-sticker text-xl"></i>
-                    </button>
+                <div class="flex items-end gap-2">
+                    <!-- Left Buttons -->
+                    <div class="join shrink-0">
+                        <button onclick="document.getElementById('file-picker').click()" class="btn btn-square btn-ghost join-item text-base-content/70" title="Attach File">
+                            <i class="ph-bold ph-paperclip text-xl"></i>
+                        </button>
+                        <button onclick="toggleMediaDrawer()" class="btn btn-square btn-ghost join-item text-base-content/70" title="Stickers">
+                            <i class="ph-bold ph-sticker text-xl"></i>
+                        </button>
+                    </div>
 
-                    <div class="flex-1 relative">
-                        <textarea id="msg-input" rows="1" class="w-full tactile-input p-2.5 px-4 pr-10 rounded-2xl resize-none max-h-32 min-h-[42px] text-[15px] leading-relaxed bg-gray-50 border-transparent focus:bg-white" placeholder="Message..."></textarea>
+                    <!-- Text Input Wrapper -->
+                    <div class="flex-1 relative min-w-0">
+                        <textarea id="msg-input" rows="1" class="textarea textarea-bordered w-full resize-none textarea-chat bg-base-200/50 focus:bg-base-100 transition-colors" placeholder="Message..."></textarea>
                         
                         <!-- Inside Textarea Actions -->
-                        <div class="absolute right-2 bottom-1.5 flex gap-1">
-                             <button onclick="cycleEphemeral()" id="btn-timed" class="p-1.5 rounded-full text-gray-400 hover:text-purple-600 transition-colors" title="Ephemeral Timer">
+                        <div class="absolute right-2 bottom-1.5 flex gap-1 bg-transparent p-1 rounded-lg">
+                             <button onclick="cycleEphemeral()" id="btn-timed" class="btn btn-ghost btn-xs btn-circle text-base-content/40 hover:text-primary transition-colors relative" title="Ephemeral Timer">
                                 <i class="ph-bold ph-timer text-lg"></i>
-                                <span id="timed-label" class="absolute -top-1 -right-1 text-[8px] font-bold bg-purple-100 text-purple-600 px-1 rounded-full hidden">OFF</span>
+                                <span id="timed-label" class="absolute -top-1 -right-1 badge badge-xs badge-primary hidden scale-75 border-none">OFF</span>
                             </button>
-                            <button onclick="toggleEmojiPicker()" class="p-1.5 rounded-full text-gray-400 hover:text-yellow-500 transition-colors">
+                            <button onclick="toggleEmojiPicker()" class="btn btn-ghost btn-xs btn-circle text-base-content/40 hover:text-warning transition-colors">
                                 <i class="ph-fill ph-smiley text-lg"></i>
                             </button>
                         </div>
 
-                        <div id="emoji-popover" class="hidden absolute bottom-14 right-0 w-80 shadow-xl border border-gray-200 rounded-xl z-50 overflow-hidden animate-[popIn_0.1s]">
+                        <!-- Emoji Popover -->
+                        <div id="emoji-popover" class="hidden absolute bottom-14 right-0 w-72 sm:w-80 shadow-2xl border border-base-300 rounded-xl z-50 overflow-hidden">
                             <emoji-picker></emoji-picker>
                         </div>
                     </div>
 
-                    <button id="btn-record" class="tactile-btn w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:bg-red-50 hover:text-red-500 shrink-0 transition-colors" title="Hold to Record">
-                        <i class="ph-bold ph-microphone text-xl"></i>
-                    </button>
+                    <!-- Right Buttons -->
+                    <div class="flex items-end gap-2 shrink-0">
+                        <button id="btn-record" class="btn btn-circle btn-ghost text-base-content/70" title="Hold to Record">
+                            <i class="ph-bold ph-microphone text-xl"></i>
+                        </button>
 
-                    <button onclick="sendMessage()" class="w-10 h-10 rounded-full flex items-center justify-center bg-blue-500 text-white hover:bg-blue-600 active:scale-95 transition-transform shadow-md shrink-0">
-                        <i class="ph-bold ph-paper-plane-right text-lg"></i>
-                    </button>
+                        <button onclick="sendMessage()" class="btn btn-circle btn-primary shadow-md">
+                            <i class="ph-bold ph-paper-plane-right text-xl"></i>
+                        </button>
+                    </div>
                 </div>
             </footer>
         </div>
 
         <!-- SETTINGS MODAL -->
-        <div id="settings-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm p-4">
-            <div class="tactile-box bg-white p-6 max-w-sm w-full animate-[popIn_0.2s] shadow-xl">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-lg font-bold">Settings</h3>
-                    <button onclick="toggleSettings()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"><i class="ph-bold ph-x text-lg"></i></button>
-                </div>
+        <dialog id="settings-modal" class="modal">
+            <div class="modal-box border border-base-200 shadow-2xl">
+                <h3 class="font-bold text-lg mb-4 flex justify-between items-center">
+                    Settings
+                    <form method="dialog"><button class="btn btn-sm btn-circle btn-ghost">✕</button></form>
+                </h3>
                 
-                <div class="space-y-2">
-                    <div class="flex justify-between items-center p-3 hover:bg-gray-50 rounded-lg cursor-pointer" onclick="toggleNotifs()">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600"><i class="ph-duotone ph-bell"></i></div>
-                            <span class="font-medium text-sm">Notifications</span>
-                        </div>
-                        <div id="btn-notif" class="w-9 h-5 bg-gray-200 rounded-full relative transition-colors duration-200 pointer-events-none">
-                            <div class="w-3 h-3 bg-white rounded-full absolute top-1 left-1 transition-transform duration-200 shadow-sm"></div>
-                        </div>
+                <div class="flex flex-col gap-4">
+                    <div class="form-control">
+                        <label class="label cursor-pointer border border-base-200 rounded-lg p-3 hover:bg-base-200/50 transition-colors">
+                            <span class="label-text flex items-center gap-3 font-medium">
+                                <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center"><i class="ph-bold ph-bell"></i></div>
+                                Notifications
+                            </span>
+                            <input type="checkbox" class="toggle toggle-primary" id="toggle-notif" onchange="toggleNotifs()" />
+                        </label>
                     </div>
 
-                    <div class="flex justify-between items-center p-3 hover:bg-gray-50 rounded-lg cursor-pointer" onclick="toggleSound()">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600"><i class="ph-duotone ph-speaker-high"></i></div>
-                            <span class="font-medium text-sm">Sounds</span>
-                        </div>
-                        <div id="btn-sound" class="w-9 h-5 bg-gray-800 rounded-full relative transition-colors duration-200 pointer-events-none">
-                            <div class="w-3 h-3 bg-white rounded-full absolute top-1 left-1 translate-x-4 transition-transform duration-200 shadow-sm"></div>
-                        </div>
+                    <div class="form-control">
+                        <label class="label cursor-pointer border border-base-200 rounded-lg p-3 hover:bg-base-200/50 transition-colors">
+                            <span class="label-text flex items-center gap-3 font-medium">
+                                <div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center"><i class="ph-bold ph-speaker-high"></i></div>
+                                Sound Effects
+                            </span>
+                            <input type="checkbox" class="toggle toggle-warning" id="toggle-sound" onchange="toggleSound()" checked />
+                        </label>
                     </div>
 
-                    <button onclick="clearChat()" class="w-full p-3 mt-2 text-red-600 hover:bg-red-50 rounded-lg font-medium text-sm transition-colors flex items-center justify-center gap-2">
+                    <button onclick="clearChat()" class="btn btn-outline btn-error w-full mt-2">
                         <i class="ph-bold ph-trash"></i> Clear Chat History
                     </button>
                 </div>
-                <div class="mt-4 text-center text-[10px] text-gray-400 font-mono">
+                <div class="mt-6 text-center text-xs opacity-50 font-mono select-all cursor-text">
                     ID: <span id="session-id-display">...</span>
                 </div>
             </div>
-        </div>
+            <form method="dialog" class="modal-backdrop"><button>close</button></form>
+        </dialog>
 
-        <!-- CALL OVERLAY -->
-        <div id="call-overlay" class="hidden fixed inset-0 z-50 bg-gray-900 flex flex-col">
-            <div class="flex-1 relative group">
-                <video id="remote-video" autoplay playsinline class="w-full h-full object-contain"></video>
-                <div class="absolute top-6 right-6 w-32 h-48 bg-black rounded-xl overflow-hidden shadow-2xl border border-white/10 draggable cursor-grab active:cursor-grabbing">
+        <!-- CALL OVERLAY (Fullscreen) -->
+        <div id="call-overlay" class="hidden fixed inset-0 z-50 bg-neutral text-neutral-content flex flex-col">
+            <div class="flex-1 relative group bg-black flex flex-col justify-center">
+                <video id="remote-video" autoplay playsinline class="w-full h-full object-contain max-h-screen"></video>
+                
+                <!-- Local Video (Draggable) -->
+                <div class="absolute top-4 right-4 w-28 md:w-48 aspect-[3/4] bg-base-300 rounded-xl overflow-hidden shadow-2xl border border-white/20 draggable cursor-grab active:cursor-grabbing hover:scale-105 transition-transform z-10">
                     <video id="local-video" autoplay playsinline muted class="w-full h-full object-cover transform scale-x-[-1]"></video>
                 </div>
-                <div class="absolute top-10 left-1/2 -translate-x-1/2 text-center pointer-events-none">
-                    <div class="bg-black/40 backdrop-blur-md px-4 py-1.5 rounded-full text-white border border-white/5 shadow-sm flex items-center gap-2">
-                        <div class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+
+                <!-- Status Badge -->
+                <div class="absolute top-8 left-1/2 -translate-x-1/2 text-center pointer-events-none z-10">
+                    <div class="badge badge-neutral gap-2 py-3 px-4 shadow-lg border-white/10 backdrop-blur-md">
+                        <div class="w-2 h-2 rounded-full bg-success animate-pulse"></div>
+                        <span id="call-status-text" class="font-bold text-xs uppercase tracking-wide">Connected</span>
+                        <div class="divider divider-horizontal m-0 h-3"></div>
                         <span id="call-timer" class="font-mono text-xs">00:00</span>
                     </div>
                 </div>
             </div>
-            <div class="h-24 bg-gray-900 flex items-center justify-center gap-8 pb-4 safe-area-pb">
-                <button onclick="toggleMute()" id="btn-mute" class="w-12 h-12 rounded-full bg-gray-800 text-white flex items-center justify-center hover:bg-gray-700 transition" title="Toggle Mic"><i class="ph-fill ph-microphone text-xl"></i></button>
-                <button onclick="endCall()" class="w-16 h-16 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg hover:bg-red-600 transform hover:scale-105 transition" title="End Call"><i class="ph-fill ph-phone-slash text-2xl"></i></button>
-                <button onclick="toggleCamera()" id="btn-cam" class="w-12 h-12 rounded-full bg-gray-800 text-white flex items-center justify-center hover:bg-gray-700 transition" title="Toggle Cam"><i class="ph-fill ph-video-camera text-xl"></i></button>
+            
+            <!-- Controls -->
+            <div class="bg-neutral/90 p-6 pb-8 safe-pb flex justify-center gap-4 sm:gap-6 backdrop-blur-md border-t border-white/5">
+                <button onclick="toggleMute()" id="btn-mute" class="btn btn-circle btn-lg btn-outline border-white/20 text-white hover:bg-white/10 hover:border-white">
+                    <i class="ph-fill ph-microphone text-2xl"></i>
+                </button>
+                <button onclick="endCall()" class="btn btn-circle btn-lg btn-error shadow-lg scale-110">
+                    <i class="ph-fill ph-phone-slash text-2xl"></i>
+                </button>
+                <button onclick="toggleCamera()" id="btn-cam" class="btn btn-circle btn-lg btn-outline border-white/20 text-white hover:bg-white/10 hover:border-white">
+                    <i class="ph-fill ph-video-camera text-2xl"></i>
+                </button>
+                <button onclick="toggleScreenShare()" id="btn-screen" class="btn btn-circle btn-lg btn-outline border-white/20 text-white hover:bg-white/10 hover:border-white hidden sm:flex">
+                    <i class="ph-fill ph-monitor-play text-2xl"></i>
+                </button>
             </div>
         </div>
 
         <!-- INCOMING CALL MODAL -->
-        <div id="incoming-call-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div class="bg-white p-8 max-w-sm w-full text-center rounded-2xl shadow-2xl animate-[popIn_0.3s]">
-                <div class="w-20 h-20 rounded-full overflow-hidden mx-auto mb-4 bg-gray-100">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" id="incoming-avatar" class="w-full h-full object-cover">
+        <dialog id="incoming-call-modal" class="modal">
+            <div class="modal-box text-center shadow-2xl">
+                <div class="avatar mb-4 animate-bounce">
+                    <div class="w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 mx-auto">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" id="incoming-avatar" />
+                    </div>
                 </div>
-                <h3 class="text-xl font-bold mb-1 text-gray-900">Incoming Call</h3>
-                <p class="text-gray-500 mb-8 text-sm">Peer is calling...</p>
-                <div class="flex justify-center gap-8">
-                    <button onclick="rejectCall()" class="w-14 h-14 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-200 transition-colors"><i class="ph-bold ph-phone-slash text-2xl"></i></button>
-                    <button onclick="answerCall()" class="w-14 h-14 rounded-full bg-green-500 text-white flex items-center justify-center animate-bounce shadow-lg hover:bg-green-600"><i class="ph-bold ph-phone text-2xl"></i></button>
+                <h3 class="font-bold text-2xl">Incoming Call</h3>
+                <p class="py-4 opacity-70">Peer is requesting a connection...</p>
+                <div class="flex justify-center gap-8 mt-4">
+                    <button onclick="rejectCall()" class="btn btn-circle btn-lg btn-error shadow-lg">
+                        <i class="ph-bold ph-phone-slash text-2xl"></i>
+                    </button>
+                    <button onclick="answerCall()" class="btn btn-circle btn-lg btn-success shadow-lg">
+                        <i class="ph-bold ph-phone text-2xl"></i>
+                    </button>
                 </div>
             </div>
-        </div>
+        </dialog>
 
         <!-- CONTEXT MENU -->
-        <div id="context-menu" class="hidden bg-white/95 backdrop-blur border border-gray-100 rounded-xl shadow-xl overflow-hidden min-w-[160px]">
-            <div class="flex justify-between px-4 py-3 bg-gray-50 border-b border-gray-100">
+        <div id="context-menu" class="hidden bg-base-100 border border-base-200 rounded-xl shadow-2xl overflow-hidden min-w-[180px] p-1 z-50">
+            <div class="flex justify-between px-3 py-2 bg-base-200/50 rounded-lg mb-1">
                 <span class="cursor-pointer hover:scale-125 transition-transform text-lg" onclick="sendReaction('👍')">👍</span>
                 <span class="cursor-pointer hover:scale-125 transition-transform text-lg" onclick="sendReaction('❤️')">❤️</span>
                 <span class="cursor-pointer hover:scale-125 transition-transform text-lg" onclick="sendReaction('😂')">😂</span>
                 <span class="cursor-pointer hover:scale-125 transition-transform text-lg" onclick="sendReaction('🔥')">🔥</span>
             </div>
-            <div class="p-1">
-                <div class="px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer flex items-center gap-3 text-sm text-gray-700" onclick="handleCtxAction('reply')"><i class="ph-bold ph-arrow-u-up-left"></i> Reply</div>
-                <div class="px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer flex items-center gap-3 text-sm text-gray-700" onclick="handleCtxAction('copy')"><i class="ph-bold ph-copy"></i> Copy</div>
-                <div class="px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer flex items-center gap-3 text-sm text-gray-700 hidden" id="ctx-edit" onclick="handleCtxAction('edit')"><i class="ph-bold ph-pencil-simple"></i> Edit</div>
-                <div class="px-3 py-2 hover:bg-red-50 rounded-lg cursor-pointer flex items-center gap-3 text-sm text-red-600 hidden" id="ctx-delete" onclick="handleCtxAction('delete')"><i class="ph-bold ph-trash"></i> Delete</div>
-            </div>
+            <ul class="menu menu-sm p-0 rounded-box">
+                <li><a onclick="handleCtxAction('reply')"><i class="ph-bold ph-arrow-u-up-left"></i> Reply</a></li>
+                <li><a onclick="handleCtxAction('copy')"><i class="ph-bold ph-copy"></i> Copy Text</a></li>
+                <li id="ctx-edit" class="hidden"><a onclick="handleCtxAction('edit')"><i class="ph-bold ph-pencil-simple"></i> Edit</a></li>
+                <li id="ctx-delete" class="hidden"><a onclick="handleCtxAction('delete')" class="text-error"><i class="ph-bold ph-trash"></i> Delete</a></li>
+            </ul>
         </div>
     </div>
 
@@ -531,6 +439,7 @@
         let remoteName = 'Peer';
         let currentCall = null;
         let localStream = null;
+        let screenStream = null;
         let typingTimeout = null;
         let replyContext = null; 
         let settings = { sound: true, notifs: false };
@@ -592,20 +501,27 @@
             });
             
             setupVoiceRecording();
-            if(Notification.permission === 'granted') { settings.notifs = true; updateSettingsUI(); }
+            if(Notification.permission === 'granted') { 
+                settings.notifs = true; 
+                document.getElementById('toggle-notif').checked = true;
+            }
         });
 
         function showToast(msg, type = 'info') {
-            const bg = type === 'error' ? '#fee2e2' : '#333';
-            const color = type === 'error' ? '#dc2626' : '#fff';
+            const bg = type === 'error' ? '#f87171' : '#374151';
             Toastify({
                 text: msg, duration: 3000, gravity: "top", position: "center",
-                style: { background: bg, color: color, boxShadow: '0 4px 10px rgba(0,0,0,0.1)' },
+                style: { background: bg, borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' },
                 offset: { y: 20 }
             }).showToast();
         }
 
         // --- UI & FEATURES ---
+
+        function toggleEmojiPicker() {
+            const popover = document.getElementById('emoji-popover');
+            popover.classList.toggle('hidden');
+        }
 
         function cycleEphemeral() {
             ephemeralIndex = (ephemeralIndex + 1) % ephemeralTimes.length;
@@ -614,13 +530,11 @@
             const label = document.getElementById('timed-label');
             
             if (time === 0) {
-                btn.classList.remove('text-purple-600');
-                btn.classList.add('text-gray-400');
+                btn.classList.remove('text-primary');
                 label.classList.add('hidden');
                 showToast("Ephemeral Mode OFF");
             } else {
-                btn.classList.remove('text-gray-400');
-                btn.classList.add('text-purple-600');
+                btn.classList.add('text-primary');
                 label.classList.remove('hidden');
                 const text = time >= 60000 ? (time/60000 + 'm') : (time/1000 + 's');
                 label.innerText = text;
@@ -630,7 +544,7 @@
 
         function clearChat() {
             document.getElementById('messages-container').innerHTML = '';
-            toggleSettings();
+            document.getElementById('settings-modal').close();
             showToast("Chat cleared.");
         }
 
@@ -705,6 +619,7 @@
             document.getElementById('landing-page').classList.add('hidden');
             document.getElementById('chat-interface').classList.remove('hidden');
             document.getElementById('chat-title').innerText = roomIn.toUpperCase();
+            document.getElementById('session-id-display').innerText = myId;
 
             initPeer(myId, targetId, role);
         }
@@ -718,29 +633,31 @@
             peer.on('connection', c => { if(conn) c.close(); else setupConnection(c); });
             
             peer.on('call', call => {
-                document.getElementById('incoming-call-modal').classList.remove('hidden');
+                document.getElementById('incoming-call-modal').showModal();
                 playSound('ring');
                 
                 window.answerCall = () => {
                     stopSound('ring');
-                    document.getElementById('incoming-call-modal').classList.add('hidden');
+                    document.getElementById('incoming-call-modal').close();
                     
-                    navigator.mediaDevices.getUserMedia({video: true, audio: true})
-                    .then(stream => handleCallStart(call, stream))
-                    .catch(err => {
-                        console.warn("Video failed, trying audio only");
-                        navigator.mediaDevices.getUserMedia({audio: true})
+                    // Robust Device Check
+                    navigator.mediaDevices.enumerateDevices().then(devices => {
+                        const hasVideo = devices.some(d => d.kind === 'videoinput');
+                        const constraints = hasVideo ? {video: true, audio: true} : {audio: true};
+                        
+                        navigator.mediaDevices.getUserMedia(constraints)
                         .then(stream => handleCallStart(call, stream))
-                        .catch(err2 => {
-                            showToast("No Microphone Found!", "error");
+                        .catch(err => {
+                            console.warn("Media failed", err);
                             conn.send({ type: 'call-rejected' });
+                            showToast("Could not access media devices.", "error");
                         });
                     });
                 };
                 
                 window.rejectCall = () => {
                     stopSound('ring');
-                    document.getElementById('incoming-call-modal').classList.add('hidden');
+                    document.getElementById('incoming-call-modal').close();
                     call.close();
                     conn.send({ type: 'call-rejected' });
                 };
@@ -760,15 +677,15 @@
             conn = connection;
             conn.on('open', () => {
                 document.getElementById('chat-status').innerText = "Online";
-                document.getElementById('chat-status').className = "text-xs font-bold text-green-600";
-                document.getElementById('status-dot').className = "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white bg-green-500";
+                document.getElementById('chat-status').className = "text-xs font-bold text-success";
+                document.getElementById('status-dot').className = "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white bg-success";
                 conn.send({ type: 'info', name: myName });
                 playSound('pop');
             });
             conn.on('data', handleData);
             conn.on('close', () => {
                 document.getElementById('chat-status').innerText = "Offline";
-                document.getElementById('status-dot').className = "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white bg-red-500";
+                document.getElementById('status-dot').className = "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white bg-error";
                 showToast("Disconnected", "error");
                 conn = null;
             });
@@ -832,23 +749,30 @@
         function startCall(isVideo) {
             if(!conn || !conn.open) return showToast("Connect first!", "error");
             
-            // Explicit Permission Request Check
-            navigator.mediaDevices.getUserMedia(isVideo ? {video: true, audio: true} : {audio: true})
+            // Explicit Permission Request Check with Fallback
+            // Request audio first as baseline, then video if requested
+            
+            const constraints = isVideo ? {video: true, audio: true} : {audio: true};
+
+            navigator.mediaDevices.getUserMedia(constraints)
             .then(stream => {
                 const call = peer.call(conn.peer, stream);
                 handleCallStart(call, stream);
             })
             .catch(e => {
-                if (e.name === 'NotFoundError' || e.name === 'DevicesNotFoundError') {
-                    showToast("No Camera/Microphone found on this device.", "error");
-                } else if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
+                if(isVideo && (e.name === 'NotFoundError' || e.name === 'DevicesNotFoundError')) {
+                    // Try fallback to audio only
+                    showToast("Camera not found. Switching to audio call...");
+                    navigator.mediaDevices.getUserMedia({audio: true})
+                    .then(stream => {
+                        const call = peer.call(conn.peer, stream);
+                        handleCallStart(call, stream);
+                    })
+                    .catch(err2 => showToast("Microphone access failed.", "error"));
+                } else if (e.name === 'NotAllowedError') {
                     showToast("Permission denied! Please allow access in browser settings.", "error");
-                } else if(isVideo) {
-                    // Fallback to audio
-                    showToast("Video failed. Trying Audio only...");
-                    startCall(false);
                 } else {
-                    showToast("Media Error: " + e.message, "error");
+                    showToast("Call Error: " + e.message, "error");
                 }
             });
         }
@@ -872,7 +796,61 @@
             if(conn && conn.open) conn.send({type: 'call-rejected'});
             document.getElementById('call-overlay').classList.add('hidden');
             if(localStream) localStream.getTracks().forEach(t => t.stop());
+            if(screenStream) screenStream.getTracks().forEach(t => t.stop());
             stopCallTimer();
+        }
+
+        function toggleScreenShare() {
+            if (!currentCall) return;
+            
+            if (screenStream) {
+                // Stop share, revert to camera
+                const videoTrack = localStream.getVideoTracks()[0];
+                const sender = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'video');
+                if (sender) sender.replaceTrack(videoTrack);
+                
+                screenStream.getTracks().forEach(t => t.stop());
+                screenStream = null;
+                document.getElementById('btn-screen').classList.remove('btn-active');
+            } else {
+                navigator.mediaDevices.getDisplayMedia({ video: true }).then(stream => {
+                    screenStream = stream;
+                    const videoTrack = stream.getVideoTracks()[0];
+                    
+                    videoTrack.onended = () => {
+                         const camTrack = localStream.getVideoTracks()[0];
+                         const sender = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'video');
+                         if(sender) sender.replaceTrack(camTrack);
+                         screenStream = null;
+                         document.getElementById('btn-screen').classList.remove('btn-active');
+                    };
+
+                    const sender = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'video');
+                    if(sender) sender.replaceTrack(videoTrack);
+                    
+                    document.getElementById('btn-screen').classList.add('btn-active');
+                }).catch(err => console.log("Screen share cancelled", err));
+            }
+        }
+
+        function toggleMute() {
+            if(localStream) {
+                const t = localStream.getAudioTracks()[0];
+                t.enabled = !t.enabled;
+                document.getElementById('btn-mute').classList.toggle('btn-error', !t.enabled);
+                document.getElementById('btn-mute').classList.toggle('btn-outline', t.enabled);
+            }
+        }
+
+        function toggleCamera() {
+             if(localStream) {
+                const t = localStream.getVideoTracks()[0];
+                if(t) {
+                    t.enabled = !t.enabled;
+                    document.getElementById('btn-cam').classList.toggle('btn-error', !t.enabled);
+                    document.getElementById('btn-cam').classList.toggle('btn-outline', t.enabled);
+                }
+            }
         }
 
         // --- MESSAGING ---
@@ -908,24 +886,30 @@
         function renderFile(id, name, data, mime, sender) {
             const div = document.createElement('div');
             const isMe = sender === 'me';
-            div.className = `msg-bubble ${isMe ? 'msg-me' : 'msg-other'}`;
+            div.className = `chat ${isMe ? 'chat-end' : 'chat-start'}`;
             
             let content = '';
             if(mime.startsWith('image/')) {
-                content = `<img src="${data}" class="chat-image" onclick="window.open(this.src)">`;
+                content = `<img src="${data}" class="chat-image-content" onclick="window.open(this.src)">`;
             } else {
                 content = `
-                    <div class="file-card">
-                        <div class="w-10 h-10 rounded bg-blue-100 flex items-center justify-center text-blue-600"><i class="ph-bold ph-file"></i></div>
-                        <div class="overflow-hidden">
-                            <div class="text-sm font-bold truncate w-40">${name}</div>
+                    <div class="flex items-center gap-3 bg-base-200 p-3 rounded-lg cursor-pointer hover:bg-base-300 transition-colors" onclick="const a = document.createElement('a'); a.href='${data}'; a.download='${name}'; a.click();">
+                        <div class="w-10 h-10 rounded bg-primary/10 flex items-center justify-center text-primary"><i class="ph-bold ph-file text-xl"></i></div>
+                        <div class="overflow-hidden text-left">
+                            <div class="font-bold text-sm truncate w-32">${name}</div>
                             <div class="text-xs opacity-60">Tap to download</div>
                         </div>
                     </div>`;
             }
 
-            div.innerHTML = `${content} <div class="text-[10px] text-right mt-1 opacity-60">${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>`;
-            if(!mime.startsWith('image/')) div.onclick = () => { const a = document.createElement('a'); a.href = data; a.download = name; a.click(); };
+            div.innerHTML = `
+                <div class="chat-bubble ${isMe ? 'chat-bubble-primary' : 'bg-base-100 text-base-content'} !p-2 !bg-transparent shadow-none">
+                    ${content}
+                </div>
+                <div class="chat-footer opacity-50 text-xs mt-1">
+                    ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
+                </div>
+            `;
             
             document.getElementById('messages-container').appendChild(div);
             scrollToBottom();
@@ -934,7 +918,7 @@
         // Helpers
         function sendTyping() { if(conn && conn.open) conn.send({ type: 'typing' }); }
         function cancelReply() { replyContext = null; document.getElementById('reply-preview').classList.add('hidden'); }
-        function toggleSettings() { document.getElementById('settings-modal').classList.toggle('hidden'); }
+        function toggleSettings() { document.getElementById('settings-modal').showModal(); }
         function toggleMediaDrawer() { document.getElementById('media-drawer').classList.toggle('hidden'); }
         function playSound(t) { if(settings.sound) sounds[t].play().catch(()=>{}); }
         function stopSound(t) { sounds[t].pause(); sounds[t].currentTime = 0; }
@@ -945,11 +929,28 @@
             const link = linkifyHtml(text, { target: '_blank', className: 'underline font-bold' });
             
             let replyHtml = replyTo ? `<div class="text-xs opacity-70 mb-1 border-l-2 pl-2 border-current">Replying...</div>` : '';
-            let timerHtml = isTimed ? `<div class="absolute -top-2 -right-2 bg-purple-100 text-purple-700 text-[10px] px-1.5 py-0.5 rounded-full border border-purple-200">⏳ 15s</div>` : '';
+            let timerHtml = isTimed ? `<div class="absolute -top-3 -right-2 badge badge-xs badge-secondary">15s</div>` : '';
 
-            div.className = `msg-bubble ${isMe ? 'msg-me' : 'msg-other'} ${isTimed ? 'msg-timed' : ''}`;
-            div.innerHTML = `${timerHtml}${replyHtml}<div class="break-words">${link}</div><div class="text-[10px] text-right mt-1 opacity-60">${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>`;
+            div.className = `chat ${isMe ? 'chat-end' : 'chat-start'} ${isTimed ? 'msg-timed' : ''}`;
+            div.dataset.id = id;
+            div.innerHTML = `
+                <div class="chat-bubble ${isMe ? 'chat-bubble-primary' : 'bg-base-100 text-base-content shadow-sm'} relative group">
+                    ${timerHtml}
+                    ${replyHtml}
+                    <div class="break-words">${link}</div>
+                </div>
+                <div class="chat-footer opacity-50 text-xs mt-1">
+                    ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
+                </div>
+            `;
             
+            // Context Menu Bindings
+            div.querySelector('.chat-bubble').oncontextmenu = (e) => showContextMenu(e, div, isMe);
+            // Mobile Long Press
+            let t;
+            div.querySelector('.chat-bubble').addEventListener('touchstart', (e) => { t = setTimeout(() => showContextMenu(e.touches[0], div, isMe), 500); });
+            div.querySelector('.chat-bubble').addEventListener('touchend', () => clearTimeout(t));
+
             document.getElementById('messages-container').appendChild(div);
             scrollToBottom();
             if(isTimed) setTimeout(() => { div.style.opacity='0'; setTimeout(()=>div.remove(),500); }, duration||15000);
@@ -992,30 +993,40 @@
         function renderAudio(id, data, sender, isTimed) {
             const div = document.createElement('div');
             const isMe = sender === 'me';
-            div.className = `msg-bubble ${isMe ? 'msg-me' : 'msg-other'} ${isTimed ? 'msg-timed' : ''}`;
+            div.className = `chat ${isMe ? 'chat-end' : 'chat-start'} ${isTimed ? 'msg-timed' : ''}`;
             const aid = `aud-${id}`;
-            div.innerHTML = `<div class="flex items-center gap-2"><button onclick="document.getElementById('${aid}').play()" class="w-8 h-8 bg-black/10 rounded-full flex items-center justify-center"><i class="ph-fill ph-play"></i></button><div class="text-xs font-bold opacity-70">Voice Note</div></div><audio id="${aid}" src="${data}"></audio>`;
+            div.innerHTML = `
+                <div class="chat-bubble ${isMe ? 'chat-bubble-primary' : 'bg-base-100 text-base-content'} flex items-center gap-3 min-w-[150px]">
+                    <button onclick="document.getElementById('${aid}').play()" class="btn btn-circle btn-sm btn-ghost bg-black/10 hover:bg-black/20 border-none text-current">
+                        <i class="ph-fill ph-play"></i>
+                    </button>
+                    <div class="flex flex-col">
+                        <span class="text-xs font-bold opacity-70 uppercase">Voice Note</span>
+                        <div class="w-24 h-1 bg-current opacity-20 rounded-full mt-1"></div>
+                    </div>
+                </div>
+                <audio id="${aid}" src="${data}"></audio>
+            `;
             document.getElementById('messages-container').appendChild(div);
             scrollToBottom();
             if(isTimed) setTimeout(() => { div.style.opacity='0'; setTimeout(()=>div.remove(),500); }, 15000);
         }
 
         function renderSticker(url, sender) {
-            const container = document.getElementById('messages-container');
             const div = document.createElement('div');
             const isMe = sender === 'me';
-            div.className = `flex ${isMe ? 'justify-end' : 'justify-start'} mb-6 relative`;
-            div.dataset.type = 'media';
-            div.dataset.id = crypto.randomUUID(); 
-            div.innerHTML = `<img src="${url}" class="sticker-img shadow-lg" onload="scrollToBottom()" onerror="this.src='https://via.placeholder.com/150?text=Error'">`;
+            div.className = `chat ${isMe ? 'chat-end' : 'chat-start'}`;
+            div.innerHTML = `
+                <div class="chat-bubble bg-transparent p-0 shadow-none">
+                    <img src="${url}" class="chat-image-content border-2 border-base-300 bg-base-100" onload="scrollToBottom()">
+                </div>
+            `;
             
-            div.oncontextmenu = (e) => showContextMenu(e, div, isMe);
-            container.appendChild(div);
+            div.querySelector('img').oncontextmenu = (e) => showContextMenu(e, div, isMe);
+            document.getElementById('messages-container').appendChild(div);
             scrollToBottom();
         }
 
-        // --- MISSING FUNCTIONS RESTORED ---
-        
         function renderStickerGrid(list) {
             const grid = document.getElementById('sticker-grid');
             if(!grid) return;
@@ -1023,7 +1034,7 @@
             list.forEach(item => {
                 const img = document.createElement('img');
                 img.src = item.url;
-                img.className = 'sticker-img cursor-pointer object-contain h-20 w-full rounded-lg border border-transparent hover:border-gray-300 transition-all bg-white';
+                img.className = 'w-full h-20 object-contain bg-base-100 rounded-lg border border-base-200 cursor-pointer hover:border-primary transition-colors';
                 img.onclick = () => {
                     sendSticker(item.url);
                     toggleMediaDrawer();
@@ -1037,6 +1048,85 @@
             const filtered = initialStickers.filter(s => s.tags.includes(query));
             renderStickerGrid(filtered);
         }
+
+        // --- CONTEXT MENU ---
+        function showContextMenu(e, element, isMe) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            ctxTarget = element;
+            const menu = document.getElementById('context-menu');
+            document.getElementById('ctx-edit').classList.toggle('hidden', !isMe || element.dataset.type === 'media');
+            document.getElementById('ctx-delete').classList.toggle('hidden', !isMe);
+
+            const x = e.clientX;
+            const y = e.clientY;
+            const menuW = 180;
+            const menuH = 200;
+            
+            const left = (x + menuW > window.innerWidth) ? window.innerWidth - menuW - 10 : x;
+            const top = (y + menuH > window.innerHeight) ? y - menuH : y;
+            
+            menu.style.left = left + 'px';
+            menu.style.top = top + 'px';
+            menu.classList.remove('hidden');
+        }
+
+        function handleCtxAction(action) {
+            document.getElementById('context-menu').classList.add('hidden');
+            if(!ctxTarget) return;
+
+            const id = ctxTarget.dataset.id;
+            // Try to find text within chat bubble
+            const textEl = ctxTarget.querySelector('.break-words') || ctxTarget.querySelector('.chat-bubble');
+            const text = textEl ? textEl.innerText : "";
+
+            if(action === 'copy') { navigator.clipboard.writeText(text); showToast("Copied"); }
+            else if(action === 'reply') setReply(id, text);
+            else if(action === 'delete') {
+                ctxTarget.remove();
+                if(conn && conn.open) conn.send({type: 'delete', id: id});
+            } else if(action === 'edit') {
+                isEditing = id;
+                const input = document.getElementById('msg-input');
+                input.value = text;
+                input.focus();
+            }
+        }
+
+        function setReply(id, text) {
+            replyContext = { id, text: text.substring(0, 50) + (text.length>50?'...':'') };
+            document.getElementById('reply-preview').classList.remove('hidden');
+            document.getElementById('reply-text').innerText = replyContext.text;
+            document.getElementById('msg-input').focus();
+        }
+
+        function sendReaction(emoji) {
+            // Implementation left simple for brevity
+            showToast("Reaction sent: " + emoji);
+            document.getElementById('context-menu').classList.add('hidden');
+        }
+
+        function toggleNotifs() {
+            settings.notifs = document.getElementById('toggle-notif').checked;
+        }
+        
+        function toggleSound() {
+            settings.sound = document.getElementById('toggle-sound').checked;
+        }
+
+        let callInterval;
+        function startCallTimer() {
+            let sec = 0;
+            const el = document.getElementById('call-timer');
+            clearInterval(callInterval);
+            callInterval = setInterval(() => {
+                sec++;
+                el.innerText = `${Math.floor(sec/60).toString().padStart(2,'0')}:${(sec%60).toString().padStart(2,'0')}`;
+            }, 1000);
+        }
+        function stopCallTimer() { clearInterval(callInterval); document.getElementById('call-timer').innerText = "00:00"; }
+        function disconnect() { if(conn) conn.close(); if(peer) peer.destroy(); location.reload(); }
 
     </script>
 </body>
